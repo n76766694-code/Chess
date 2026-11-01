@@ -205,7 +205,7 @@
     <label>สไตล์การเล่น</label>
     <select id="selPreset">
       <option value="pro">ดั้งเดิม (มือโปร)</option>
-      <option value="master">Master</option>
+      <option value="master">Master (Dynamic Time)</option>
       <option value="speed">Speedrun (Aura Farm)</option>
       <option value="attack">สายบุก</option>
       <option value="defend">เน้นป้องกัน (ล่อเสือ)</option>
@@ -232,7 +232,7 @@
 
 <div class="btn-row">
   <button id="btnAnalyze" class="primary">แนะนำตาเดิน</button>
-  <button id="btnThink">คิดลึก (20 วิ)</button>
+  <button id="btnThink">คิดลึก (17 วิ)</button>
 </div>
 
 <div class="btn-row three">
@@ -247,18 +247,20 @@
 
 <div class="footer-note">
   คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
-  ระบบสุ่มเปิดเกมจะเลือกเบี้ย/ม้า เพื่อไม่ให้คู่ต่อสู้จับทางได้
+  Master จะประเมินสถานการณ์ ถ้าฝ่ายตรงข้ามบุกหนัก จะคิดนานขึ้น
 </div>
 
 <script>
 (() => {
   'use strict';
 
+  const MAX_THINK_SECONDS = 17;
+
   const PRESETS = {
     pro: { label: 'ดั้งเดิม (มือโปร)', depth: 18, movetime: null, filter: null, timerMin: 5, timerMax: 15, blunderMult: 0.6, tag: 'Pro', tagClass: 'primary', hint: 'สมดุล คิดลึกปานกลาง ใช้เวลาตามธรรมชาติ พลาดยากขึ้น 40%' },
-    master: { label: 'Master', depth: 22, movetime: null, filter: null, timerMin: 8, timerMax: 22, blunderMult: 0.3, tag: 'Master', tagClass: 'primary', hint: 'คิดลึกที่สุด (depth 22) ใช้เวลานาน เลือกตาเดินเทพ พลาดน้อยมาก' },
+    master: { label: 'Master (Dynamic Time)', depth: 22, movetime: null, filter: null, timerMin: 4, timerMax: 17, blunderMult: 0.3, tag: 'Master', tagClass: 'primary', hint: 'คิดลึกระดับ 22 สุ่มเวลา 4-17 วิ แต่ถ้าฝ่ายตรงข้ามบุกหนักหรือตำแหน่งอันตราย จะคิดนานสุด 17 วิทันที' },
     speed: { label: 'Speedrun (Aura Farm)', depth: 12, movetime: 800, filter: null, timerMin: 1, timerMax: 4, blunderMult: 1.8, tag: 'Aura', tagClass: 'style', hint: 'เดินไว ไม่คิดมาก (800ms) พลาดง่ายกว่าปกติ 80% เหมาะสายฟาร์ม Aura' },
-    attack: { label: 'สายบุก', depth: 16, movetime: null, filter: 'aggressive', timerMin: 4, timerMax: 10, blunderMult: 1.0, tag: 'Aggro', tagClass: 'style', hint: 'เลือกตาเดินที่กินหมาก/เช็ค/โปรโมทเป็นหลัก เลือกอันที่ดีที่สุดในกลุ่มบุก' },
+    attack: { label: 'สายบุก', depth: 16, movetime: null, filter: 'aggressive', timerMin: 4, timerMax: 10, blunderMult: 1.0, tag: 'Aggro', tagClass: 'style', hint: 'เลือกตาเดินที่กินหมาก/เช็ค/โปรโมทเป็นหลัก' },
     defend: { label: 'เน้นป้องกัน (ล่อเสือ)', depth: 18, movetime: null, filter: 'defensive', timerMin: 6, timerMax: 15, blunderMult: 0.9, tag: 'Trap', tagClass: 'style', hint: 'เลือกตาเดินปิดช่อง ไม่แลกหมาก ตั้งรับให้อีกฝ่ายเปิดเอง' }
   };
 
@@ -284,6 +286,9 @@
   
   let chosenMoveUci = null;
   let thinkTimerInterval = null;
+  
+  // เก็บประวัติการประเมินเพื่อดูว่าฝ่ายตรงข้ามกำลังรุกคืบหรือไม่
+  let lastOpponentScore = 0;
 
   const boardEl = document.getElementById('board');
   const arrowsEl = document.getElementById('arrows');
@@ -323,6 +328,7 @@
     game.reset();
     clearAnalysis();
     selectedSq = null; legalDests = new Set(); lastMove = null;
+    lastOpponentScore = 0;
     renderBoard(); renderHistory(); updateStatus();
   });
 
@@ -432,10 +438,26 @@
     selectedSq = null; legalDests = new Set();
     chosenMoveUci = null;
     
+    // อัปเดตความได้เปรียบล่าสุดก่อนล้าง
+    if (multiPV[1]) {
+      lastOpponentScore = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
+    }
+    
     clearAnalysis();
     renderBoard();
     renderHistory();
     updateStatus();
+  }
+  
+  // คืนค่าคะแนนจากมุมมองของ "ฝ่ายที่เราเล่น" (บวก = เราดีกว่า)
+  function getScoreFromPerspective(scoreType, scoreValue, turnWhoMoved) {
+    if (scoreType === 'mate') {
+      return scoreValue > 0 ? 9999 : -9999;
+    }
+    let v = scoreValue;
+    if (turnWhoMoved === 'b') v = -v; // ถ้าตาดำ หมายถึงคะแนนของดำ
+    if (myColor === 'b') v = -v; // ถ้าเราเล่นดำ ต้องกลับด้าน
+    return v;
   }
 
   function updateStatus() {
@@ -597,12 +619,9 @@
     const lines = Object.values(multiPV).sort((a, b) => a.rank - b.rank);
     if (!lines.length) return { move: best, type: 'best' };
 
-    // ─── ระบบสุ่มเปิดเกม (Opening Variety) ───
-    // ถ้าเปิดฟังก์ชัน และอยู่ในช่วง 10 ตาแรก (5 ตาของแต่ละฝั่ง)
     if (chkOpenings.checked && game.history().length < 10) {
       const bestLine = lines[0];
       if (bestLine.scoreType === 'cp') {
-        // คัดเลือกเฉพาะไม้ที่คะแนนต่างจากอันดับ 1 ไม่เกิน 40 centipawns (0.4 หมาก)
         const validOpenings = lines.filter(l => {
           if (l.scoreType !== 'cp') return false;
           return Math.abs(l.scoreValue - bestLine.scoreValue) <= 40;
@@ -615,7 +634,6 @@
       }
     }
 
-    // ─── ระบบคัดตามสไตล์ ───
     let candidate = lines[0];
     let type = 'best';
 
@@ -640,7 +658,6 @@
       }
     }
 
-    // ─── ระบบแกล้งพลาด ───
     if (Math.random() < blunderChance && lines.length >= 3) {
       const badPool = lines.slice(2, Math.min(5, lines.length));
       if (badPool.length) {
@@ -671,9 +688,37 @@
     const preset = PRESETS[presetKey];
 
     let timeLeft = Math.floor(Math.random() * (preset.timerMax - preset.timerMin + 1)) + preset.timerMin;
+    
     if (type === 'error' && Math.random() > 0.5) timeLeft += 3;
     if (type === 'style' && presetKey === 'defend' && Math.random() > 0.5) timeLeft += 2;
 
+    // ─── MASTER DYNAMIC TIMER LOGIC ───
+    if (presetKey === 'master') {
+      let isUnderPressure = false;
+      
+      // 1. ดูว่าฝ่ายตรงข้ามได้เปรียบไหม (score ติดลบ)
+      if (multiPV[1]) {
+        const currentScore = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
+        if (currentScore < -50) isUnderPressure = true; // เสียเปรียบเกินครึ่งหมาก
+        
+        // 2. ดูว่าคะแนนดิ่งลงฮวบฮาบไหม (ก่อนหน้านี้นายนำ อยู่ๆ โดนตีแตก)
+        if (lastOpponentScore - currentScore > 100) isUnderPressure = true; 
+      }
+      
+      // 3. ถ้ากษัตริย์เราโดนเช็ค หรือตำแหน่งตึงเครียด ให้คิดนานขึ้น
+      if (inCheck()) isUnderPressure = true;
+
+      if (isUnderPressure) {
+        // ถ้าอยู่ในอันตราย ให้พุ่งไปที่ 13-17 วิทันที
+        timeLeft = 13 + Math.floor(Math.random() * 5);
+        setStatus(`⚠ สถานการณ์ตึงเครียด! Master กำลังคิดหนัก...`, 'warn');
+      } else {
+        // ถ้าปลอดภัย ปกติสุ่ม 4-10 วิ (ไม่ต้องคิดนาน)
+        timeLeft = 4 + Math.floor(Math.random() * 7);
+      }
+    }
+
+    timeLeft = Math.min(MAX_THINK_SECONDS, timeLeft);
     const initialTime = timeLeft;
 
     const updateTimer = () => {
@@ -682,7 +727,8 @@
 
       const san = pvToSan([chosenMoveUci], game.fen())[0] || chosenMoveUci;
       if (timeLeft > 0) {
-        setStatus(`รอ ${timeLeft} วิ ก่อนเดิน ${san}`, type === 'error' ? 'warn' : 'ok');
+        const isWarn = type === 'error' || (presetKey === 'master' && timeLeft > 12);
+        setStatus(`รอ ${timeLeft} วิ ก่อนเดิน ${san}`, isWarn ? 'warn' : 'ok');
         timeLeft--;
       } else {
         setStatus(`เดิน ${san} ได้เลย! (เวลาผ่านแล้ว)`, 'ok');
@@ -796,7 +842,7 @@
     analysisRunning = true;
 
     const preset = PRESETS[selPreset.value];
-    setStatus(deep ? 'Stockfish กำลังคิด (โหมดลึก)...' : `Stockfish กำลังคิด (${preset.label})...`, '');
+    setStatus(deep ? 'Stockfish กำลังคิด (โหมดลึก 17 วิ)...' : `Stockfish กำลังคิด (${preset.label})...`, '');
     analysisEl.innerHTML = '<div class="line-row">กำลังคิด...</div>';
 
     try {
@@ -806,7 +852,7 @@
       engine.postMessage('position fen ' + game.fen());
 
       if (deep) {
-        engine.postMessage('go movetime 20000');
+        engine.postMessage('go movetime ' + (MAX_THINK_SECONDS * 1000));
       } else if (preset.movetime) {
         engine.postMessage('go movetime ' + preset.movetime);
       } else {
@@ -835,6 +881,7 @@
     game.reset();
     clearAnalysis();
     selectedSq = null; legalDests = new Set(); lastMove = null;
+    lastOpponentScore = 0;
     renderBoard(); renderHistory(); updateStatus();
   };
 
