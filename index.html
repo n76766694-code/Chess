@@ -247,7 +247,7 @@
 
 <div class="footer-note">
   คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
-  เลือก GM แล้วระบบจะจำลองทั้งไม้เปิด สไตล์ และเวลาคิด
+  ไม้เปิดเกมจะเดินไวเป็นธรรมชาติ กลางเกมจะคิดลึก
 </div>
 
 <script>
@@ -256,72 +256,41 @@
 
   const MAX_THINK_SECONDS = 14;
 
-  // ─── GM PROFILES (จากคู่มือ) ───
   const PRESETS = {
     carlsen: {
-      label: 'Magnus Carlsen',
-      depth: 20,
-      movetime: null,
-      filter: 'flexible',
-      openings: ['e4', 'c4', 'Nf3', 'd4'],   // ยืดหยุ่น หนีตำรา
-      timerMin: 4, timerMax: 9,
-      pressureMin: 11, pressureMax: 14,
-      blunderMult: 0.4,
-      tag: 'Carlsen',
-      tagClass: 'primary',
-      hint: 'ยืดหยุ่นสูง ดึงคู่แข่งออกจากตำรา คิด 4-9 วิ, เจอภัยคุกคืบพุ่ง 11-14 วิ'
+      label: 'Magnus Carlsen', depth: 20, movetime: null, filter: 'flexible',
+      openings: ['e4', 'c4', 'Nf3', 'd4'],
+      timerMin: 4, timerMax: 9, pressureMin: 11, pressureMax: 14,
+      blunderMult: 0.4, tag: 'Carlsen', tagClass: 'primary',
+      hint: 'ยืดหยุ่น ดึงคู่แข่งออกจากตำรา คิด 4-9 วิ เจอภัยพุ่ง 11-14 วิ'
     },
     nakamura: {
-      label: 'Hikaru Nakamura',
-      depth: 16,
-      movetime: 700,
-      filter: 'chaotic',
-      openings: ['e4', 'f3', 'g4', 'Nf3'],   // e4 + อินดี้ป่วน
-      timerMin: 1, timerMax: 4,
-      pressureMin: 6, pressureMax: 10,
-      blunderMult: 1.5,
-      tag: 'Nakamura',
-      tagClass: 'style',
-      hint: 'เร็ว ดุดัน ชอบป่วน ไม้เปิดอินดี้ คิด 1-4 วิ (เกมเร็ว)'
+      label: 'Hikaru Nakamura', depth: 16, movetime: 700, filter: 'chaotic',
+      openings: ['e4', 'f3', 'g4', 'Nf3'],
+      timerMin: 1, timerMax: 4, pressureMin: 6, pressureMax: 10,
+      blunderMult: 1.5, tag: 'Nakamura', tagClass: 'style',
+      hint: 'เร็ว ดุดัน ชอบป่วน ไม้เปิดอินดี้ คิด 1-4 วิ'
     },
     kasparov: {
-      label: 'Garry Kasparov',
-      depth: 22,
-      movetime: null,
-      filter: 'aggressive',
-      openings: ['e4', 'd4'],                // Ruy Lopez / Najdorf
-      timerMin: 5, timerMax: 10,
-      pressureMin: 10, pressureMax: 14,
-      blunderMult: 0.5,
-      tag: 'Kasparov',
-      tagClass: 'style',
-      hint: 'บุกหนัก คิด 20-30 ตาล่วงหน้า เลือกตากิน/เช็ค/โปรโมท คิด 5-10 วิ'
+      label: 'Garry Kasparov', depth: 22, movetime: null, filter: 'aggressive',
+      openings: ['e4', 'd4'],
+      timerMin: 5, timerMax: 10, pressureMin: 10, pressureMax: 14,
+      blunderMult: 0.5, tag: 'Kasparov', tagClass: 'style',
+      hint: 'บุกหนัก เลือกตากิน/เช็ค/โปรโมท คิด 5-10 วิ'
     },
     karpov: {
-      label: 'Anatoly Karpov',
-      depth: 20,
-      movetime: null,
-      filter: 'defensive',
-      openings: ['d4', 'c4', 'Nf3'],         // Queen\'s Gambit / คุมพื้นที่
-      timerMin: 6, timerMax: 12,
-      pressureMin: 10, pressureMax: 14,
-      blunderMult: 0.6,
-      tag: 'Karpov',
-      tagClass: 'style',
-      hint: 'ตั้งรับแน่น คุมเกม บีบพื้นที่ เลือกตาไม่แลกหมาก คิด 6-12 วิ'
+      label: 'Anatoly Karpov', depth: 20, movetime: null, filter: 'defensive',
+      openings: ['d4', 'c4', 'Nf3'],
+      timerMin: 6, timerMax: 12, pressureMin: 10, pressureMax: 14,
+      blunderMult: 0.6, tag: 'Karpov', tagClass: 'style',
+      hint: 'ตั้งรับแน่น คุมเกม บีบพื้นที่ คิด 6-12 วิ'
     },
     caruana: {
-      label: 'Fabiano Caruana',
-      depth: 22,
-      movetime: null,
-      filter: 'precise',
-      openings: ['e4', 'd4'],                // Petroff / Ruy Lopez
-      timerMin: 4, timerMax: 8,
-      pressureMin: 9, pressureMax: 13,
-      blunderMult: 0.2,
-      tag: 'Caruana',
-      tagClass: 'primary',
-      hint: 'เป๊ะทฤษฎี ไม่แกล้งพลาด ไม้เปิดมาตรฐาน คิดสม่ำเสมอ 4-8 วิ'
+      label: 'Fabiano Caruana', depth: 22, movetime: null, filter: 'precise',
+      openings: ['e4', 'd4'],
+      timerMin: 4, timerMax: 8, pressureMin: 9, pressureMax: 13,
+      blunderMult: 0.2, tag: 'Caruana', tagClass: 'primary',
+      hint: 'เป๊ะทฤษฎี คิดสม่ำเสมอ 4-8 วิ'
     }
   };
 
@@ -670,7 +639,6 @@
     };
   }
 
-  // ─── ตรวจว่าเป็นไม้เปิดของ GM คนนี้ไหม ───
   function isPreferredOpening(uci, fen, gmPreset) {
     if (!uci || uci.length < 4) return false;
     const tmp = new Chess();
@@ -685,7 +653,6 @@
     } catch (e) { return false; }
     if (!m) return false;
     const san = m.san;
-    // เปิดด้วยเบี้ยหรือม้า
     const openingList = gmPreset.openings;
     return openingList.some(op => san === op || san.startsWith(op));
   }
@@ -698,11 +665,9 @@
     const lines = Object.values(multiPV).sort((a, b) => a.rank - b.rank);
     if (!lines.length) return { move: best, type: 'best' };
 
-    // ─── OPENING REPERTOIRE (10 ตาแรก) ───
     if (chkOpenings.checked && game.history().length < 10) {
       const openingCandidates = lines.filter(l => isPreferredOpening(l.pv[0], game.fen(), preset));
       if (openingCandidates.length > 0) {
-        // ตรวจคะแนนไม่ให้ทิ้งมากกว่า 0.6 หมาก
         const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 0;
         const safeCandidates = openingCandidates.filter(l => {
           if (l.scoreType !== 'cp' || lines[0].scoreType !== 'cp') return true;
@@ -718,9 +683,7 @@
     let candidate = lines[0];
     let type = 'best';
 
-    // ─── STYLE FILTER ───
     if (preset.filter === 'aggressive') {
-      // Kasparov: เน้นกิน/เช็ค/โปรโมท
       const aggro = lines.find(l => {
         const c = classifyMove(l.pv[0], game.fen());
         return c && (c.capture || c.check || c.promotion);
@@ -730,7 +693,6 @@
         type = 'style';
       }
     } else if (preset.filter === 'defensive') {
-      // Karpov: เน้นตาเงียบ ปิดช่อง
       const quiet = lines.find(l => {
         if (l.rank > 3) return false;
         const c = classifyMove(l.pv[0], game.fen());
@@ -741,14 +703,12 @@
         type = 'style';
       }
     } else if (preset.filter === 'chaotic') {
-      // Nakamura: สุ่มจาก 3 อันดับแรกแบบสนุก
       if (lines.length >= 2) {
         const pick = lines[Math.floor(Math.random() * Math.min(3, lines.length))];
         candidate = pick;
         if (pick.rank !== 1) type = 'style';
       }
     } else if (preset.filter === 'flexible') {
-      // Carlsen: ถ้าอันดับ 1 กับ 2-3 ต่างกันไม่เกิน 0.3 ให้สุ่ม
       if (lines.length >= 2) {
         const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 9999;
         const closeLines = lines.filter(l => {
@@ -764,9 +724,7 @@
         }
       }
     }
-    // precise (Caruana) ไม่มี filter = เลือก best เสมอ
 
-    // ─── BLUNDER OVERLAY ───
     if (Math.random() < blunderChance && lines.length >= 3) {
       const badPool = lines.slice(2, Math.min(5, lines.length));
       if (badPool.length) {
@@ -795,19 +753,27 @@
   function startThinkTimer(type, presetKey) {
     clearInterval(thinkTimerInterval);
     const preset = PRESETS[presetKey];
+    const isOpening = game.history().length < 10;
 
-    let timeLeft = Math.floor(Math.random() * (preset.timerMax - preset.timerMin + 1)) + preset.timerMin;
-    
+    let timeLeft;
+    if (isOpening) {
+      // ─── ไม้เปิด: เร็วแบบมนุษย์ 2-4 วิ ───
+      timeLeft = 2 + Math.floor(Math.random() * 3);
+    } else {
+      // ─── กลางเกม: สุ่มตามสไตล์ GM ───
+      timeLeft = Math.floor(Math.random() * (preset.timerMax - preset.timerMin + 1)) + preset.timerMin;
+    }
+
     if (type === 'error' && Math.random() > 0.5) timeLeft += 2;
 
-    // ─── DYNAMIC PRESSURE ───
+    // ─── DYNAMIC PRESSURE (เฉพาะกลางเกม) ───
     let isUnderPressure = false;
-    if (multiPV[1]) {
+    if (!isOpening && multiPV[1]) {
       const currentScore = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
       if (currentScore < -50) isUnderPressure = true;
       if (lastOpponentScore - currentScore > 100) isUnderPressure = true;
     }
-    if (inCheck()) isUnderPressure = true;
+    if (!isOpening && inCheck()) isUnderPressure = true;
 
     if (isUnderPressure) {
       timeLeft = preset.pressureMin + Math.floor(Math.random() * (preset.pressureMax - preset.pressureMin + 1));
@@ -869,21 +835,13 @@
       let tag, cls, icon;
       
       if (moveType === 'error') {
-        tag = 'Human error';
-        cls = 'error';
-        icon = '⚠';
+        tag = 'Human error'; cls = 'error'; icon = '⚠';
       } else if (moveType === 'opening') {
-        tag = `Opening (${preset.label})`;
-        cls = 'opening';
-        icon = '📖';
+        tag = `Opening (${preset.label})`; cls = 'opening'; icon = '📖';
       } else if (moveType === 'style') {
-        tag = preset.tag;
-        cls = 'style';
-        icon = '★';
+        tag = preset.tag; cls = 'style'; icon = '★';
       } else {
-        tag = 'Best move';
-        cls = 'primary';
-        icon = '👑';
+        tag = 'Best move'; cls = 'primary'; icon = '👑';
       }
 
       html += `
@@ -949,6 +907,9 @@
 
       if (deep) {
         engine.postMessage('go movetime ' + (MAX_THINK_SECONDS * 1000));
+      } else if (game.history().length < 10) {
+        // ─── 10 ตาแรก: สั่ง engine คิดแค่ 800ms ให้ตอบไว ───
+        engine.postMessage('go movetime 800');
       } else if (preset.movetime) {
         engine.postMessage('go movetime ' + preset.movetime);
       } else {
