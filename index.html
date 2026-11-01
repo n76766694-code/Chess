@@ -147,6 +147,10 @@
     background: #1a1530;
     border: 1px solid #4a3f8a;
   }
+  .line-row.opening {
+    background: #102323;
+    border: 1px solid #1f6b6b;
+  }
   .line-rank {
     font-weight: 700; color: #5cd88e; min-width: 20px;
     font-family: ui-monospace, monospace; text-align: center;
@@ -212,6 +216,12 @@
     <input type="range" id="rngBlunder" min="0" max="30" value="10">
     <span id="lblBlunder" style="font-family:monospace; width:36px; text-align:right; color:#5cd88e; font-weight:700;">10%</span>
   </div>
+  <div class="setting-row">
+    <label style="display:flex; align-items:center; cursor:pointer;">
+      <input type="checkbox" id="chkOpenings" checked style="accent-color:#5cd88e; transform:scale(1.2); margin-right:8px;">
+      สุ่มไม้เปิดเกม (10 ตาแรก)
+    </label>
+  </div>
   <div id="presetHint">—</div>
 </div>
 
@@ -237,14 +247,13 @@
 
 <div class="footer-note">
   คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
-  ปรับสไตล์และ % ตามต้องการ ระบบจะแนะนำตาเดินให้เนียน
+  ระบบสุ่มเปิดเกมจะเลือกเบี้ย/ม้า เพื่อไม่ให้คู่ต่อสู้จับทางได้
 </div>
 
 <script>
 (() => {
   'use strict';
 
-  // ─────────── PRESETS ───────────
   const PRESETS = {
     pro: { label: 'ดั้งเดิม (มือโปร)', depth: 18, movetime: null, filter: null, timerMin: 5, timerMax: 15, blunderMult: 0.6, tag: 'Pro', tagClass: 'primary', hint: 'สมดุล คิดลึกปานกลาง ใช้เวลาตามธรรมชาติ พลาดยากขึ้น 40%' },
     master: { label: 'Master', depth: 22, movetime: null, filter: null, timerMin: 8, timerMax: 22, blunderMult: 0.3, tag: 'Master', tagClass: 'primary', hint: 'คิดลึกที่สุด (depth 22) ใช้เวลานาน เลือกตาเดินเทพ พลาดน้อยมาก' },
@@ -253,7 +262,6 @@
     defend: { label: 'เน้นป้องกัน (ล่อเสือ)', depth: 18, movetime: null, filter: 'defensive', timerMin: 6, timerMax: 15, blunderMult: 0.9, tag: 'Trap', tagClass: 'style', hint: 'เลือกตาเดินปิดช่อง ไม่แลกหมาก ตั้งรับให้อีกฝ่ายเปิดเอง' }
   };
 
-  // ─────────── PIECES ───────────
   const GLYPH = {
     w: { k: '♔\uFE0E', q: '♕\uFE0E', r: '♖\uFE0E', b: '♗\uFE0E', n: '♘\uFE0E', p: '♙\uFE0E' },
     b: { k: '♚\uFE0E', q: '♛\uFE0E', r: '♜\uFE0E', b: '♝\uFE0E', n: '♞\uFE0E', p: '♟\uFE0E' }
@@ -261,7 +269,7 @@
 
   const game = new Chess();
   
-  let myColor = 'w'; // ฝั่งที่ผู้เล่นเลือก
+  let myColor = 'w';
   let selectedSq = null;
   let legalDests = new Set();
   let lastMove = null;
@@ -277,7 +285,6 @@
   let chosenMoveUci = null;
   let thinkTimerInterval = null;
 
-  // ─────────── DOM ───────────
   const boardEl = document.getElementById('board');
   const arrowsEl = document.getElementById('arrows');
   const statusEl = document.getElementById('status');
@@ -298,8 +305,8 @@
   const rngBlunder = document.getElementById('rngBlunder');
   const lblBlunder = document.getElementById('lblBlunder');
   const presetHint = document.getElementById('presetHint');
+  const chkOpenings = document.getElementById('chkOpenings');
 
-  // ─────────── UI EVENTS ───────────
   function updatePresetHint() {
     const p = PRESETS[selPreset.value];
     presetHint.textContent = p.hint;
@@ -321,7 +328,6 @@
 
   updatePresetHint();
 
-  // ─────────── GAME HELPERS ───────────
   function inCheck() {
     return typeof game.in_check === 'function' ? game.in_check() : (typeof game.inCheck === 'function' ? game.inCheck() : false);
   }
@@ -356,7 +362,6 @@
     statusEl.className = cls;
   }
 
-  // ─────────── RENDER BOARD ───────────
   function renderBoard() {
     boardEl.innerHTML = '';
     const checkSq = inCheck() ? kingSquare(game.turn()) : null;
@@ -391,7 +396,6 @@
     }
   }
 
-  // ─────────── INTERACTION ───────────
   function onCellClick(sq) {
     if (gameOver()) return;
 
@@ -448,7 +452,6 @@
     }
   }
 
-  // ─────────── ARROW ───────────
   function drawArrow(uci) {
     arrowsEl.innerHTML = '';
     if (!uci || uci.length < 4) return;
@@ -478,7 +481,6 @@
 
   function clearArrows() { arrowsEl.innerHTML = ''; }
 
-  // ─────────── ANALYSIS CLEANUP ───────────
   function clearAnalysis() {
     analysisRunning = false;
     multiPV = {};
@@ -502,7 +504,6 @@
     style.textContent = `.eval-bar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: ${percent}%; background: #eaeaea; transition: width .3s ease; }`;
   }
 
-  // ─────────── ENGINE ───────────
   async function ensureEngine() {
     if (engineReady) return true;
     if (engineLoading) return false;
@@ -567,7 +568,6 @@
     }
   }
 
-  // ─────────── MOVE CLASSIFIER ───────────
   function classifyMove(uci, fen) {
     if (!uci || uci.length < 4) return null;
     const tmp = new Chess();
@@ -589,7 +589,6 @@
     };
   }
 
-  // ─────────── HUMANIZER DECISION ───────────
   function selectMove(best, presetKey) {
     const preset = PRESETS[presetKey];
     const sliderPct = parseInt(rngBlunder.value, 10) / 100;
@@ -598,6 +597,25 @@
     const lines = Object.values(multiPV).sort((a, b) => a.rank - b.rank);
     if (!lines.length) return { move: best, type: 'best' };
 
+    // ─── ระบบสุ่มเปิดเกม (Opening Variety) ───
+    // ถ้าเปิดฟังก์ชัน และอยู่ในช่วง 10 ตาแรก (5 ตาของแต่ละฝั่ง)
+    if (chkOpenings.checked && game.history().length < 10) {
+      const bestLine = lines[0];
+      if (bestLine.scoreType === 'cp') {
+        // คัดเลือกเฉพาะไม้ที่คะแนนต่างจากอันดับ 1 ไม่เกิน 40 centipawns (0.4 หมาก)
+        const validOpenings = lines.filter(l => {
+          if (l.scoreType !== 'cp') return false;
+          return Math.abs(l.scoreValue - bestLine.scoreValue) <= 40;
+        });
+
+        if (validOpenings.length > 1) {
+          const pick = validOpenings[Math.floor(Math.random() * validOpenings.length)];
+          return { move: pick.pv[0], type: 'opening' };
+        }
+      }
+    }
+
+    // ─── ระบบคัดตามสไตล์ ───
     let candidate = lines[0];
     let type = 'best';
 
@@ -622,6 +640,7 @@
       }
     }
 
+    // ─── ระบบแกล้งพลาด ───
     if (Math.random() < blunderChance && lines.length >= 3) {
       const badPool = lines.slice(2, Math.min(5, lines.length));
       if (badPool.length) {
@@ -676,7 +695,6 @@
     thinkTimerInterval = setInterval(updateTimer, 1000);
   }
 
-  // ─────────── FORMAT ───────────
   function pvToSan(pvUci, fromFen) {
     if (!pvUci.length) return [];
     const tmp = new Chess();
@@ -707,10 +725,15 @@
     if (chosenUci) {
       const san = pvToSan([chosenUci], fen)[0] || chosenUci;
       let tag, cls, icon;
+      
       if (moveType === 'error') {
         tag = 'Human error';
         cls = 'error';
         icon = '⚠';
+      } else if (moveType === 'opening') {
+        tag = 'Opening Variation';
+        cls = 'opening';
+        icon = '📖';
       } else if (moveType === 'style') {
         tag = preset.tag;
         cls = 'style';
@@ -760,7 +783,6 @@
     historyEl.innerHTML = parts.join('&nbsp;&nbsp;');
   }
 
-  // ─────────── ANALYSIS LAUNCHER ───────────
   async function startAnalysis(deep = false) {
     if (gameOver()) { setStatus('เกมจบแล้ว', 'warn'); return; }
     if (analysisRunning) return;
@@ -799,7 +821,6 @@
   btnAnalyze.onclick = () => startAnalysis(false);
   btnThink.onclick   = () => startAnalysis(true);
 
-  // ─────────── CONTROLS ───────────
   btnUndo.onclick = () => {
     if (!game.history().length) return;
     game.undo();
@@ -822,7 +843,6 @@
     renderBoard(); clearArrows();
   };
 
-  // ─────────── INIT ───────────
   function init() {
     renderBoard();
     renderHistory();
