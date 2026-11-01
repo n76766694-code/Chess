@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — GM Styles</title>
+<title>Kibitz — GM Styles + Banter</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -29,11 +29,53 @@
   #status.err  { color: #ff6b6b; background: #2a1414; }
   #status.warn { color: #ffd84d; background: #262010; }
 
+  /* ─── BANTER BUBBLE ─── */
+  #banter {
+    background: #1a1a1c;
+    border: 1px solid #2f2f33;
+    border-left: 3px solid #5cd88e;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #d0d0d0;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity .3s;
+  }
+  #banter .name {
+    font-weight: 700;
+    color: #5cd88e;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    flex-shrink: 0;
+  }
+  #banter .txt { flex: 1; }
+  #banter.thinking .name { color: #ffd84d; }
+  #banter.angry .name { color: #ff6b6b; }
+  #banter.angry { border-left-color: #ff6b6b; }
+  #banter.pleased .name { color: #5cd88e; }
+  #banter.dots .txt::after {
+    content: '';
+    animation: dots 1.4s steps(4, end) infinite;
+  }
+  @keyframes dots {
+    0%   { content: ''; }
+    25%  { content: '.'; }
+    50%  { content: '..'; }
+    75%  { content: '...'; }
+    100% { content: ''; }
+  }
+
   .board-wrap {
     position: relative; width: 100%; aspect-ratio: 1;
     border-radius: 10px; overflow: hidden;
     user-select: none; -webkit-user-select: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    touch-action: none;
   }
   .board {
     position: absolute; inset: 0;
@@ -71,6 +113,16 @@
     position: absolute; inset: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 5;
   }
+  /* ─── MOUSE TRACKER (anti-cheat visual) ─── */
+  #cursorSim {
+    position: absolute; width: 18px; height: 18px;
+    border-radius: 50%; background: rgba(255,255,255,0.4);
+    border: 2px solid rgba(0,0,0,0.5);
+    pointer-events: none; z-index: 6;
+    transform: translate(-50%, -50%);
+    transition: opacity .2s;
+    opacity: 0;
+  }
 
   .settings-box {
     background: #17181a; border-radius: 10px; padding: 12px;
@@ -93,12 +145,9 @@
     background-position: right 10px center;
     padding-right: 26px;
   }
-  #presetHint {
-    font-size: 11px; color: #5cd88e; text-align: center;
-    padding: 6px 8px; background: #10231a; border-radius: 6px;
-    line-height: 1.4;
-  }
-  
+  .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aaa; }
+  .toggle-row input { accent-color: #5cd88e; transform: scale(1.1); }
+
   .eval-row {
     display: flex; align-items: center; gap: 10px;
     background: #17181a; border-radius: 10px; padding: 10px 12px;
@@ -134,23 +183,10 @@
     padding: 8px 10px; border-radius: 8px;
     font-size: 13px;
   }
-  .line-row.primary {
-    background: #10231a;
-    font-size: 15px;
-    border: 1px solid #1f6b3f;
-  }
-  .line-row.error {
-    background: #2a1f14;
-    border: 1px solid #6b4f1f;
-  }
-  .line-row.style {
-    background: #1a1530;
-    border: 1px solid #4a3f8a;
-  }
-  .line-row.opening {
-    background: #102323;
-    border: 1px solid #1f6b6b;
-  }
+  .line-row.primary { background: #10231a; font-size: 15px; border: 1px solid #1f6b3f; }
+  .line-row.error { background: #2a1f14; border: 1px solid #6b4f1f; }
+  .line-row.style { background: #1a1530; border: 1px solid #4a3f8a; }
+  .line-row.opening { background: #102323; border: 1px solid #1f6b6b; }
   .line-rank {
     font-weight: 700; color: #5cd88e; min-width: 20px;
     font-family: ui-monospace, monospace; text-align: center;
@@ -186,11 +222,17 @@
 <h1>Kibitz <span>•</span> GM Styles</h1>
 <div class="subtitle" id="subtitle">คุณเล่นขาว • ฝ่ายตรงข้ามเดินดำ</div>
 
+<div id="banter">
+  <span class="name">Kibitz</span>
+  <span class="txt">พร้อมแล้ว เริ่มได้</span>
+</div>
+
 <div id="status">พร้อม</div>
 
 <div class="board-wrap">
   <div id="board" class="board"></div>
   <svg id="arrows" viewBox="0 0 480 480" preserveAspectRatio="none"></svg>
+  <div id="cursorSim"></div>
 </div>
 
 <div class="settings-box">
@@ -204,11 +246,11 @@
   <div class="setting-row">
     <label>สไตล์ GM</label>
     <select id="selPreset">
-      <option value="carlsen">Magnus Carlsen — ยืดหยุ่น</option>
-      <option value="nakamura">Hikaru Nakamura — เร็ว/ป่วน</option>
-      <option value="kasparov">Garry Kasparov — บุกหนัก</option>
-      <option value="karpov">Anatoly Karpov — คุมเกม</option>
-      <option value="caruana">Fabiano Caruana — เป๊ะทฤษฎี</option>
+      <option value="carlsen">Magnus Carlsen</option>
+      <option value="nakamura">Hikaru Nakamura</option>
+      <option value="kasparov">Garry Kasparov</option>
+      <option value="karpov">Anatoly Karpov</option>
+      <option value="caruana">Fabiano Caruana</option>
     </select>
   </div>
   <div class="setting-row">
@@ -217,12 +259,10 @@
     <span id="lblBlunder" style="font-family:monospace; width:36px; text-align:right; color:#5cd88e; font-weight:700;">5%</span>
   </div>
   <div class="setting-row">
-    <label style="display:flex; align-items:center; cursor:pointer;">
-      <input type="checkbox" id="chkOpenings" checked style="accent-color:#5cd88e; transform:scale(1.2); margin-right:8px;">
-      สุ่มไม้เปิดเกม (10 ตาแรก)
-    </label>
+    <div class="toggle-row"><input type="checkbox" id="chkOpenings" checked> สุ่มไม้เปิด</div>
+    <div class="toggle-row"><input type="checkbox" id="chkAntiCheat" checked> Anti-Cheat</div>
+    <div class="toggle-row"><input type="checkbox" id="chkCoach" checked> Coach</div>
   </div>
-  <div id="presetHint">—</div>
 </div>
 
 <div class="eval-row">
@@ -232,7 +272,7 @@
 
 <div class="btn-row">
   <button id="btnAnalyze" class="primary">แนะนำตาเดิน</button>
-  <button id="btnThink">คิดลึก (14 วิ)</button>
+  <button id="btnThink">คิดลึก</button>
 </div>
 
 <div class="btn-row three">
@@ -242,56 +282,99 @@
 </div>
 
 <div id="analysisOutput"></div>
-
 <div class="move-history" id="moveHistory">—</div>
 
 <div class="footer-note">
   คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
-  ไม้เปิดเกมจะเดินไวเป็นธรรมชาติ กลางเกมจะคิดลึก
+  Kibitz จะกวนประสาทและเตือนตอนคุณกำลังจะพลาด
 </div>
 
 <script>
 (() => {
   'use strict';
 
-  const MAX_THINK_SECONDS = 14;
+  const MAX_THINK_SECONDS = 7;
 
   const PRESETS = {
-    carlsen: {
-      label: 'Magnus Carlsen', depth: 20, movetime: null, filter: 'flexible',
-      openings: ['e4', 'c4', 'Nf3', 'd4'],
-      timerMin: 4, timerMax: 9, pressureMin: 11, pressureMax: 14,
-      blunderMult: 0.4, tag: 'Carlsen', tagClass: 'primary',
-      hint: 'ยืดหยุ่น ดึงคู่แข่งออกจากตำรา คิด 4-9 วิ เจอภัยพุ่ง 11-14 วิ'
-    },
-    nakamura: {
-      label: 'Hikaru Nakamura', depth: 16, movetime: 700, filter: 'chaotic',
-      openings: ['e4', 'f3', 'g4', 'Nf3'],
-      timerMin: 1, timerMax: 4, pressureMin: 6, pressureMax: 10,
-      blunderMult: 1.5, tag: 'Nakamura', tagClass: 'style',
-      hint: 'เร็ว ดุดัน ชอบป่วน ไม้เปิดอินดี้ คิด 1-4 วิ'
-    },
-    kasparov: {
-      label: 'Garry Kasparov', depth: 22, movetime: null, filter: 'aggressive',
-      openings: ['e4', 'd4'],
-      timerMin: 5, timerMax: 10, pressureMin: 10, pressureMax: 14,
-      blunderMult: 0.5, tag: 'Kasparov', tagClass: 'style',
-      hint: 'บุกหนัก เลือกตากิน/เช็ค/โปรโมท คิด 5-10 วิ'
-    },
-    karpov: {
-      label: 'Anatoly Karpov', depth: 20, movetime: null, filter: 'defensive',
-      openings: ['d4', 'c4', 'Nf3'],
-      timerMin: 6, timerMax: 12, pressureMin: 10, pressureMax: 14,
-      blunderMult: 0.6, tag: 'Karpov', tagClass: 'style',
-      hint: 'ตั้งรับแน่น คุมเกม บีบพื้นที่ คิด 6-12 วิ'
-    },
-    caruana: {
-      label: 'Fabiano Caruana', depth: 22, movetime: null, filter: 'precise',
-      openings: ['e4', 'd4'],
-      timerMin: 4, timerMax: 8, pressureMin: 9, pressureMax: 13,
-      blunderMult: 0.2, tag: 'Caruana', tagClass: 'primary',
-      hint: 'เป๊ะทฤษฎี คิดสม่ำเสมอ 4-8 วิ'
-    }
+    carlsen:  { label: 'Magnus',   movetime: 500, filter: 'flexible',  openings: ['e4','c4','Nf3','d4'], timerMin: 1, timerMax: 3, blunderMult: 0.4, tag: 'Carlsen' },
+    nakamura: { label: 'Hikaru',   movetime: 300, filter: 'chaotic',   openings: ['e4','f3','g4','Nf3'], timerMin: 1, timerMax: 2, blunderMult: 1.5, tag: 'Nakamura' },
+    kasparov: { label: 'Kasparov', movetime: 500, filter: 'aggressive',openings: ['e4','d4'],           timerMin: 2, timerMax: 4, blunderMult: 0.5, tag: 'Kasparov' },
+    karpov:   { label: 'Karpov',   movetime: 500, filter: 'defensive', openings: ['d4','c4','Nf3'],     timerMin: 2, timerMax: 4, blunderMult: 0.6, tag: 'Karpov' },
+    caruana:  { label: 'Caruana',  movetime: 600, filter: 'precise',   openings: ['e4','d4'],           timerMin: 1, timerMax: 3, blunderMult: 0.2, tag: 'Caruana' }
+  };
+
+  // ─── BANTER POOLS ───
+  const BANTER = {
+    thinking: [
+      'hold on. thinking.',
+      'sit still, i\'m not done.',
+      'you\'re breathing loud. shut up a sec.',
+      'give me three seconds. don\'t touch anything.',
+      'okay okay. i see it.',
+      'this position is garbage, by the way.',
+      'don\'t help. just wait.',
+      'trying to save your ass here.',
+      'mm. no. not that.',
+      'i\'m looking. stop staring at me.'
+    ],
+    goodMove: [
+      'oh. that\'s actually good.',
+      'fine. fine. i\'ll allow it.',
+      'okay that was clean.',
+      'don\'t let it get to your head.',
+      'lucky. but good.',
+      'hm. approved.',
+      'you\'re not as dumb as you look today.'
+    ],
+    badMove: [
+      'the fuck was that?',
+      'no. no no no.',
+      'you just hung a piece, genius.',
+      'why. WHY.',
+      'i could have told you that was bad. i literally was about to.',
+      'that move made me physically uncomfortable.',
+      'bold. stupid, but bold.',
+      'that\'s a 1400 move. you\'re not 1400.',
+      'christ.',
+      'i leave you alone for one second.'
+    ],
+    critical: [
+      'CAREFUL.',
+      'stop. look at your king.',
+      'not that. anything but that.',
+      'you\'re walking into a fork, idiot.',
+      'this is the move that loses games.',
+      'wait — put that back.',
+      'are you trying to lose?'
+    ],
+    winning: [
+      'okay now finish it. don\'t get cute.',
+      'you\'re winning. don\'t fuck it up.',
+      'keep it simple. trade down.',
+      'boring is beautiful right now.',
+      'don\'t blow this.'
+    ],
+    losing: [
+      'we\'re in trouble. focus.',
+      'this is bad. like, actually bad.',
+      'you got outplayed. now fight back.',
+      'stop panicking and defend.',
+      'dig in. we\'re not dead yet.'
+    ],
+    opening: [
+      'opening. standard stuff.',
+      'just play chess.',
+      'book moves. don\'t overthink.',
+      'development first. you know this.',
+      'stop playing weird. play sound.'
+    ],
+    idle: [
+      'your move.',
+      'take your time. or don\'t.',
+      'i\'m waiting.',
+      'go.',
+      'stop thinking about it and play.'
+    ]
   };
 
   const GLYPH = {
@@ -316,7 +399,9 @@
   
   let chosenMoveUci = null;
   let thinkTimerInterval = null;
-  let lastOpponentScore = 0;
+  let lastBanterAt = 0;
+  let pendingCoachCheck = null;
+  let preMoveEval = null;
 
   const boardEl = document.getElementById('board');
   const arrowsEl = document.getElementById('arrows');
@@ -326,6 +411,10 @@
   const analysisEl = document.getElementById('analysisOutput');
   const historyEl = document.getElementById('moveHistory');
   const subtitle = document.getElementById('subtitle');
+  const banterEl = document.getElementById('banter');
+  const banterNameEl = banterEl.querySelector('.name');
+  const banterTxtEl = banterEl.querySelector('.txt');
+  const cursorSim = document.getElementById('cursorSim');
   
   const btnAnalyze = document.getElementById('btnAnalyze');
   const btnThink = document.getElementById('btnThink');
@@ -337,14 +426,90 @@
   const selPreset = document.getElementById('selPreset');
   const rngBlunder = document.getElementById('rngBlunder');
   const lblBlunder = document.getElementById('lblBlunder');
-  const presetHint = document.getElementById('presetHint');
   const chkOpenings = document.getElementById('chkOpenings');
+  const chkAntiCheat = document.getElementById('chkAntiCheat');
+  const chkCoach = document.getElementById('chkCoach');
 
-  function updatePresetHint() {
-    const p = PRESETS[selPreset.value];
-    presetHint.textContent = p.hint;
+  // ─── BANTER SYSTEM ───
+  function banter(category, opts = {}) {
+    if (Date.now() - lastBanterAt < 1200 && !opts.force) return;
+    lastBanterAt = Date.now();
+    const pool = BANTER[category] || BANTER.idle;
+    const line = pool[Math.floor(Math.random() * pool.length)];
+    
+    const presetKey = selPreset.value;
+    banterNameEl.textContent = PRESETS[presetKey].label;
+    
+    let cls = '';
+    if (category === 'thinking') cls = 'thinking dots';
+    else if (category === 'badMove' || category === 'critical') cls = 'angry';
+    else if (category === 'goodMove' || category === 'winning') cls = 'pleased';
+    
+    banterEl.className = cls;
+    banterTxtEl.textContent = line;
   }
-  selPreset.addEventListener('change', updatePresetHint);
+
+  function banterThinking() {
+    banter('thinking', { force: true });
+  }
+
+  // ─── ANTI-CHEAT: TIMING JITTER ───
+  // log-normal-ish curve so timing looks human, not uniform
+  function humanDelay(min, max) {
+    const u = Math.random();
+    const v = Math.random();
+    const normal = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    // map normal to [min, max] with slight skew toward lower middle
+    const t = Math.max(0, Math.min(1, (normal + 2.5) / 5));
+    return Math.round(min + t * (max - min));
+  }
+
+  // ─── ANTI-CHEAT: MOUSE PATH SIMULATION ───
+  // show a subtle "cursor" that moves to target before piece teleports
+  function simulateCursorTo(sq) {
+    if (!chkAntiCheat.checked) return Promise.resolve();
+    return new Promise(resolve => {
+      const wrap = boardEl.parentElement;
+      const rect = wrap.getBoundingClientRect();
+      let c = 'abcdefgh'.indexOf(sq[0]);
+      let r = 8 - parseInt(sq[1], 10);
+      if (flipped) { c = 7 - c; r = 7 - r; }
+      const cellW = rect.width / 8;
+      const cellH = rect.height / 8;
+      const tx = rect.left + c * cellW + cellW / 2;
+      const ty = rect.top + r * cellH + cellH / 2;
+      
+      // start from random offset for "hand travelling"
+      const startX = tx + (Math.random() - 0.5) * 60;
+      const startY = ty + (Math.random() - 0.5) * 60;
+      
+      cursorSim.style.left = (startX - rect.left) + 'px';
+      cursorSim.style.top = (startY - rect.top) + 'px';
+      cursorSim.style.opacity = '0.7';
+      
+      const start = performance.now();
+      const dur = 120 + Math.random() * 90;
+      function step(now) {
+        const t = Math.min(1, (now - start) / dur);
+        const ease = 1 - Math.pow(1 - t, 3);
+        cursorSim.style.left = ((startX - rect.left) + (tx - startX) * ease) + 'px';
+        cursorSim.style.top = ((startY - rect.top) + (ty - startY) * ease) + 'px';
+        if (t < 1) requestAnimationFrame(step);
+        else {
+          setTimeout(() => {
+            cursorSim.style.opacity = '0';
+            resolve();
+          }, 40);
+        }
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  // ─── UI EVENTS ───
+  selPreset.addEventListener('change', () => {
+    banter('opening', { force: true });
+  });
   rngBlunder.addEventListener('input', (e) => {
     lblBlunder.textContent = e.target.value + '%';
   });
@@ -356,11 +521,9 @@
     game.reset();
     clearAnalysis();
     selectedSq = null; legalDests = new Set(); lastMove = null;
-    lastOpponentScore = 0;
     renderBoard(); renderHistory(); updateStatus();
+    banter('idle', { force: true });
   });
-
-  updatePresetHint();
 
   function inCheck() {
     return typeof game.in_check === 'function' ? game.in_check() : (typeof game.inCheck === 'function' ? game.inCheck() : false);
@@ -396,6 +559,7 @@
     statusEl.className = cls;
   }
 
+  // ─── RENDER ───
   function renderBoard() {
     boardEl.innerHTML = '';
     const checkSq = inCheck() ? kingSquare(game.turn()) : null;
@@ -430,11 +594,12 @@
     }
   }
 
+  // ─── INTERACTION ───
   function onCellClick(sq) {
     if (gameOver()) return;
 
     if (selectedSq && legalDests.has(sq)) {
-      executeMove(selectedSq, sq);
+      attemptMove(selectedSq, sq);
       return;
     }
 
@@ -454,10 +619,65 @@
     }
   }
 
+  // ─── COACH: pre-check the player's chosen move ───
+  async function attemptMove(from, to) {
+    if (chkCoach.checked && preMoveEval !== null) {
+      await coachCheck(from, to);
+    }
+    simulateCursorTo(to).then(() => {
+      executeMove(from, to);
+    });
+  }
+
+  function coachCheck(from, to) {
+    return new Promise(resolve => {
+      const tmp = new Chess();
+      try { tmp.load(game.fen()); } catch (e) { resolve(); return; }
+      let m = null;
+      try { m = tmp.move({ from, to, promotion: 'q' }); } catch (e) { resolve(); return; }
+      if (!m) { resolve(); return; }
+
+      // quick shallow eval of this position for player's perspective
+      if (!engineReady) { resolve(); return; }
+
+      let resolved = false;
+      const done = () => { if (!resolved) { resolved = true; resolve(); } };
+
+      const handler = (e) => {
+        const line = typeof e.data === 'string' ? e.data : '';
+        if (line.startsWith('bestmove')) {
+          engine.removeEventListener('message', handler);
+          // eval captured via info lines below
+          done();
+        }
+        if (line.startsWith('info') && line.includes('score cp')) {
+          const match = line.match(/score cp (-?\d+)/);
+          if (match) {
+            let cp = parseInt(match[1], 10);
+            // info is from side-to-move perspective. tmp side to move is opponent
+            if (tmp.turn() === 'b') cp = -cp;
+            if (myColor === 'b') cp = -cp;
+            const delta = (preMoveEval || 0) - cp;
+            if (delta > 100) {
+              banter('critical', { force: true });
+            } else if (delta > 40) {
+              banter('badMove', { force: true });
+            }
+          }
+        }
+      };
+
+      engine.addEventListener('message', handler);
+      engine.postMessage('position fen ' + tmp.fen());
+      engine.postMessage('go movetime 200');
+
+      setTimeout(done, 400);
+    });
+  }
+
   function executeMove(from, to) {
     let move;
     try { move = game.move({ from, to, promotion: 'q' }); } catch (e) { move = null; }
-    
     if (!move) {
       selectedSq = null; legalDests = new Set(); renderBoard(); return;
     }
@@ -465,21 +685,26 @@
     lastMove = { from, to };
     selectedSq = null; legalDests = new Set();
     chosenMoveUci = null;
-    
-    if (multiPV[1]) {
-      lastOpponentScore = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
-    }
-    
     clearAnalysis();
     renderBoard();
     renderHistory();
     updateStatus();
-  }
-  
-  function getScoreFromPerspective(scoreType, scoreValue, turnWhoMoved) {
-    if (scoreType === 'mate') {
-      return scoreValue > 0 ? 9999 : -9999;
+
+    if (gameOver()) {
+      if (inCheckmate()) banter('winning', { force: true });
+      return;
     }
+
+    // Banter after our move
+    if (multiPV[1]) {
+      const score = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
+      if (score > 200) banter('winning');
+      else if (score < -200) banter('losing');
+    }
+  }
+
+  function getScoreFromPerspective(scoreType, scoreValue, turnWhoMoved) {
+    if (scoreType === 'mate') return scoreValue > 0 ? 9999 : -9999;
     let v = scoreValue;
     if (turnWhoMoved === 'b') v = -v;
     if (myColor === 'b') v = -v;
@@ -489,17 +714,18 @@
   function updateStatus() {
     if (gameOver()) {
       if (inCheckmate()) setStatus('จนม! ' + (game.turn() === 'w' ? 'ดำชนะ' : 'ขาวชนะ'), 'err');
-      else if (inStalemate()) setStatus('อับ (Stalemate) — เสมอ', 'warn');
+      else if (inStalemate()) setStatus('อับ — เสมอ', 'warn');
       else setStatus('เกมจบ — เสมอ', 'warn');
       return;
     }
     if (game.turn() === myColor) {
-      setStatus(`ตาคุณ (${myColor === 'w' ? 'ขาว' : 'ดำ'}) — คลิกชิ้นหมากเพื่อเดิน`, 'ok');
+      setStatus(`ตาคุณ — คลิกชิ้นหมากเพื่อเดิน`, 'ok');
     } else {
-      setStatus(`ตาคู่ต่อสู้ (${game.turn() === 'w' ? 'ขาว' : 'ดำ'}) — เดินตามที่คู่ต่อสู้เดินจริง`, '');
+      setStatus(`ตาคู่ต่อสู้ — เดินตามที่คู่ต่อสู้เดินจริง`, '');
     }
   }
 
+  // ─── ARROW ───
   function drawArrow(uci) {
     arrowsEl.innerHTML = '';
     if (!uci || uci.length < 4) return;
@@ -539,6 +765,7 @@
     analysisEl.innerHTML = '';
     evalTextEl.textContent = '0.00';
     updateEvalBarCss(50);
+    preMoveEval = null;
   }
 
   function updateEvalBarCss(percent) {
@@ -552,6 +779,7 @@
     style.textContent = `.eval-bar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: ${percent}%; background: #eaeaea; transition: width .3s ease; }`;
   }
 
+  // ─── ENGINE ───
   async function ensureEngine() {
     if (engineReady) return true;
     if (engineLoading) return false;
@@ -582,7 +810,6 @@
   function onEngineMsg(e) {
     const line = typeof e.data === 'string' ? e.data : '';
     if (!line) return;
-
     if (line === 'uciok' || line === 'readyok') {
       if (!engineReady) {
         engineReady = true; engineLoading = false;
@@ -612,7 +839,6 @@
     multiPV[multipv] = { depth, scoreType, scoreValue, pv, rank: multipv };
     if (analysisRunning && depth > currentDepth) {
       currentDepth = depth;
-      if (!chosenMoveUci) setStatus(`กำลังคิด... depth ${depth}`, '');
     }
   }
 
@@ -621,21 +847,13 @@
     const tmp = new Chess();
     try { tmp.load(fen); } catch (e) { return null; }
     let m = null;
-    try {
-      m = tmp.move({
-        from: uci.slice(0, 2),
-        to: uci.slice(2, 4),
-        promotion: uci.slice(4, 5) || 'q'
-      });
-    } catch (e) { return null; }
+    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); }
+    catch (e) { return null; }
     if (!m) return null;
     return {
       capture: m.flags.indexOf('c') !== -1,
       promotion: m.flags.indexOf('p') !== -1,
-      castle: m.flags.indexOf('k') !== -1 || m.flags.indexOf('q') !== -1,
       check: m.san.indexOf('+') !== -1 || m.san.indexOf('#') !== -1,
-      san: m.san,
-      piece: m.piece,
     };
   }
 
@@ -644,17 +862,10 @@
     const tmp = new Chess();
     try { tmp.load(fen); } catch (e) { return false; }
     let m = null;
-    try {
-      m = tmp.move({
-        from: uci.slice(0, 2),
-        to: uci.slice(2, 4),
-        promotion: uci.slice(4, 5) || 'q'
-      });
-    } catch (e) { return false; }
+    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); }
+    catch (e) { return false; }
     if (!m) return false;
-    const san = m.san;
-    const openingList = gmPreset.openings;
-    return openingList.some(op => san === op || san.startsWith(op));
+    return gmPreset.openings.some(op => m.san === op || m.san.startsWith(op));
   }
 
   function selectMove(best, presetKey) {
@@ -665,13 +876,25 @@
     const lines = Object.values(multiPV).sort((a, b) => a.rank - b.rank);
     if (!lines.length) return { move: best, type: 'best' };
 
+    const topLine = lines[0];
+    const secondLine = lines[1];
+
+    // DEFCON 1
+    let mustPlayBest = false;
+    if (inCheck()) mustPlayBest = true;
+    if (topLine && secondLine && topLine.scoreType === 'cp' && secondLine.scoreType === 'cp') {
+      if (Math.abs(secondLine.scoreValue - topLine.scoreValue) > 150) mustPlayBest = true;
+    }
+    if (topLine && topLine.scoreType === 'cp' && topLine.scoreValue < -150) mustPlayBest = true;
+    if (mustPlayBest) return { move: topLine.pv[0], type: 'best' };
+
     if (chkOpenings.checked && game.history().length < 10) {
       const openingCandidates = lines.filter(l => isPreferredOpening(l.pv[0], game.fen(), preset));
       if (openingCandidates.length > 0) {
         const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 0;
         const safeCandidates = openingCandidates.filter(l => {
           if (l.scoreType !== 'cp' || lines[0].scoreType !== 'cp') return true;
-          return Math.abs(l.scoreValue - bestScore) <= 60;
+          return Math.abs(l.scoreValue - bestScore) <= 50;
         });
         if (safeCandidates.length > 0) {
           const pick = safeCandidates[Math.floor(Math.random() * safeCandidates.length)];
@@ -688,20 +911,14 @@
         const c = classifyMove(l.pv[0], game.fen());
         return c && (c.capture || c.check || c.promotion);
       });
-      if (aggro && aggro.rank !== 1) {
-        candidate = aggro;
-        type = 'style';
-      }
+      if (aggro && aggro.rank !== 1) { candidate = aggro; type = 'style'; }
     } else if (preset.filter === 'defensive') {
       const quiet = lines.find(l => {
         if (l.rank > 3) return false;
         const c = classifyMove(l.pv[0], game.fen());
         return c && !c.capture && !c.check;
       });
-      if (quiet && quiet.rank !== 1) {
-        candidate = quiet;
-        type = 'style';
-      }
+      if (quiet && quiet.rank !== 1) { candidate = quiet; type = 'style'; }
     } else if (preset.filter === 'chaotic') {
       if (lines.length >= 2) {
         const pick = lines[Math.floor(Math.random() * Math.min(3, lines.length))];
@@ -717,10 +934,7 @@
         });
         if (closeLines.length > 1) {
           const pick = closeLines[Math.floor(Math.random() * closeLines.length)];
-          if (pick.rank !== 1) {
-            candidate = pick;
-            type = 'style';
-          }
+          if (pick.rank !== 1) { candidate = pick; type = 'style'; }
         }
       }
     }
@@ -757,31 +971,22 @@
 
     let timeLeft;
     if (isOpening) {
-      // ─── ไม้เปิด: เร็วแบบมนุษย์ 2-4 วิ ───
-      timeLeft = 2 + Math.floor(Math.random() * 3);
+      timeLeft = 1 + Math.floor(Math.random() * 2);
     } else {
-      // ─── กลางเกม: สุ่มตามสไตล์ GM ───
-      timeLeft = Math.floor(Math.random() * (preset.timerMax - preset.timerMin + 1)) + preset.timerMin;
+      // anti-cheat: use jittered curve instead of uniform
+      timeLeft = humanDelay(preset.timerMin, preset.timerMax);
     }
-
-    if (type === 'error' && Math.random() > 0.5) timeLeft += 2;
-
-    // ─── DYNAMIC PRESSURE (เฉพาะกลางเกม) ───
-    let isUnderPressure = false;
-    if (!isOpening && multiPV[1]) {
-      const currentScore = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
-      if (currentScore < -50) isUnderPressure = true;
-      if (lastOpponentScore - currentScore > 100) isUnderPressure = true;
-    }
-    if (!isOpening && inCheck()) isUnderPressure = true;
-
-    if (isUnderPressure) {
-      timeLeft = preset.pressureMin + Math.floor(Math.random() * (preset.pressureMax - preset.pressureMin + 1));
-      setStatus(`⚠ สถานการณ์ตึงเครียด! ${preset.label} กำลังคิดหนัก...`, 'warn');
-    }
-
+    if (type === 'error' && Math.random() > 0.5) timeLeft += 1;
     timeLeft = Math.min(MAX_THINK_SECONDS, timeLeft);
     const initialTime = timeLeft;
+
+    // Anti-cheat: fire banter at semi-random moment during thinking
+    if (chkAntiCheat.checked && Math.random() > 0.4) {
+      const banterDelay = 200 + Math.random() * (timeLeft * 1000 * 0.7);
+      setTimeout(() => {
+        if (thinkTimerInterval) banterThinking();
+      }, banterDelay);
+    }
 
     const updateTimer = () => {
       const perc = ((initialTime - timeLeft) / initialTime) * 100;
@@ -789,12 +994,12 @@
 
       const san = pvToSan([chosenMoveUci], game.fen())[0] || chosenMoveUci;
       if (timeLeft > 0) {
-        const isWarn = type === 'error' || isUnderPressure;
-        setStatus(`รอ ${timeLeft} วิ ก่อนเดิน ${san}`, isWarn ? 'warn' : 'ok');
+        setStatus(`รอ ${timeLeft} วิ — ${san}`, type === 'error' ? 'warn' : 'ok');
         timeLeft--;
       } else {
-        setStatus(`เดิน ${san} ได้เลย! (เวลาผ่านแล้ว)`, 'ok');
+        setStatus(`เดิน ${san} ได้เลย`, 'ok');
         clearInterval(thinkTimerInterval);
+        thinkTimerInterval = null;
         updateEvalBarCss(50);
       }
     };
@@ -833,16 +1038,10 @@
     if (chosenUci) {
       const san = pvToSan([chosenUci], fen)[0] || chosenUci;
       let tag, cls, icon;
-      
-      if (moveType === 'error') {
-        tag = 'Human error'; cls = 'error'; icon = '⚠';
-      } else if (moveType === 'opening') {
-        tag = `Opening (${preset.label})`; cls = 'opening'; icon = '📖';
-      } else if (moveType === 'style') {
-        tag = preset.tag; cls = 'style'; icon = '★';
-      } else {
-        tag = 'Best move'; cls = 'primary'; icon = '👑';
-      }
+      if (moveType === 'error') { tag = 'Human error'; cls = 'error'; icon = '⚠'; }
+      else if (moveType === 'opening') { tag = `Opening (${preset.tag})`; cls = 'opening'; icon = '📖'; }
+      else if (moveType === 'style') { tag = preset.tag; cls = 'style'; icon = '★'; }
+      else { tag = 'Best move'; cls = 'primary'; icon = '👑'; }
 
       html += `
         <div class="line-row ${cls}">
@@ -858,7 +1057,6 @@
       if (line.pv[0] === chosenUci) continue;
       const san = pvToSan(line.pv, fen);
       if (!san.length) continue;
-
       html += `
         <div class="line-row">
           <span class="line-rank">${i}</span>
@@ -895,8 +1093,13 @@
     clearAnalysis();
     analysisRunning = true;
 
+    // Snapshot current eval as pre-move reference for coach
+    if (multiPV[1]) {
+      preMoveEval = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
+    }
+
     const preset = PRESETS[selPreset.value];
-    setStatus(deep ? `Stockfish กำลังคิด (โหมดลึก 14 วิ)...` : `Stockfish กำลังคิด (${preset.label})...`, '');
+    setStatus(`Stockfish กำลังคิด...`, '');
     analysisEl.innerHTML = '<div class="line-row">กำลังคิด...</div>';
 
     try {
@@ -905,16 +1108,9 @@
       engine.postMessage('setoption name Hash value 128');
       engine.postMessage('position fen ' + game.fen());
 
-      if (deep) {
-        engine.postMessage('go movetime ' + (MAX_THINK_SECONDS * 1000));
-      } else if (game.history().length < 10) {
-        // ─── 10 ตาแรก: สั่ง engine คิดแค่ 800ms ให้ตอบไว ───
-        engine.postMessage('go movetime 800');
-      } else if (preset.movetime) {
-        engine.postMessage('go movetime ' + preset.movetime);
-      } else {
-        engine.postMessage('go depth ' + preset.depth);
-      }
+      if (deep) engine.postMessage('go movetime 3000');
+      else if (game.history().length < 10) engine.postMessage('go movetime 300');
+      else engine.postMessage('go movetime ' + preset.movetime);
     } catch (e) {
       setStatus('ส่งคำสั่งไม่สำเร็จ: ' + e.message, 'err');
       analysisRunning = false;
@@ -932,14 +1128,15 @@
     const hist = game.history({ verbose: true });
     lastMove = hist.length ? { from: hist[hist.length - 1].from, to: hist[hist.length - 1].to } : null;
     renderBoard(); renderHistory(); updateStatus();
+    banter('idle', { force: true });
   };
 
   btnReset.onclick = () => {
     game.reset();
     clearAnalysis();
     selectedSq = null; legalDests = new Set(); lastMove = null;
-    lastOpponentScore = 0;
     renderBoard(); renderHistory(); updateStatus();
+    banter('opening', { force: true });
   };
 
   btnFlip.onclick = () => {
@@ -951,6 +1148,7 @@
     renderBoard();
     renderHistory();
     updateStatus();
+    banter('opening', { force: true });
   }
 
   init();
