@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — GM Styles + Banter</title>
+<title>Kibitz — GM Styles + Desperado</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -29,45 +29,71 @@
   #status.err  { color: #ff6b6b; background: #2a1414; }
   #status.warn { color: #ffd84d; background: #262010; }
 
+  /* ─── DESPERADO BANNER ─── */
+  #desperadoBanner {
+    background: linear-gradient(135deg, #2a1040 0%, #5c1a1a 100%);
+    border: 1px solid #b04aff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    animation: pulsePurple 2s ease-in-out infinite;
+  }
+  #desperadoBanner.show { display: flex; }
+  #desperadoBanner .d-icon { font-size: 20px; }
+  #desperadoBanner .d-text {
+    flex: 1; font-size: 12px; color: #e0c4ff; line-height: 1.4;
+  }
+  #desperadoBanner .d-text strong { color: #b04aff; display: block; font-size: 13px; margin-bottom: 2px; }
+  @keyframes pulsePurple {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(176,74,255,0.4); }
+    50% { box-shadow: 0 0 16px 2px rgba(176,74,255,0.6); }
+  }
+
+  /* ─── RESIGN BANNER ─── */
+  #resignBanner {
+    background: linear-gradient(135deg, #5c1a1a 0%, #2a0a0a 100%);
+    border: 1px solid #ff4444;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    animation: pulseRed 1.8s ease-in-out infinite;
+  }
+  #resignBanner.show { display: flex; }
+  #resignBanner .resign-msg { font-size: 13px; color: #ffd0d0; line-height: 1.5; }
+  #resignBanner .resign-msg strong { color: #ff6b6b; font-size: 14px; display: block; margin-bottom: 4px; }
+  #resignBanner .resign-actions { display: flex; gap: 8px; }
+  #resignBanner button { flex: 1; padding: 10px; font-size: 13px; }
+  #resignBanner .btn-resign { background: #ff4444; color: #fff; font-weight: 700; }
+  #resignBanner .btn-ignore { background: #333; color: #ccc; }
+  @keyframes pulseRed {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.4); }
+    50% { box-shadow: 0 0 20px 2px rgba(255,68,68,0.6); }
+  }
+
   /* ─── BANTER BUBBLE ─── */
   #banter {
-    background: #1a1a1c;
-    border: 1px solid #2f2f33;
-    border-left: 3px solid #5cd88e;
-    border-radius: 10px;
-    padding: 10px 12px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: #d0d0d0;
-    min-height: 42px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    background: #1a1a1c; border: 1px solid #2f2f33;
+    border-left: 3px solid #5cd88e; border-radius: 10px;
+    padding: 10px 12px; font-size: 13px; line-height: 1.5;
+    color: #d0d0d0; min-height: 42px;
+    display: flex; align-items: center; gap: 8px;
     transition: opacity .3s;
   }
-  #banter .name {
-    font-weight: 700;
-    color: #5cd88e;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    flex-shrink: 0;
-  }
+  #banter .name { font-weight: 700; color: #5cd88e; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; flex-shrink: 0; }
   #banter .txt { flex: 1; }
   #banter.thinking .name { color: #ffd84d; }
   #banter.angry .name { color: #ff6b6b; }
   #banter.angry { border-left-color: #ff6b6b; }
   #banter.pleased .name { color: #5cd88e; }
-  #banter.dots .txt::after {
-    content: '';
-    animation: dots 1.4s steps(4, end) infinite;
-  }
+  #banter.desperado { border-left-color: #b04aff; }
+  #banter.desperado .name { color: #b04aff; }
+  #banter.dots .txt::after { content: ''; animation: dots 1.4s steps(4, end) infinite; }
   @keyframes dots {
-    0%   { content: ''; }
-    25%  { content: '.'; }
-    50%  { content: '..'; }
-    75%  { content: '...'; }
-    100% { content: ''; }
+    0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } 100% { content: ''; }
   }
 
   .board-wrap {
@@ -77,62 +103,31 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     touch-action: none;
   }
-  .board {
-    position: absolute; inset: 0;
-    display: grid; grid-template-columns: repeat(8, 1fr);
-    grid-template-rows: repeat(8, 1fr);
-  }
-  .cell {
-    position: relative; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background-color .12s;
-  }
+  .board { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); }
+  .cell { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color .12s; }
   .cell.light { background: #ebecd0; }
   .cell.dark  { background: #739552; }
   .cell.last  { box-shadow: inset 0 0 0 3px rgba(255,216,77,0.8); }
   .cell.selected { box-shadow: inset 0 0 0 4px rgba(255,216,77,1); background-color: #f7ef8a; }
   .cell.check { background-color: #e05252 !important; }
-  .cell.hint::after {
-    content: ''; position: absolute; width: 24%; height: 24%;
-    border-radius: 50%; background: rgba(20,20,20,0.35); pointer-events: none;
-  }
-  .cell.hint.capture::after {
-    width: 82%; height: 82%; background: transparent;
-    border: 4px solid rgba(20,20,20,0.35); border-radius: 50%;
-  }
-  .piece {
-    position: relative; z-index: 1;
-    pointer-events: none;
-    font-size: min(10vw, 52px);
-    line-height: 1;
-    font-family: "Arial Unicode MS", "Apple Symbols", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
-  }
+  .cell.hint::after { content: ''; position: absolute; width: 24%; height: 24%; border-radius: 50%; background: rgba(20,20,20,0.35); pointer-events: none; }
+  .cell.hint.capture::after { width: 82%; height: 82%; background: transparent; border: 4px solid rgba(20,20,20,0.35); border-radius: 50%; }
+  .piece { position: relative; z-index: 1; pointer-events: none; font-size: min(10vw, 52px); line-height: 1; font-family: "Arial Unicode MS", "Apple Symbols", "Segoe UI Symbol", "DejaVu Sans", sans-serif; }
   .piece.w { color: #ffffff; -webkit-text-stroke: 1.5px #1a1a1a; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.6)); }
   .piece.b { color: #1a1a1a; -webkit-text-stroke: 1.5px #ffffff; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.6)); }
 
-  #arrows {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 5;
-  }
-  /* ─── MOUSE TRACKER (anti-cheat visual) ─── */
+  #arrows { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
   #cursorSim {
     position: absolute; width: 18px; height: 18px;
     border-radius: 50%; background: rgba(255,255,255,0.4);
     border: 2px solid rgba(0,0,0,0.5);
     pointer-events: none; z-index: 6;
     transform: translate(-50%, -50%);
-    transition: opacity .2s;
-    opacity: 0;
+    transition: opacity .2s; opacity: 0;
   }
 
-  .settings-box {
-    background: #17181a; border-radius: 10px; padding: 12px;
-    display: flex; flex-direction: column; gap: 12px;
-    border: 1px solid #222;
-  }
-  .setting-row {
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 13px; color: #ccc; gap: 10px;
-  }
+  .settings-box { background: #17181a; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 12px; border: 1px solid #222; }
+  .setting-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #ccc; gap: 10px; }
   .setting-row label { font-size: 12px; color: #888; min-width: 90px; }
   input[type="range"] { flex: 1; accent-color: #5cd88e; }
   select {
@@ -141,86 +136,65 @@
     padding: 8px 10px; font-size: 13px; font-weight: 600;
     -webkit-appearance: none; appearance: none;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23888'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 26px;
+    background-repeat: no-repeat; background-position: right 10px center; padding-right: 26px;
   }
   .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aaa; }
   .toggle-row input { accent-color: #5cd88e; transform: scale(1.1); }
 
-  .eval-row {
-    display: flex; align-items: center; gap: 10px;
-    background: #17181a; border-radius: 10px; padding: 10px 12px;
-  }
-  .eval-bar {
-    flex: 1; height: 10px; border-radius: 5px;
-    background: #1a1a1a; overflow: hidden; position: relative;
-  }
-  #evalText {
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 13px; font-weight: 700;
-    min-width: 56px; text-align: right; color: #eaeaea;
-  }
+  .eval-row { display: flex; align-items: center; gap: 10px; background: #17181a; border-radius: 10px; padding: 10px 12px; }
+  .eval-bar { flex: 1; height: 10px; border-radius: 5px; background: #1a1a1a; overflow: hidden; position: relative; }
+  #evalText { font-family: ui-monospace, Menlo, monospace; font-size: 13px; font-weight: 700; min-width: 56px; text-align: right; color: #eaeaea; }
 
   .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .btn-row.three { grid-template-columns: 1fr 1fr 1fr; }
-  button {
-    padding: 13px 8px; border: 0; border-radius: 10px;
-    background: #2a2a2c; color: #fff; font-size: 14px; font-weight: 600;
-    cursor: pointer; transition: opacity .12s;
-  }
+  button { padding: 13px 8px; border: 0; border-radius: 10px; background: #2a2a2c; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .12s; }
   button:disabled { opacity: .35; cursor: default; }
   button.primary { background: #1f6b3f; }
   button.secondary { background: #333; font-size: 13px; }
   button.danger { background: #5c2020; font-size: 13px; }
 
-  #analysisOutput {
-    background: #17181a; border-radius: 10px;
-    padding: 4px; min-height: 60px;
-  }
-  .line-row {
-    display: flex; align-items: baseline; gap: 8px;
-    padding: 8px 10px; border-radius: 8px;
-    font-size: 13px;
-  }
+  #analysisOutput { background: #17181a; border-radius: 10px; padding: 4px; min-height: 60px; }
+  .line-row { display: flex; align-items: baseline; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; }
   .line-row.primary { background: #10231a; font-size: 15px; border: 1px solid #1f6b3f; }
   .line-row.error { background: #2a1f14; border: 1px solid #6b4f1f; }
   .line-row.style { background: #1a1530; border: 1px solid #4a3f8a; }
   .line-row.opening { background: #102323; border: 1px solid #1f6b6b; }
-  .line-rank {
-    font-weight: 700; color: #5cd88e; min-width: 20px;
-    font-family: ui-monospace, monospace; text-align: center;
-  }
-  .line-eval {
-    font-family: ui-monospace, Menlo, monospace; font-weight: 700;
-    color: #5cd88e; min-width: 56px; text-align: right;
-  }
-  .line-pv {
-    font-family: ui-monospace, monospace;
-    color: #999; font-size: 11px;
-    flex: 1; word-break: break-all;
-  }
+  .line-row.desperado { background: #1f102a; border: 1px solid #b04aff; }
+  .line-rank { font-weight: 700; color: #5cd88e; min-width: 20px; font-family: ui-monospace, monospace; text-align: center; }
+  .line-row.desperado .line-rank { color: #b04aff; }
+  .line-eval { font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: #5cd88e; min-width: 56px; text-align: right; }
+  .line-pv { font-family: ui-monospace, monospace; color: #999; font-size: 11px; flex: 1; word-break: break-all; }
   .line-pv b { color: #eaeaea; font-weight: 700; }
 
-  .move-history {
-    font-family: ui-monospace, monospace; font-size: 12px;
-    background: #17181a; border-radius: 10px;
-    padding: 8px 12px; color: #888;
-    max-height: 90px; overflow-y: auto;
-    line-height: 1.7;
-  }
+  .move-history { font-family: ui-monospace, monospace; font-size: 12px; background: #17181a; border-radius: 10px; padding: 8px 12px; color: #888; max-height: 90px; overflow-y: auto; line-height: 1.7; }
   .move-history b { color: #5cd88e; }
 
-  .footer-note {
-    font-size: 11px; color: #666; text-align: center;
-    padding: 4px; line-height: 1.5;
-  }
+  .footer-note { font-size: 11px; color: #666; text-align: center; padding: 4px; line-height: 1.5; }
 </style>
 </head>
 <body>
 
 <h1>Kibitz <span>•</span> GM Styles</h1>
 <div class="subtitle" id="subtitle">คุณเล่นขาว • ฝ่ายตรงข้ามเดินดำ</div>
+
+<div id="desperadoBanner">
+  <div class="d-icon">🔥</div>
+  <div class="d-text">
+    <strong>Desperado Mode Active</strong>
+    เราเสียเปรียบหนัก — สลับเป็นโหมดบ้าบิ่น บุกจี้ King/Queen คู่ต่อสู้!
+  </div>
+</div>
+
+<div id="resignBanner">
+  <div class="resign-msg">
+    <strong>ยอมแพ้เถอะ</strong>
+    <span id="resignReason">—</span>
+  </div>
+  <div class="resign-actions">
+    <button class="btn-resign" id="btnDoResign">ยอมแพ้</button>
+    <button class="btn-ignore" id="btnIgnoreResign">เล่นต่อ</button>
+  </div>
+</div>
 
 <div id="banter">
   <span class="name">Kibitz</span>
@@ -286,7 +260,7 @@
 
 <div class="footer-note">
   คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
-  Kibitz จะกวนประสาทและเตือนตอนคุณกำลังจะพลาด
+  ถ้าเสียเปรียบหนัก Kibitz จะเปิด Desperado บุกแหลกแทนการยอมแพ้
 </div>
 
 <script>
@@ -294,6 +268,10 @@
   'use strict';
 
   const MAX_THINK_SECONDS = 7;
+  const RESIGN_EVAL_THRESHOLD = -600;
+  const DESPERADO_EVAL_THRESHOLD = -200; // เริ่มเปิดโหมดบุกเมื่อติดลบ 2 หมาก
+  const RESIGN_LATE_GAME_MOVES = 30;
+  const RESIGN_LATE_GAME_PIECES = 16;
 
   const PRESETS = {
     carlsen:  { label: 'Magnus',   movetime: 500, filter: 'flexible',  openings: ['e4','c4','Nf3','d4'], timerMin: 1, timerMax: 3, blunderMult: 0.4, tag: 'Carlsen' },
@@ -303,78 +281,18 @@
     caruana:  { label: 'Caruana',  movetime: 600, filter: 'precise',   openings: ['e4','d4'],           timerMin: 1, timerMax: 3, blunderMult: 0.2, tag: 'Caruana' }
   };
 
-  // ─── BANTER POOLS ───
   const BANTER = {
-    thinking: [
-      'hold on. thinking.',
-      'sit still, i\'m not done.',
-      'you\'re breathing loud. shut up a sec.',
-      'give me three seconds. don\'t touch anything.',
-      'okay okay. i see it.',
-      'this position is garbage, by the way.',
-      'don\'t help. just wait.',
-      'trying to save your ass here.',
-      'mm. no. not that.',
-      'i\'m looking. stop staring at me.'
-    ],
-    goodMove: [
-      'oh. that\'s actually good.',
-      'fine. fine. i\'ll allow it.',
-      'okay that was clean.',
-      'don\'t let it get to your head.',
-      'lucky. but good.',
-      'hm. approved.',
-      'you\'re not as dumb as you look today.'
-    ],
-    badMove: [
-      'the fuck was that?',
-      'no. no no no.',
-      'you just hung a piece, genius.',
-      'why. WHY.',
-      'i could have told you that was bad. i literally was about to.',
-      'that move made me physically uncomfortable.',
-      'bold. stupid, but bold.',
-      'that\'s a 1400 move. you\'re not 1400.',
-      'christ.',
-      'i leave you alone for one second.'
-    ],
-    critical: [
-      'CAREFUL.',
-      'stop. look at your king.',
-      'not that. anything but that.',
-      'you\'re walking into a fork, idiot.',
-      'this is the move that loses games.',
-      'wait — put that back.',
-      'are you trying to lose?'
-    ],
-    winning: [
-      'okay now finish it. don\'t get cute.',
-      'you\'re winning. don\'t fuck it up.',
-      'keep it simple. trade down.',
-      'boring is beautiful right now.',
-      'don\'t blow this.'
-    ],
-    losing: [
-      'we\'re in trouble. focus.',
-      'this is bad. like, actually bad.',
-      'you got outplayed. now fight back.',
-      'stop panicking and defend.',
-      'dig in. we\'re not dead yet.'
-    ],
-    opening: [
-      'opening. standard stuff.',
-      'just play chess.',
-      'book moves. don\'t overthink.',
-      'development first. you know this.',
-      'stop playing weird. play sound.'
-    ],
-    idle: [
-      'your move.',
-      'take your time. or don\'t.',
-      'i\'m waiting.',
-      'go.',
-      'stop thinking about it and play.'
-    ]
+    thinking: ['hold on. thinking.', 'sit still, i\'m not done.', 'you\'re breathing loud. shut up a sec.', 'give me three seconds. don\'t touch anything.', 'okay okay. i see it.', 'this position is garbage, by the way.', 'don\'t help. just wait.', 'trying to save your ass here.', 'mm. no. not that.', 'i\'m looking. stop staring at me.'],
+    goodMove: ['oh. that\'s actually good.', 'fine. fine. i\'ll allow it.', 'okay that was clean.', 'don\'t let it get to your head.', 'lucky. but good.', 'hm. approved.', 'you\'re not as dumb as you look today.'],
+    badMove: ['the fuck was that?', 'no. no no no.', 'you just hung a piece, genius.', 'why. WHY.', 'i could have told you that was bad. i literally was about to.', 'that move made me physically uncomfortable.', 'bold. stupid, but bold.', 'that\'s a 1400 move. you\'re not 1400.', 'christ.', 'i leave you alone for one second.'],
+    critical: ['CAREFUL.', 'stop. look at your king.', 'not that. anything but that.', 'you\'re walking into a fork, idiot.', 'this is the move that loses games.', 'wait — put that back.', 'are you trying to lose?'],
+    winning: ['okay now finish it. don\'t get cute.', 'you\'re winning. don\'t fuck it up.', 'keep it simple. trade down.', 'boring is beautiful right now.', 'don\'t blow this.'],
+    losing: ['we\'re in trouble. focus.', 'this is bad. like, actually bad.', 'you got outplayed. now fight back.', 'stop panicking and defend.', 'dig in. we\'re not dead yet.'],
+    resign: ['it\'s over. just resign.', 'stop. you\'re not coming back from this.', 'you know this is dead. resign and save the clock.', 'don\'t drag it out. resign.', 'this is a loss. resign now.', 'there\'s nothing here. resign.', 'you\'re wasting both our time. resign.'],
+    opening: ['opening. standard stuff.', 'just play chess.', 'book moves. don\'t overthink.', 'development first. you know this.', 'stop playing weird. play sound.'],
+    idle: ['your move.', 'take your time. or don\'t.', 'i\'m waiting.', 'go.', 'stop thinking about it and play.'],
+    resigned: ['good. finally.', 'see? that wasn\'t so hard.', 'gg. reset and try not to blunder next time.', 'now you know. move on.'],
+    desperado: ['fuck it. all in.', 'we\'re losing anyway. take his king with us.', 'sacrifice everything. GO.', 'no more defense. hunt the king.', 'throw the whole army at him.', 'burn it all down.']
   };
 
   const GLYPH = {
@@ -400,8 +318,9 @@
   let chosenMoveUci = null;
   let thinkTimerInterval = null;
   let lastBanterAt = 0;
-  let pendingCoachCheck = null;
   let preMoveEval = null;
+  let resignDismissed = false;
+  let resigned = false;
 
   const boardEl = document.getElementById('board');
   const arrowsEl = document.getElementById('arrows');
@@ -415,6 +334,11 @@
   const banterNameEl = banterEl.querySelector('.name');
   const banterTxtEl = banterEl.querySelector('.txt');
   const cursorSim = document.getElementById('cursorSim');
+  const resignBanner = document.getElementById('resignBanner');
+  const resignReason = document.getElementById('resignReason');
+  const btnDoResign = document.getElementById('btnDoResign');
+  const btnIgnoreResign = document.getElementById('btnIgnoreResign');
+  const desperadoBanner = document.getElementById('desperadoBanner');
   
   const btnAnalyze = document.getElementById('btnAnalyze');
   const btnThink = document.getElementById('btnThink');
@@ -430,89 +354,113 @@
   const chkAntiCheat = document.getElementById('chkAntiCheat');
   const chkCoach = document.getElementById('chkCoach');
 
-  // ─── BANTER SYSTEM ───
   function banter(category, opts = {}) {
     if (Date.now() - lastBanterAt < 1200 && !opts.force) return;
     lastBanterAt = Date.now();
     const pool = BANTER[category] || BANTER.idle;
     const line = pool[Math.floor(Math.random() * pool.length)];
-    
-    const presetKey = selPreset.value;
-    banterNameEl.textContent = PRESETS[presetKey].label;
-    
+    banterNameEl.textContent = PRESETS[selPreset.value].label;
     let cls = '';
     if (category === 'thinking') cls = 'thinking dots';
-    else if (category === 'badMove' || category === 'critical') cls = 'angry';
+    else if (category === 'badMove' || category === 'critical' || category === 'resign') cls = 'angry';
     else if (category === 'goodMove' || category === 'winning') cls = 'pleased';
-    
+    else if (category === 'desperado') cls = 'desperado';
     banterEl.className = cls;
     banterTxtEl.textContent = line;
   }
 
-  function banterThinking() {
-    banter('thinking', { force: true });
+  // ─── DESPERADO CHECK ───
+  function isDesperadoMode() {
+    const top = multiPV[1];
+    if (!top) return false;
+    let cpForUs;
+    if (top.scoreType === 'mate') {
+      cpForUs = top.scoreValue > 0 ? 9999 : -9999;
+    } else {
+      cpForUs = top.scoreValue; // from side-to-move perspective
+    }
+    return cpForUs <= DESPERADO_EVAL_THRESHOLD && cpForUs > RESIGN_EVAL_THRESHOLD;
   }
 
-  // ─── ANTI-CHEAT: TIMING JITTER ───
-  // log-normal-ish curve so timing looks human, not uniform
-  function humanDelay(min, max) {
-    const u = Math.random();
-    const v = Math.random();
-    const normal = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-    // map normal to [min, max] with slight skew toward lower middle
-    const t = Math.max(0, Math.min(1, (normal + 2.5) / 5));
-    return Math.round(min + t * (max - min));
+  function updateDesperadoBanner() {
+    const active = isDesperadoMode() && !resigned && !gameOver();
+    if (active) {
+      desperadoBanner.classList.add('show');
+    } else {
+      desperadoBanner.classList.remove('show');
+    }
   }
 
-  // ─── ANTI-CHEAT: MOUSE PATH SIMULATION ───
-  // show a subtle "cursor" that moves to target before piece teleports
-  function simulateCursorTo(sq) {
-    if (!chkAntiCheat.checked) return Promise.resolve();
-    return new Promise(resolve => {
-      const wrap = boardEl.parentElement;
-      const rect = wrap.getBoundingClientRect();
-      let c = 'abcdefgh'.indexOf(sq[0]);
-      let r = 8 - parseInt(sq[1], 10);
-      if (flipped) { c = 7 - c; r = 7 - r; }
-      const cellW = rect.width / 8;
-      const cellH = rect.height / 8;
-      const tx = rect.left + c * cellW + cellW / 2;
-      const ty = rect.top + r * cellH + cellH / 2;
-      
-      // start from random offset for "hand travelling"
-      const startX = tx + (Math.random() - 0.5) * 60;
-      const startY = ty + (Math.random() - 0.5) * 60;
-      
-      cursorSim.style.left = (startX - rect.left) + 'px';
-      cursorSim.style.top = (startY - rect.top) + 'px';
-      cursorSim.style.opacity = '0.7';
-      
-      const start = performance.now();
-      const dur = 120 + Math.random() * 90;
-      function step(now) {
-        const t = Math.min(1, (now - start) / dur);
-        const ease = 1 - Math.pow(1 - t, 3);
-        cursorSim.style.left = ((startX - rect.left) + (tx - startX) * ease) + 'px';
-        cursorSim.style.top = ((startY - rect.top) + (ty - startY) * ease) + 'px';
-        if (t < 1) requestAnimationFrame(step);
-        else {
-          setTimeout(() => {
-            cursorSim.style.opacity = '0';
-            resolve();
-          }, 40);
-        }
+  // ─── RESIGN ADVISOR ───
+  function countPiecesOnBoard() {
+    let n = 0;
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const sq = 'abcdefgh'[c] + (8 - r);
+        if (game.get(sq)) n++;
       }
-      requestAnimationFrame(step);
-    });
+    }
+    return n;
   }
 
-  // ─── UI EVENTS ───
-  selPreset.addEventListener('change', () => {
-    banter('opening', { force: true });
-  });
-  rngBlunder.addEventListener('input', (e) => {
-    lblBlunder.textContent = e.target.value + '%';
-  });
+  function checkResignCondition() {
+    if (resigned || resignDismissed || gameOver()) return;
+    if (game.turn() !== myColor) return;
+    const top = multiPV[1];
+    if (!top) return;
+
+    let cpForUs;
+    if (top.scoreType === 'mate') {
+      cpForUs = top.scoreValue > 0 ? 9999 : -9999;
+    } else {
+      cpForUs = top.scoreValue;
+    }
+
+    const piecesLeft = countPiecesOnBoard();
+    const moveCount = game.history().length;
+    const isLateGame = piecesLeft <= RESIGN_LATE_GAME_PIECES || moveCount >= RESIGN_LATE_GAME_MOVES;
+
+    let shouldShow = false;
+    let reason = '';
+
+    if (top.scoreType === 'mate' && cpForUs < 0) {
+      shouldShow = true;
+      reason = `โดนบังคับจนมใน ${Math.abs(top.scoreValue)} ตา — ไม่มีทางหนี`;
+    } else if (top.scoreType === 'cp' && cpForUs <= RESIGN_EVAL_THRESHOLD && isLateGame) {
+      const pawns = (cpForUs / 100).toFixed(1);
+      shouldShow = true;
+      reason = `เสียเปรียบ ${Math.abs(pawns)} หมาก ในช่วงท้ายเกม — ไม่มีทางพลิก`;
+    }
+
+    if (shouldShow) {
+      resignReason.textContent = reason;
+      resignBanner.classList.add('show');
+      desperadoBanner.classList.remove('show');
+      banter('resign', { force: true });
+    } else {
+      resignBanner.classList.remove('show');
+    }
+  }
+
+  btnDoResign.onclick = () => {
+    resigned = true;
+    resignBanner.classList.remove('show');
+    desperadoBanner.classList.remove('show');
+    clearInterval(thinkTimerInterval);
+    clearArrows();
+    setStatus('ยอมแพ้แล้ว — เกมจบ', 'err');
+    banter('resigned', { force: true });
+    analysisRunning = false;
+  };
+
+  btnIgnoreResign.onclick = () => {
+    resignDismissed = true;
+    resignBanner.classList.remove('show');
+    banter('losing', { force: true });
+  };
+
+  selPreset.addEventListener('change', () => { banter('opening', { force: true }); });
+  rngBlunder.addEventListener('input', (e) => { lblBlunder.textContent = e.target.value + '%'; });
 
   selSide.addEventListener('change', (e) => {
     myColor = e.target.value;
@@ -521,30 +469,23 @@
     game.reset();
     clearAnalysis();
     selectedSq = null; legalDests = new Set(); lastMove = null;
+    resignDismissed = false; resigned = false;
+    resignBanner.classList.remove('show');
+    desperadoBanner.classList.remove('show');
     renderBoard(); renderHistory(); updateStatus();
     banter('idle', { force: true });
   });
 
-  function inCheck() {
-    return typeof game.in_check === 'function' ? game.in_check() : (typeof game.inCheck === 'function' ? game.inCheck() : false);
-  }
-  function inCheckmate() {
-    return typeof game.in_checkmate === 'function' ? game.in_checkmate() : (typeof game.inCheckmate === 'function' ? game.inCheckmate() : false);
-  }
-  function inStalemate() {
-    return typeof game.in_stalemate === 'function' ? game.in_stalemate() : (typeof game.inStalemate === 'function' ? game.inStalemate() : false);
-  }
-  function gameOver() {
-    return typeof game.game_over === 'function' ? game.game_over() : (typeof game.gameOver === 'function' ? game.gameOver() : false);
-  }
+  function inCheck() { return typeof game.in_check === 'function' ? game.in_check() : (typeof game.inCheck === 'function' ? game.inCheck() : false); }
+  function inCheckmate() { return typeof game.in_checkmate === 'function' ? game.in_checkmate() : (typeof game.inCheckmate === 'function' ? game.inCheckmate() : false); }
+  function inStalemate() { return typeof game.in_stalemate === 'function' ? game.in_stalemate() : (typeof game.inStalemate === 'function' ? game.inStalemate() : false); }
+  function gameOver() { return typeof game.game_over === 'function' ? game.game_over() : (typeof game.gameOver === 'function' ? game.gameOver() : false); }
   function kingSquare(color) {
     const files = 'abcdefgh';
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const sq = files[c] + (8 - r);
-        const p = game.get(sq);
-        if (p && p.type === 'k' && p.color === color) return sq;
-      }
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const sq = files[c] + (8 - r);
+      const p = game.get(sq);
+      if (p && p.type === 'k' && p.color === color) return sq;
     }
     return null;
   }
@@ -554,16 +495,11 @@
     if (flipped) { f = 7 - f; r = 7 - r; }
     return [f * 60 + 30, r * 60 + 30];
   }
-  function setStatus(msg, cls = '') {
-    statusEl.textContent = msg;
-    statusEl.className = cls;
-  }
+  function setStatus(msg, cls = '') { statusEl.textContent = msg; statusEl.className = cls; }
 
-  // ─── RENDER ───
   function renderBoard() {
     boardEl.innerHTML = '';
     const checkSq = inCheck() ? kingSquare(game.turn()) : null;
-
     for (let r = 0; r < 8; r++) {
       for (let c = 0; c < 8; c++) {
         let fileIdx = c, rankIdx = 8 - r;
@@ -572,15 +508,10 @@
         const cell = document.createElement('div');
         cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
         cell.dataset.sq = sq;
-
         if (sq === selectedSq) cell.classList.add('selected');
         if (checkSq === sq) cell.classList.add('check');
         if (lastMove && (lastMove.from === sq || lastMove.to === sq)) cell.classList.add('last');
-        if (legalDests.has(sq)) {
-          cell.classList.add('hint');
-          if (game.get(sq)) cell.classList.add('capture');
-        }
-
+        if (legalDests.has(sq)) { cell.classList.add('hint'); if (game.get(sq)) cell.classList.add('capture'); }
         const piece = game.get(sq);
         if (piece) {
           const span = document.createElement('span');
@@ -594,39 +525,52 @@
     }
   }
 
-  // ─── INTERACTION ───
   function onCellClick(sq) {
-    if (gameOver()) return;
-
-    if (selectedSq && legalDests.has(sq)) {
-      attemptMove(selectedSq, sq);
-      return;
-    }
-
+    if (gameOver() || resigned) return;
+    if (selectedSq && legalDests.has(sq)) { attemptMove(selectedSq, sq); return; }
     const piece = game.get(sq);
     if (piece && piece.color === game.turn()) {
-      selectedSq = sq;
-      legalDests = new Set();
-      try {
-        const moves = game.moves({ square: sq, verbose: true }) || [];
-        moves.forEach(m => legalDests.add(m.to));
-      } catch (e) {}
+      selectedSq = sq; legalDests = new Set();
+      try { const moves = game.moves({ square: sq, verbose: true }) || []; moves.forEach(m => legalDests.add(m.to)); } catch (e) {}
       renderBoard();
-    } else if (selectedSq) {
-      selectedSq = null;
-      legalDests = new Set();
-      renderBoard();
-    }
+    } else if (selectedSq) { selectedSq = null; legalDests = new Set(); renderBoard(); }
   }
 
-  // ─── COACH: pre-check the player's chosen move ───
-  async function attemptMove(from, to) {
-    if (chkCoach.checked && preMoveEval !== null) {
-      await coachCheck(from, to);
-    }
-    simulateCursorTo(to).then(() => {
-      executeMove(from, to);
+  function humanDelay(min, max) {
+    const u = Math.random(), v = Math.random();
+    const normal = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    const t = Math.max(0, Math.min(1, (normal + 2.5) / 5));
+    return Math.round(min + t * (max - min));
+  }
+
+  function simulateCursorTo(sq) {
+    if (!chkAntiCheat.checked) return Promise.resolve();
+    return new Promise(resolve => {
+      const wrap = boardEl.parentElement;
+      const rect = wrap.getBoundingClientRect();
+      let c = 'abcdefgh'.indexOf(sq[0]), r = 8 - parseInt(sq[1], 10);
+      if (flipped) { c = 7 - c; r = 7 - r; }
+      const cellW = rect.width / 8, cellH = rect.height / 8;
+      const tx = rect.left + c * cellW + cellW / 2, ty = rect.top + r * cellH + cellH / 2;
+      const startX = tx + (Math.random() - 0.5) * 60, startY = ty + (Math.random() - 0.5) * 60;
+      cursorSim.style.left = (startX - rect.left) + 'px';
+      cursorSim.style.top = (startY - rect.top) + 'px';
+      cursorSim.style.opacity = '0.7';
+      const start = performance.now(), dur = 120 + Math.random() * 90;
+      function step(now) {
+        const t = Math.min(1, (now - start) / dur), ease = 1 - Math.pow(1 - t, 3);
+        cursorSim.style.left = ((startX - rect.left) + (tx - startX) * ease) + 'px';
+        cursorSim.style.top = ((startY - rect.top) + (ty - startY) * ease) + 'px';
+        if (t < 1) requestAnimationFrame(step);
+        else { setTimeout(() => { cursorSim.style.opacity = '0'; resolve(); }, 40); }
+      }
+      requestAnimationFrame(step);
     });
+  }
+
+  async function attemptMove(from, to) {
+    if (chkCoach.checked && preMoveEval !== null) await coachCheck(from, to);
+    simulateCursorTo(to).then(() => { executeMove(from, to); });
   }
 
   function coachCheck(from, to) {
@@ -635,42 +579,27 @@
       try { tmp.load(game.fen()); } catch (e) { resolve(); return; }
       let m = null;
       try { m = tmp.move({ from, to, promotion: 'q' }); } catch (e) { resolve(); return; }
-      if (!m) { resolve(); return; }
-
-      // quick shallow eval of this position for player's perspective
-      if (!engineReady) { resolve(); return; }
-
+      if (!m || !engineReady) { resolve(); return; }
       let resolved = false;
       const done = () => { if (!resolved) { resolved = true; resolve(); } };
-
       const handler = (e) => {
         const line = typeof e.data === 'string' ? e.data : '';
-        if (line.startsWith('bestmove')) {
-          engine.removeEventListener('message', handler);
-          // eval captured via info lines below
-          done();
-        }
+        if (line.startsWith('bestmove')) { engine.removeEventListener('message', handler); done(); }
         if (line.startsWith('info') && line.includes('score cp')) {
           const match = line.match(/score cp (-?\d+)/);
           if (match) {
             let cp = parseInt(match[1], 10);
-            // info is from side-to-move perspective. tmp side to move is opponent
             if (tmp.turn() === 'b') cp = -cp;
             if (myColor === 'b') cp = -cp;
             const delta = (preMoveEval || 0) - cp;
-            if (delta > 100) {
-              banter('critical', { force: true });
-            } else if (delta > 40) {
-              banter('badMove', { force: true });
-            }
+            if (delta > 100) banter('critical', { force: true });
+            else if (delta > 40) banter('badMove', { force: true });
           }
         }
       };
-
       engine.addEventListener('message', handler);
       engine.postMessage('position fen ' + tmp.fen());
       engine.postMessage('go movetime 200');
-
       setTimeout(done, 400);
     });
   }
@@ -678,24 +607,12 @@
   function executeMove(from, to) {
     let move;
     try { move = game.move({ from, to, promotion: 'q' }); } catch (e) { move = null; }
-    if (!move) {
-      selectedSq = null; legalDests = new Set(); renderBoard(); return;
-    }
-
-    lastMove = { from, to };
-    selectedSq = null; legalDests = new Set();
+    if (!move) { selectedSq = null; legalDests = new Set(); renderBoard(); return; }
+    lastMove = { from, to }; selectedSq = null; legalDests = new Set();
     chosenMoveUci = null;
     clearAnalysis();
-    renderBoard();
-    renderHistory();
-    updateStatus();
-
-    if (gameOver()) {
-      if (inCheckmate()) banter('winning', { force: true });
-      return;
-    }
-
-    // Banter after our move
+    renderBoard(); renderHistory(); updateStatus();
+    if (gameOver()) { if (inCheckmate()) banter('winning', { force: true }); return; }
     if (multiPV[1]) {
       const score = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
       if (score > 200) banter('winning');
@@ -712,79 +629,57 @@
   }
 
   function updateStatus() {
+    if (resigned) { setStatus('ยอมแพ้แล้ว — เกมจบ', 'err'); return; }
     if (gameOver()) {
       if (inCheckmate()) setStatus('จนม! ' + (game.turn() === 'w' ? 'ดำชนะ' : 'ขาวชนะ'), 'err');
       else if (inStalemate()) setStatus('อับ — เสมอ', 'warn');
       else setStatus('เกมจบ — เสมอ', 'warn');
       return;
     }
-    if (game.turn() === myColor) {
-      setStatus(`ตาคุณ — คลิกชิ้นหมากเพื่อเดิน`, 'ok');
-    } else {
-      setStatus(`ตาคู่ต่อสู้ — เดินตามที่คู่ต่อสู้เดินจริง`, '');
-    }
+    if (game.turn() === myColor) { setStatus(`ตาคุณ — คลิกชิ้นหมากเพื่อเดิน`, 'ok'); }
+    else { setStatus(`ตาคู่ต่อสู้ — เดินตามที่คู่ต่อสู้เดินจริง`, ''); }
   }
 
-  // ─── ARROW ───
   function drawArrow(uci) {
     arrowsEl.innerHTML = '';
     if (!uci || uci.length < 4) return;
-    const [fx, fy] = sqToXY(uci.slice(0, 2));
-    const [tx, ty] = sqToXY(uci.slice(2, 4));
-    const dx = tx - fx, dy = ty - fy;
-    const len = Math.hypot(dx, dy);
+    const [fx, fy] = sqToXY(uci.slice(0, 2)), [tx, ty] = sqToXY(uci.slice(2, 4));
+    const dx = tx - fx, dy = ty - fy, len = Math.hypot(dx, dy);
     if (len < 1) return;
-    const ux = dx / len, uy = dy / len;
-    const hl = 24, hw = 18;
-    const bx = tx - ux * hl, by = ty - uy * hl;
-    const px = -uy, py = ux;
-
+    const ux = dx / len, uy = dy / len, hl = 24, hw = 18;
+    const bx = tx - ux * hl, by = ty - uy * hl, px = -uy, py = ux;
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', fx); line.setAttribute('y1', fy);
     line.setAttribute('x2', bx); line.setAttribute('y2', by);
-    line.setAttribute('stroke', 'rgba(92,216,142,0.95)');
-    line.setAttribute('stroke-width', '8');
-    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('stroke', isDesperadoMode() ? 'rgba(176,74,255,0.95)' : 'rgba(92,216,142,0.95)');
+    line.setAttribute('stroke-width', '8'); line.setAttribute('stroke-linecap', 'round');
     arrowsEl.appendChild(line);
-
     const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     poly.setAttribute('points', `${tx},${ty} ${bx + px * hw / 2},${by + py * hw / 2} ${bx - px * hw / 2},${by - py * hw / 2}`);
-    poly.setAttribute('fill', 'rgba(92,216,142,0.95)');
+    poly.setAttribute('fill', isDesperadoMode() ? 'rgba(176,74,255,0.95)' : 'rgba(92,216,142,0.95)');
     arrowsEl.appendChild(poly);
   }
 
   function clearArrows() { arrowsEl.innerHTML = ''; }
 
   function clearAnalysis() {
-    analysisRunning = false;
-    multiPV = {};
-    currentDepth = 0;
-    chosenMoveUci = null;
-    clearInterval(thinkTimerInterval);
-    clearArrows();
-    analysisEl.innerHTML = '';
-    evalTextEl.textContent = '0.00';
-    updateEvalBarCss(50);
-    preMoveEval = null;
+    analysisRunning = false; multiPV = {}; currentDepth = 0; chosenMoveUci = null;
+    clearInterval(thinkTimerInterval); clearArrows();
+    analysisEl.innerHTML = ''; evalTextEl.textContent = '0.00';
+    updateEvalBarCss(50); preMoveEval = null;
   }
 
   function updateEvalBarCss(percent) {
     const sheetId = 'kibitz-eval-css';
     let style = document.getElementById(sheetId);
-    if (!style) {
-      style = document.createElement('style');
-      style.id = sheetId;
-      document.head.appendChild(style);
-    }
+    if (!style) { style = document.createElement('style'); style.id = sheetId; document.head.appendChild(style); }
     style.textContent = `.eval-bar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: ${percent}%; background: #eaeaea; transition: width .3s ease; }`;
   }
 
-  // ─── ENGINE ───
   async function ensureEngine() {
     if (engineReady) return true;
     if (engineLoading) return false;
-    engineLoading = true;
-    setStatus('กำลังโหลด Stockfish...', '');
+    engineLoading = true; setStatus('กำลังโหลด Stockfish...', '');
     try {
       const url = 'https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js';
       const resp = await fetch(url);
@@ -793,28 +688,17 @@
       const blob = new Blob([code], { type: 'application/javascript' });
       engine = new Worker(URL.createObjectURL(blob));
       engine.onmessage = onEngineMsg;
-      engine.onerror = (err) => {
-        setStatus('Engine error: ' + (err.message || err), 'err');
-        engineLoading = false; engineReady = false;
-      };
-      engine.postMessage('uci');
-      engine.postMessage('isready');
+      engine.onerror = (err) => { setStatus('Engine error: ' + (err.message || err), 'err'); engineLoading = false; engineReady = false; };
+      engine.postMessage('uci'); engine.postMessage('isready');
       return false;
-    } catch (err) {
-      setStatus('โหลด Engine ไม่ได้: ' + err.message, 'err');
-      engineLoading = false;
-      return false;
-    }
+    } catch (err) { setStatus('โหลด Engine ไม่ได้: ' + err.message, 'err'); engineLoading = false; return false; }
   }
 
   function onEngineMsg(e) {
     const line = typeof e.data === 'string' ? e.data : '';
     if (!line) return;
     if (line === 'uciok' || line === 'readyok') {
-      if (!engineReady) {
-        engineReady = true; engineLoading = false;
-        if (!analysisRunning) setStatus('Stockfish พร้อม', 'ok');
-      }
+      if (!engineReady) { engineReady = true; engineLoading = false; if (!analysisRunning) setStatus('Stockfish พร้อม', 'ok'); }
       return;
     }
     if (line.startsWith('info')) { parseInfo(line); return; }
@@ -830,16 +714,11 @@
       if (t === 'depth') depth = parseInt(tokens[i + 1], 10);
       else if (t === 'multipv') multipv = parseInt(tokens[i + 1], 10);
       else if (t === 'score') { scoreType = tokens[i + 1]; scoreValue = parseInt(tokens[i + 2], 10); }
-      else if (t === 'pv') {
-        for (let j = i + 1; j < tokens.length; j++) pv.push(tokens[j]);
-        break;
-      }
+      else if (t === 'pv') { for (let j = i + 1; j < tokens.length; j++) pv.push(tokens[j]); break; }
     }
     if (!pv.length || scoreType === null) return;
     multiPV[multipv] = { depth, scoreType, scoreValue, pv, rank: multipv };
-    if (analysisRunning && depth > currentDepth) {
-      currentDepth = depth;
-    }
+    if (analysisRunning && depth > currentDepth) currentDepth = depth;
   }
 
   function classifyMove(uci, fen) {
@@ -847,13 +726,14 @@
     const tmp = new Chess();
     try { tmp.load(fen); } catch (e) { return null; }
     let m = null;
-    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); }
-    catch (e) { return null; }
+    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); } catch (e) { return null; }
     if (!m) return null;
     return {
       capture: m.flags.indexOf('c') !== -1,
       promotion: m.flags.indexOf('p') !== -1,
       check: m.san.indexOf('+') !== -1 || m.san.indexOf('#') !== -1,
+      piece: m.piece,
+      captured: m.captured,
     };
   }
 
@@ -862,10 +742,70 @@
     const tmp = new Chess();
     try { tmp.load(fen); } catch (e) { return false; }
     let m = null;
-    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); }
-    catch (e) { return false; }
+    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); } catch (e) { return false; }
     if (!m) return false;
     return gmPreset.openings.some(op => m.san === op || m.san.startsWith(op));
+  }
+
+  // ─── DESPERADO MOVE SCORING ───
+  function desperadoScore(uci, fen) {
+    if (!uci || uci.length < 4) return -999;
+    const tmp = new Chess();
+    try { tmp.load(fen); } catch (e) { return -999; }
+    let m = null;
+    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); } catch (e) { return -999; }
+    if (!m) return -999;
+
+    let score = 0;
+    const destSq = uci.slice(2, 4);
+
+    // 1. จี้คิงหรือควีนของศัตรู (ถ้าเดินไปวางใกล้ๆ หรือจี้)
+    const enemyKingSq = findEnemyKing(tmp);
+    if (enemyKingSq) {
+      const destFile = destSq.charCodeAt(0) - 97;
+      const destRank = parseInt(destSq[1], 10);
+      const kingFile = enemyKingSq.charCodeAt(0) - 97;
+      const kingRank = parseInt(enemyKingSq[1], 10);
+      const dist = Math.max(Math.abs(destFile - kingFile), Math.abs(destRank - kingRank));
+      if (dist <= 2) score += 50;   // เข้าใกล้คิงมาก
+      if (dist <= 1) score += 100;  // จี้ประชิดคิง
+    }
+
+    // 2. ส่งหมากตัวใหญ่ (Queen/King/Rook) บุก
+    if (m.piece === 'q') score += 20;
+    if (m.piece === 'k') score += 15; // เอา King บุก ( suicidal แต่霸气)
+
+    // 3. ถ้าเช็คได้ ให้น้ำหนักเยอะมาก
+    if (m.san.indexOf('+') !== -1) score += 150;
+    if (m.san.indexOf('#') !== -1) score += 1000;
+
+    // 4. กินหมาก
+    if (m.flags.indexOf('c') !== -1) {
+      // กิน Queen = ดีสุด
+      if (m.captured === 'q') score += 200;
+      else if (m.captured === 'r') score += 60;
+      else if (m.captured === 'b' || m.captured === 'n') score += 40;
+      else score += 20;
+    }
+
+    // 5. ยอมเสียหมากตัวเอง (sacrifice) — ถ้าเดินไปให้กิน แต่ได้จี้คิง ก็ถือว่าคุ้ม
+    // ถ้าเป็นหมากมูลค่าสูงและไม่ถูกกินทันที (จะโดนแก้) ไม่มีทางรู้ใน 1 ตา แต่ให้คะแนนติดลบเล็กน้อยถ้าเป็นเบี้ย
+    if (m.piece === 'p') score -= 5;  // การเดินเบี้ยทั่วไปไม่ค่อยนับเป็น desperado
+
+    return score;
+  }
+
+  function findEnemyKing(tmpChess) {
+    const enemyColor = myColor === 'w' ? 'b' : 'w';
+    const files = 'abcdefgh';
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const sq = files[c] + (8 - r);
+        const p = tmpChess.get(sq);
+        if (p && p.type === 'k' && p.color === enemyColor) return sq;
+      }
+    }
+    return null;
   }
 
   function selectMove(best, presetKey) {
@@ -879,13 +819,30 @@
     const topLine = lines[0];
     const secondLine = lines[1];
 
-    // DEFCON 1
     let mustPlayBest = false;
     if (inCheck()) mustPlayBest = true;
     if (topLine && secondLine && topLine.scoreType === 'cp' && secondLine.scoreType === 'cp') {
       if (Math.abs(secondLine.scoreValue - topLine.scoreValue) > 150) mustPlayBest = true;
     }
     if (topLine && topLine.scoreType === 'cp' && topLine.scoreValue < -150) mustPlayBest = true;
+
+    // ─── DESPERADO MODE ───
+    // ถ้าตกอยู่ใน Desperado Mode ให้เลือกตาที่ก้าวร้าวที่สุด ไม่ต้องสนใจ best move
+    if (isDesperadoMode() && !resignDismissed) {
+      let bestDesperado = null;
+      let bestDesperadoScore = -Infinity;
+      for (const line of lines) {
+        const dScore = desperadoScore(line.pv[0], game.fen());
+        if (dScore > bestDesperadoScore) {
+          bestDesperadoScore = dScore;
+          bestDesperado = line;
+        }
+      }
+      if (bestDesperado && bestDesperadoScore >= 20) {
+        return { move: bestDesperado.pv[0], type: 'desperado' };
+      }
+    }
+
     if (mustPlayBest) return { move: topLine.pv[0], type: 'best' };
 
     if (chkOpenings.checked && game.history().length < 10) {
@@ -907,17 +864,10 @@
     let type = 'best';
 
     if (preset.filter === 'aggressive') {
-      const aggro = lines.find(l => {
-        const c = classifyMove(l.pv[0], game.fen());
-        return c && (c.capture || c.check || c.promotion);
-      });
+      const aggro = lines.find(l => { const c = classifyMove(l.pv[0], game.fen()); return c && (c.capture || c.check || c.promotion); });
       if (aggro && aggro.rank !== 1) { candidate = aggro; type = 'style'; }
     } else if (preset.filter === 'defensive') {
-      const quiet = lines.find(l => {
-        if (l.rank > 3) return false;
-        const c = classifyMove(l.pv[0], game.fen());
-        return c && !c.capture && !c.check;
-      });
+      const quiet = lines.find(l => { if (l.rank > 3) return false; const c = classifyMove(l.pv[0], game.fen()); return c && !c.capture && !c.check; });
       if (quiet && quiet.rank !== 1) { candidate = quiet; type = 'style'; }
     } else if (preset.filter === 'chaotic') {
       if (lines.length >= 2) {
@@ -955,6 +905,9 @@
     analysisRunning = false;
     if (!best || best === '(none)') { setStatus('ไม่มีตาเดิน', 'warn'); return; }
 
+    updateDesperadoBanner();
+    checkResignCondition();
+
     const presetKey = selPreset.value;
     const decision = selectMove(best, presetKey);
 
@@ -962,6 +915,12 @@
     drawArrow(chosenMoveUci);
     renderAnalysisOutput(chosenMoveUci, decision.type);
     startThinkTimer(decision.type, presetKey);
+
+    // แบนเนอร์เพิ่ม
+    if (decision.type === 'desperado') {
+      banter('desperado', { force: true });
+      desperadoBanner.classList.add('show');
+    }
   }
 
   function startThinkTimer(type, presetKey) {
@@ -969,32 +928,24 @@
     const preset = PRESETS[presetKey];
     const isOpening = game.history().length < 10;
 
-    let timeLeft;
-    if (isOpening) {
-      timeLeft = 1 + Math.floor(Math.random() * 2);
-    } else {
-      // anti-cheat: use jittered curve instead of uniform
-      timeLeft = humanDelay(preset.timerMin, preset.timerMax);
-    }
+    let timeLeft = isOpening ? 1 + Math.floor(Math.random() * 2) : humanDelay(preset.timerMin, preset.timerMax);
     if (type === 'error' && Math.random() > 0.5) timeLeft += 1;
+    // desperado mode บางทีอาจจะ "คิดนานขึ้น" เพราะลังเล/ตัดสินใจครั้งใหญ่
+    if (type === 'desperado' && Math.random() > 0.5) timeLeft += 2;
     timeLeft = Math.min(MAX_THINK_SECONDS, timeLeft);
     const initialTime = timeLeft;
 
-    // Anti-cheat: fire banter at semi-random moment during thinking
     if (chkAntiCheat.checked && Math.random() > 0.4) {
       const banterDelay = 200 + Math.random() * (timeLeft * 1000 * 0.7);
-      setTimeout(() => {
-        if (thinkTimerInterval) banterThinking();
-      }, banterDelay);
+      setTimeout(() => { if (thinkTimerInterval) banter('thinking', { force: true }); }, banterDelay);
     }
 
     const updateTimer = () => {
       const perc = ((initialTime - timeLeft) / initialTime) * 100;
       updateEvalBarCss(perc);
-
       const san = pvToSan([chosenMoveUci], game.fen())[0] || chosenMoveUci;
       if (timeLeft > 0) {
-        setStatus(`รอ ${timeLeft} วิ — ${san}`, type === 'error' ? 'warn' : 'ok');
+        setStatus(`รอ ${timeLeft} วิ — ${san}`, (type === 'error' || type === 'desperado') ? 'warn' : 'ok');
         timeLeft--;
       } else {
         setStatus(`เดิน ${san} ได้เลย`, 'ok');
@@ -1003,7 +954,6 @@
         updateEvalBarCss(50);
       }
     };
-
     updateTimer();
     thinkTimerInterval = setInterval(updateTimer, 1000);
   }
@@ -1041,6 +991,7 @@
       if (moveType === 'error') { tag = 'Human error'; cls = 'error'; icon = '⚠'; }
       else if (moveType === 'opening') { tag = `Opening (${preset.tag})`; cls = 'opening'; icon = '📖'; }
       else if (moveType === 'style') { tag = preset.tag; cls = 'style'; icon = '★'; }
+      else if (moveType === 'desperado') { tag = 'DESPERADO'; cls = 'desperado'; icon = '🔥'; }
       else { tag = 'Best move'; cls = 'primary'; icon = '👑'; }
 
       html += `
@@ -1082,7 +1033,7 @@
   }
 
   async function startAnalysis(deep = false) {
-    if (gameOver()) { setStatus('เกมจบแล้ว', 'warn'); return; }
+    if (gameOver() || resigned) { setStatus('เกมจบแล้ว', 'warn'); return; }
     if (analysisRunning) return;
 
     const ready = await ensureEngine();
@@ -1092,8 +1043,8 @@
 
     clearAnalysis();
     analysisRunning = true;
+    resignBanner.classList.remove('show');
 
-    // Snapshot current eval as pre-move reference for coach
     if (multiPV[1]) {
       preMoveEval = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
     }
@@ -1127,6 +1078,9 @@
     selectedSq = null; legalDests = new Set();
     const hist = game.history({ verbose: true });
     lastMove = hist.length ? { from: hist[hist.length - 1].from, to: hist[hist.length - 1].to } : null;
+    resignDismissed = false; resigned = false;
+    resignBanner.classList.remove('show');
+    desperadoBanner.classList.remove('show');
     renderBoard(); renderHistory(); updateStatus();
     banter('idle', { force: true });
   };
@@ -1135,6 +1089,9 @@
     game.reset();
     clearAnalysis();
     selectedSq = null; legalDests = new Set(); lastMove = null;
+    resignDismissed = false; resigned = false;
+    resignBanner.classList.remove('show');
+    desperadoBanner.classList.remove('show');
     renderBoard(); renderHistory(); updateStatus();
     banter('opening', { force: true });
   };
