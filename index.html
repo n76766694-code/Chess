@@ -180,7 +180,7 @@
 <body>
 
 <h1>Kibitz <span>•</span> Humanizer</h1>
-<div class="subtitle">เล่นขาว • เดินดำตามเกมจริง</div>
+<div class="subtitle" id="subtitle">คุณเล่นขาว • ฝ่ายตรงข้ามเดินดำ</div>
 
 <div id="status">พร้อม</div>
 
@@ -190,6 +190,13 @@
 </div>
 
 <div class="settings-box">
+  <div class="setting-row">
+    <label>ฝั่งที่คุณเล่น</label>
+    <select id="selSide">
+      <option value="w">ขาว (White) — คุณเริ่มก่อน</option>
+      <option value="b">ดำ (Black) — คู่ต่อสู้เริ่มก่อน</option>
+    </select>
+  </div>
   <div class="setting-row">
     <label>สไตล์การเล่น</label>
     <select id="selPreset">
@@ -239,61 +246,11 @@
 
   // ─────────── PRESETS ───────────
   const PRESETS = {
-    pro: {
-      label: 'ดั้งเดิม (มือโปร)',
-      depth: 18,
-      movetime: null,
-      filter: null,
-      timerMin: 5, timerMax: 15,
-      blunderMult: 0.6,
-      tag: 'Pro',
-      tagClass: 'primary',
-      hint: 'สมดุล คิดลึกปานกลาง ใช้เวลาตามธรรมชาติ พลาดยากขึ้น 40%'
-    },
-    master: {
-      label: 'Master',
-      depth: 22,
-      movetime: null,
-      filter: null,
-      timerMin: 8, timerMax: 22,
-      blunderMult: 0.3,
-      tag: 'Master',
-      tagClass: 'primary',
-      hint: 'คิดลึกที่สุด (depth 22) ใช้เวลานาน เลือกตาเดินเทพ พลาดน้อยมาก'
-    },
-    speed: {
-      label: 'Speedrun (Aura Farm)',
-      depth: 12,
-      movetime: 800,
-      filter: null,
-      timerMin: 1, timerMax: 4,
-      blunderMult: 1.8,
-      tag: 'Aura',
-      tagClass: 'style',
-      hint: 'เดินไว ไม่คิดมาก (800ms) พลาดง่ายกว่าปกติ 80% เหมาะสายฟาร์ม Aura'
-    },
-    attack: {
-      label: 'สายบุก',
-      depth: 16,
-      movetime: null,
-      filter: 'aggressive',
-      timerMin: 4, timerMax: 10,
-      blunderMult: 1.0,
-      tag: 'Aggro',
-      tagClass: 'style',
-      hint: 'เลือกตาเดินที่กินหมาก/เช็ค/โปรโมทเป็นหลัก เลือกอันที่ดีที่สุดในกลุ่มบุก'
-    },
-    defend: {
-      label: 'เน้นป้องกัน (ล่อเสือ)',
-      depth: 18,
-      movetime: null,
-      filter: 'defensive',
-      timerMin: 6, timerMax: 15,
-      blunderMult: 0.9,
-      tag: 'Trap',
-      tagClass: 'style',
-      hint: 'เลือกตาเดินปิดช่อง ไม่แลกหมาก ตั้งรับให้อีกฝ่ายเปิดเอง'
-    }
+    pro: { label: 'ดั้งเดิม (มือโปร)', depth: 18, movetime: null, filter: null, timerMin: 5, timerMax: 15, blunderMult: 0.6, tag: 'Pro', tagClass: 'primary', hint: 'สมดุล คิดลึกปานกลาง ใช้เวลาตามธรรมชาติ พลาดยากขึ้น 40%' },
+    master: { label: 'Master', depth: 22, movetime: null, filter: null, timerMin: 8, timerMax: 22, blunderMult: 0.3, tag: 'Master', tagClass: 'primary', hint: 'คิดลึกที่สุด (depth 22) ใช้เวลานาน เลือกตาเดินเทพ พลาดน้อยมาก' },
+    speed: { label: 'Speedrun (Aura Farm)', depth: 12, movetime: 800, filter: null, timerMin: 1, timerMax: 4, blunderMult: 1.8, tag: 'Aura', tagClass: 'style', hint: 'เดินไว ไม่คิดมาก (800ms) พลาดง่ายกว่าปกติ 80% เหมาะสายฟาร์ม Aura' },
+    attack: { label: 'สายบุก', depth: 16, movetime: null, filter: 'aggressive', timerMin: 4, timerMax: 10, blunderMult: 1.0, tag: 'Aggro', tagClass: 'style', hint: 'เลือกตาเดินที่กินหมาก/เช็ค/โปรโมทเป็นหลัก เลือกอันที่ดีที่สุดในกลุ่มบุก' },
+    defend: { label: 'เน้นป้องกัน (ล่อเสือ)', depth: 18, movetime: null, filter: 'defensive', timerMin: 6, timerMax: 15, blunderMult: 0.9, tag: 'Trap', tagClass: 'style', hint: 'เลือกตาเดินปิดช่อง ไม่แลกหมาก ตั้งรับให้อีกฝ่ายเปิดเอง' }
   };
 
   // ─────────── PIECES ───────────
@@ -304,6 +261,7 @@
 
   const game = new Chess();
   
+  let myColor = 'w'; // ฝั่งที่ผู้เล่นเลือก
   let selectedSq = null;
   let legalDests = new Set();
   let lastMove = null;
@@ -327,6 +285,7 @@
   const evalBarEl = document.getElementById('evalBar');
   const analysisEl = document.getElementById('analysisOutput');
   const historyEl = document.getElementById('moveHistory');
+  const subtitle = document.getElementById('subtitle');
   
   const btnAnalyze = document.getElementById('btnAnalyze');
   const btnThink = document.getElementById('btnThink');
@@ -334,12 +293,13 @@
   const btnFlip = document.getElementById('btnFlip');
   const btnReset = document.getElementById('btnReset');
 
+  const selSide = document.getElementById('selSide');
   const selPreset = document.getElementById('selPreset');
   const rngBlunder = document.getElementById('rngBlunder');
   const lblBlunder = document.getElementById('lblBlunder');
   const presetHint = document.getElementById('presetHint');
 
-  // ─────────── PRESET UI ───────────
+  // ─────────── UI EVENTS ───────────
   function updatePresetHint() {
     const p = PRESETS[selPreset.value];
     presetHint.textContent = p.hint;
@@ -348,6 +308,17 @@
   rngBlunder.addEventListener('input', (e) => {
     lblBlunder.textContent = e.target.value + '%';
   });
+
+  selSide.addEventListener('change', (e) => {
+    myColor = e.target.value;
+    flipped = (myColor === 'b');
+    subtitle.textContent = `คุณเล่น${myColor === 'w' ? 'ขาว • คุณเริ่มก่อน' : 'ดำ • คู่ต่อสู้เริ่มก่อน'}`;
+    game.reset();
+    clearAnalysis();
+    selectedSq = null; legalDests = new Set(); lastMove = null;
+    renderBoard(); renderHistory(); updateStatus();
+  });
+
   updatePresetHint();
 
   // ─────────── GAME HELPERS ───────────
@@ -470,8 +441,11 @@
       else setStatus('เกมจบ — เสมอ', 'warn');
       return;
     }
-    if (game.turn() === 'w') setStatus('ตาคุณ (ขาว) — คลิกชิ้นหมากเพื่อเดิน', 'ok');
-    else setStatus('ตาดำ — เดินตามที่คู่ต่อสู้เดินจริง', '');
+    if (game.turn() === myColor) {
+      setStatus(`ตาคุณ (${myColor === 'w' ? 'ขาว' : 'ดำ'}) — คลิกชิ้นหมากเพื่อเดิน`, 'ok');
+    } else {
+      setStatus(`ตาคู่ต่อสู้ (${game.turn() === 'w' ? 'ขาว' : 'ดำ'}) — เดินตามที่คู่ต่อสู้เดินจริง`, '');
+    }
   }
 
   // ─────────── ARROW ───────────
@@ -622,14 +596,11 @@
     const blunderChance = sliderPct * preset.blunderMult;
 
     const lines = Object.values(multiPV).sort((a, b) => a.rank - b.rank);
-    if (!lines.length) {
-      return { move: best, type: 'best' };
-    }
+    if (!lines.length) return { move: best, type: 'best' };
 
-    let candidate = lines[0]; // default best
+    let candidate = lines[0];
     let type = 'best';
 
-    // Step 1: apply style filter
     if (preset.filter === 'aggressive') {
       const aggro = lines.find(l => {
         const c = classifyMove(l.pv[0], game.fen());
@@ -651,7 +622,6 @@
       }
     }
 
-    // Step 2: blunder overlay (highest priority)
     if (Math.random() < blunderChance && lines.length >= 3) {
       const badPool = lines.slice(2, Math.min(5, lines.length));
       if (badPool.length) {
@@ -682,7 +652,6 @@
     const preset = PRESETS[presetKey];
 
     let timeLeft = Math.floor(Math.random() * (preset.timerMax - preset.timerMin + 1)) + preset.timerMin;
-    // hesitating before risky moves
     if (type === 'error' && Math.random() > 0.5) timeLeft += 3;
     if (type === 'style' && presetKey === 'defend' && Math.random() > 0.5) timeLeft += 2;
 
@@ -760,7 +729,6 @@
       `;
     }
 
-    // Show remaining top lines (skip the one we picked)
     for (let i = 1; i <= 3; i++) {
       const line = multiPV[i];
       if (!line) continue;
