@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — Grandmaster Edition</title>
+<title>Kibitz — GM Styles</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -156,7 +156,7 @@
     font-family: ui-monospace, monospace; text-align: center;
   }
   .line-eval {
-    font-family: ui-monospace, monospace; font-weight: 700;
+    font-family: ui-monospace, Menlo, monospace; font-weight: 700;
     color: #5cd88e; min-width: 56px; text-align: right;
   }
   .line-pv {
@@ -174,11 +174,16 @@
     line-height: 1.7;
   }
   .move-history b { color: #5cd88e; }
+
+  .footer-note {
+    font-size: 11px; color: #666; text-align: center;
+    padding: 4px; line-height: 1.5;
+  }
 </style>
 </head>
 <body>
 
-<h1>Kibitz <span>•</span> Grandmaster Edition</h1>
+<h1>Kibitz <span>•</span> GM Styles</h1>
 <div class="subtitle" id="subtitle">คุณเล่นขาว • ฝ่ายตรงข้ามเดินดำ</div>
 
 <div id="status">พร้อม</div>
@@ -197,24 +202,24 @@
     </select>
   </div>
   <div class="setting-row">
-    <label>โปรไฟล์ GM</label>
+    <label>สไตล์ GM</label>
     <select id="selPreset">
-      <option value="carlsen">Magnus Carlsen (ยืดหยุ่น/ดึงเกม)</option>
-      <option value="nakamura">Hikaru Nakamura (เร็ว/ดุดัน/จิตวิทยา)</option>
-      <option value="kasparov">Garry Kasparov (บุกแหลก/คมแลกหมัด)</option>
-      <option value="karpov">Anatoly Karpov (คุมเกม/บีบพื้นที่)</option>
-      <option value="caruana">Fabiano Caruana (ตำราเป๊ะ/คอมพิวเตอร์)</option>
+      <option value="carlsen">Magnus Carlsen — ยืดหยุ่น</option>
+      <option value="nakamura">Hikaru Nakamura — เร็ว/ป่วน</option>
+      <option value="kasparov">Garry Kasparov — บุกหนัก</option>
+      <option value="karpov">Anatoly Karpov — คุมเกม</option>
+      <option value="caruana">Fabiano Caruana — เป๊ะทฤษฎี</option>
     </select>
   </div>
   <div class="setting-row">
     <label>โอกาสแกล้งพลาด</label>
-    <input type="range" id="rngBlunder" min="0" max="20" value="5">
+    <input type="range" id="rngBlunder" min="0" max="30" value="5">
     <span id="lblBlunder" style="font-family:monospace; width:36px; text-align:right; color:#5cd88e; font-weight:700;">5%</span>
   </div>
   <div class="setting-row">
     <label style="display:flex; align-items:center; cursor:pointer;">
       <input type="checkbox" id="chkOpenings" checked style="accent-color:#5cd88e; transform:scale(1.2); margin-right:8px;">
-      ใช้ตำราเปิดเกม (Opening Book)
+      สุ่มไม้เปิดเกม (10 ตาแรก)
     </label>
   </div>
   <div id="presetHint">—</div>
@@ -240,66 +245,83 @@
 
 <div class="move-history" id="moveHistory">—</div>
 
+<div class="footer-note">
+  คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
+  เลือก GM แล้วระบบจะจำลองทั้งไม้เปิด สไตล์ และเวลาคิด
+</div>
+
 <script>
 (() => {
   'use strict';
 
   const MAX_THINK_SECONDS = 14;
 
-  // อัปเดตสไตล์และตัวคูณตามข้อมูลจาก txt
+  // ─── GM PROFILES (จากคู่มือ) ───
   const PRESETS = {
-    carlsen: { 
-      label: 'Magnus Carlsen', 
-      depth: 20, movetime: null, filter: null, 
-      timerMin: 5, timerMax: 12, blunderMult: 0.4, 
-      tag: 'Carlsen', tagClass: 'primary', 
-      hint: 'ยืดหยุ่น ไม่ยึดตำรา เปิด e4 หรือ c4/Nf3 สลับ, เน้นPositional Play' 
+    carlsen: {
+      label: 'Magnus Carlsen',
+      depth: 20,
+      movetime: null,
+      filter: 'flexible',
+      openings: ['e4', 'c4', 'Nf3', 'd4'],   // ยืดหยุ่น หนีตำรา
+      timerMin: 4, timerMax: 9,
+      pressureMin: 11, pressureMax: 14,
+      blunderMult: 0.4,
+      tag: 'Carlsen',
+      tagClass: 'primary',
+      hint: 'ยืดหยุ่นสูง ดึงคู่แข่งออกจากตำรา คิด 4-9 วิ, เจอภัยคุกคืบพุ่ง 11-14 วิ'
     },
-    nakamura: { 
-      label: 'Hikaru Nakamura', 
-      depth: 14, movetime: null, filter: null, 
-      timerMin: 2, timerMax: 7, blunderMult: 1.2, 
-      tag: 'Hikaru', tagClass: 'style', 
-      hint: 'รวดเร็ว ดุดัน ชอบสายอินดี้ (1.e4 หรือ f3/g4) ใช้จิตวิทยา' 
+    nakamura: {
+      label: 'Hikaru Nakamura',
+      depth: 16,
+      movetime: 700,
+      filter: 'chaotic',
+      openings: ['e4', 'f3', 'g4', 'Nf3'],   // e4 + อินดี้ป่วน
+      timerMin: 1, timerMax: 4,
+      pressureMin: 6, pressureMax: 10,
+      blunderMult: 1.5,
+      tag: 'Nakamura',
+      tagClass: 'style',
+      hint: 'เร็ว ดุดัน ชอบป่วน ไม้เปิดอินดี้ คิด 1-4 วิ (เกมเร็ว)'
     },
-    kasparov: { 
-      label: 'Garry Kasparov', 
-      depth: 22, movetime: null, filter: 'aggressive', 
-      timerMin: 5, timerMax: 14, blunderMult: 0.5, 
-      tag: 'Kasparov', tagClass: 'style', 
-      hint: 'โจมตีรุนแรง เปิด e4/Ruy Lopez หรือ Sicilian Najdorf แลกหมัดคมๆ' 
+    kasparov: {
+      label: 'Garry Kasparov',
+      depth: 22,
+      movetime: null,
+      filter: 'aggressive',
+      openings: ['e4', 'd4'],                // Ruy Lopez / Najdorf
+      timerMin: 5, timerMax: 10,
+      pressureMin: 10, pressureMax: 14,
+      blunderMult: 0.5,
+      tag: 'Kasparov',
+      tagClass: 'style',
+      hint: 'บุกหนัก คิด 20-30 ตาล่วงหน้า เลือกตากิน/เช็ค/โปรโมท คิด 5-10 วิ'
     },
-    karpov: { 
-      label: 'Anatoly Karpov', 
-      depth: 18, movetime: null, filter: 'defensive', 
-      timerMin: 5, timerMax: 13, blunderMult: 0.6, 
-      tag: 'Karpov', tagClass: 'style', 
-      hint: 'ตั้งรับแน่นหนา เปิด d4/Queen Gambit หรือ Caro-Kann บีบพื้นที่ทีละนิด' 
+    karpov: {
+      label: 'Anatoly Karpov',
+      depth: 20,
+      movetime: null,
+      filter: 'defensive',
+      openings: ['d4', 'c4', 'Nf3'],         // Queen\'s Gambit / คุมพื้นที่
+      timerMin: 6, timerMax: 12,
+      pressureMin: 10, pressureMax: 14,
+      blunderMult: 0.6,
+      tag: 'Karpov',
+      tagClass: 'style',
+      hint: 'ตั้งรับแน่น คุมเกม บีบพื้นที่ เลือกตาไม่แลกหมาก คิด 6-12 วิ'
     },
-    caruana: { 
-      label: 'Fabiano Caruana', 
-      depth: 24, movetime: null, filter: null, 
-      timerMin: 4, timerMax: 14, blunderMult: 0.2, 
-      tag: 'Caruana', tagClass: 'primary', 
-      hint: 'ทฤษฎีคอมพิวเตอร์ เปิด e4/Ruy Lopez เป๊ะๆ คิดลึกมาก พลาดน้อยสุด' 
-    }
-  };
-
-  // Opening Book จาก txt
-  const OPENING_BOOK = {
-    w: {
-      carlsen: ['e2e4', 'c2c4', 'g1f3'],
-      nakamura: ['e2e4', 'f2f3', 'g2g4'],
-      kasparov: ['e2e4'],
-      karpov: ['d2d4'],
-      caruana: ['e2e4']
-    },
-    b: {
-      carlsen: ['c7c5', 'e7e6'], // Sicilian, QGD
-      nakamura: ['g8f6', 'e7e5'], // KID, Berlin
-      kasparov: ['c7c5'], // Najdorf
-      karpov: ['c7c6'], // Caro-Kann
-      caruana: ['c7c5', 'e7e6'] // Sveshnikov, QGD
+    caruana: {
+      label: 'Fabiano Caruana',
+      depth: 22,
+      movetime: null,
+      filter: 'precise',
+      openings: ['e4', 'd4'],                // Petroff / Ruy Lopez
+      timerMin: 4, timerMax: 8,
+      pressureMin: 9, pressureMax: 13,
+      blunderMult: 0.2,
+      tag: 'Caruana',
+      tagClass: 'primary',
+      hint: 'เป๊ะทฤษฎี ไม่แกล้งพลาด ไม้เปิดมาตรฐาน คิดสม่ำเสมอ 4-8 วิ'
     }
   };
 
@@ -325,7 +347,6 @@
   
   let chosenMoveUci = null;
   let thinkTimerInterval = null;
-  
   let lastOpponentScore = 0;
 
   const boardEl = document.getElementById('board');
@@ -487,7 +508,9 @@
   }
   
   function getScoreFromPerspective(scoreType, scoreValue, turnWhoMoved) {
-    if (scoreType === 'mate') return scoreValue > 0 ? 9999 : -9999;
+    if (scoreType === 'mate') {
+      return scoreValue > 0 ? 9999 : -9999;
+    }
     let v = scoreValue;
     if (turnWhoMoved === 'b') v = -v;
     if (myColor === 'b') v = -v;
@@ -642,49 +665,29 @@
       promotion: m.flags.indexOf('p') !== -1,
       castle: m.flags.indexOf('k') !== -1 || m.flags.indexOf('q') !== -1,
       check: m.san.indexOf('+') !== -1 || m.san.indexOf('#') !== -1,
+      san: m.san,
+      piece: m.piece,
     };
   }
 
-  // ─── ค้นหาตาเดินจาก Opening Book ───
-  function findBookMove(presetKey) {
-    const history = game.history({ verbose: true });
-    const moveCount = history.length;
-    
-    // ถ้าเป็นตาแรกของเรา (ไม่มีประวัติการเดินเลย หรือเดินไปแล้ว 1 ตา)
-    if (moveCount === 0) {
-      const book = OPENING_BOOK.w[presetKey];
-      if (book) {
-        const validMoves = book.filter(uci => {
-          try {
-            const testGame = new Chess();
-            return testGame.move({ from: uci.slice(0,2), to: uci.slice(2,4), promotion: 'q' }) !== null;
-          } catch(e) { return false; }
-        });
-        if (validMoves.length > 0) {
-          const pick = validMoves[Math.floor(Math.random() * validMoves.length)];
-          return { move: pick, type: 'opening' };
-        }
-      }
-    } 
-    // ถ้าเราเล่นดำ และคู่ต่อสู้เพิ่งเดินตาแรก
-    else if (myColor === 'b' && moveCount === 1) {
-      const book = OPENING_BOOK.b[presetKey];
-      if (book) {
-        const validMoves = book.filter(uci => {
-          try {
-            const testGame = new Chess();
-            testGame.load(game.fen());
-            return testGame.move({ from: uci.slice(0,2), to: uci.slice(2,4), promotion: 'q' }) !== null;
-          } catch(e) { return false; }
-        });
-        if (validMoves.length > 0) {
-          const pick = validMoves[Math.floor(Math.random() * validMoves.length)];
-          return { move: pick, type: 'opening' };
-        }
-      }
-    }
-    
-    return null;
+  // ─── ตรวจว่าเป็นไม้เปิดของ GM คนนี้ไหม ───
+  function isPreferredOpening(uci, fen, gmPreset) {
+    if (!uci || uci.length < 4) return false;
+    const tmp = new Chess();
+    try { tmp.load(fen); } catch (e) { return false; }
+    let m = null;
+    try {
+      m = tmp.move({
+        from: uci.slice(0, 2),
+        to: uci.slice(2, 4),
+        promotion: uci.slice(4, 5) || 'q'
+      });
+    } catch (e) { return false; }
+    if (!m) return false;
+    const san = m.san;
+    // เปิดด้วยเบี้ยหรือม้า
+    const openingList = gmPreset.openings;
+    return openingList.some(op => san === op || san.startsWith(op));
   }
 
   function selectMove(best, presetKey) {
@@ -692,36 +695,32 @@
     const sliderPct = parseInt(rngBlunder.value, 10) / 100;
     const blunderChance = sliderPct * preset.blunderMult;
 
-    // 1. เช็ค Opening Book ก่อน
-    if (chkOpenings.checked && game.history().length < 4) { // ใช้ Book ในช่วง 2 ตาแรกของแต่ละฝ่าย
-      const bookMove = findBookMove(presetKey);
-      if (bookMove) return bookMove;
-    }
-
     const lines = Object.values(multiPV).sort((a, b) => a.rank - b.rank);
     if (!lines.length) return { move: best, type: 'best' };
 
-    // 2. ตามด้วยระบบสุ่มเปิดเกมของ Engine (ถ้ายังอยู่ในช่วง 10 ตา)
-    if (chkOpenings.checked && game.history().length < 10 && lines.length > 1) {
-      const bestLine = lines[0];
-      if (bestLine.scoreType === 'cp') {
-        const validOpenings = lines.filter(l => {
-          if (l.scoreType !== 'cp') return false;
-          return Math.abs(l.scoreValue - bestLine.scoreValue) <= 40;
+    // ─── OPENING REPERTOIRE (10 ตาแรก) ───
+    if (chkOpenings.checked && game.history().length < 10) {
+      const openingCandidates = lines.filter(l => isPreferredOpening(l.pv[0], game.fen(), preset));
+      if (openingCandidates.length > 0) {
+        // ตรวจคะแนนไม่ให้ทิ้งมากกว่า 0.6 หมาก
+        const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 0;
+        const safeCandidates = openingCandidates.filter(l => {
+          if (l.scoreType !== 'cp' || lines[0].scoreType !== 'cp') return true;
+          return Math.abs(l.scoreValue - bestScore) <= 60;
         });
-
-        if (validOpenings.length > 1) {
-          const pick = validOpenings[Math.floor(Math.random() * validOpenings.length)];
+        if (safeCandidates.length > 0) {
+          const pick = safeCandidates[Math.floor(Math.random() * safeCandidates.length)];
           return { move: pick.pv[0], type: 'opening' };
         }
       }
     }
 
-    // 3. ระบบคัดตามสไตล์ GM
     let candidate = lines[0];
     let type = 'best';
 
+    // ─── STYLE FILTER ───
     if (preset.filter === 'aggressive') {
+      // Kasparov: เน้นกิน/เช็ค/โปรโมท
       const aggro = lines.find(l => {
         const c = classifyMove(l.pv[0], game.fen());
         return c && (c.capture || c.check || c.promotion);
@@ -731,6 +730,7 @@
         type = 'style';
       }
     } else if (preset.filter === 'defensive') {
+      // Karpov: เน้นตาเงียบ ปิดช่อง
       const quiet = lines.find(l => {
         if (l.rank > 3) return false;
         const c = classifyMove(l.pv[0], game.fen());
@@ -740,9 +740,33 @@
         candidate = quiet;
         type = 'style';
       }
+    } else if (preset.filter === 'chaotic') {
+      // Nakamura: สุ่มจาก 3 อันดับแรกแบบสนุก
+      if (lines.length >= 2) {
+        const pick = lines[Math.floor(Math.random() * Math.min(3, lines.length))];
+        candidate = pick;
+        if (pick.rank !== 1) type = 'style';
+      }
+    } else if (preset.filter === 'flexible') {
+      // Carlsen: ถ้าอันดับ 1 กับ 2-3 ต่างกันไม่เกิน 0.3 ให้สุ่ม
+      if (lines.length >= 2) {
+        const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 9999;
+        const closeLines = lines.filter(l => {
+          if (l.scoreType !== 'cp' || lines[0].scoreType !== 'cp') return false;
+          return Math.abs(l.scoreValue - bestScore) <= 30;
+        });
+        if (closeLines.length > 1) {
+          const pick = closeLines[Math.floor(Math.random() * closeLines.length)];
+          if (pick.rank !== 1) {
+            candidate = pick;
+            type = 'style';
+          }
+        }
+      }
     }
+    // precise (Caruana) ไม่มี filter = เลือก best เสมอ
 
-    // 4. ระบบแกล้งพลาด (Blunder)
+    // ─── BLUNDER OVERLAY ───
     if (Math.random() < blunderChance && lines.length >= 3) {
       const badPool = lines.slice(2, Math.min(5, lines.length));
       if (badPool.length) {
@@ -775,26 +799,19 @@
     let timeLeft = Math.floor(Math.random() * (preset.timerMax - preset.timerMin + 1)) + preset.timerMin;
     
     if (type === 'error' && Math.random() > 0.5) timeLeft += 2;
-    if (type === 'style' && presetKey === 'karpov' && Math.random() > 0.5) timeLeft += 2;
 
-    // ─── Dynamic Timer ───
-    if (presetKey === 'caruana' || presetKey === 'kasparov') {
-      let isUnderPressure = false;
-      
-      if (multiPV[1]) {
-        const currentScore = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
-        if (currentScore < -50) isUnderPressure = true;
-        if (lastOpponentScore - currentScore > 100) isUnderPressure = true;
-      }
-      
-      if (inCheck()) isUnderPressure = true;
+    // ─── DYNAMIC PRESSURE ───
+    let isUnderPressure = false;
+    if (multiPV[1]) {
+      const currentScore = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
+      if (currentScore < -50) isUnderPressure = true;
+      if (lastOpponentScore - currentScore > 100) isUnderPressure = true;
+    }
+    if (inCheck()) isUnderPressure = true;
 
-      if (isUnderPressure) {
-        timeLeft = 10 + Math.floor(Math.random() * 5);
-        setStatus(`⚠ สถานการณ์ตึงเครียด! ${preset.label} กำลังคิดหนัก...`, 'warn');
-      } else {
-        timeLeft = 4 + Math.floor(Math.random() * 6);
-      }
+    if (isUnderPressure) {
+      timeLeft = preset.pressureMin + Math.floor(Math.random() * (preset.pressureMax - preset.pressureMin + 1));
+      setStatus(`⚠ สถานการณ์ตึงเครียด! ${preset.label} กำลังคิดหนัก...`, 'warn');
     }
 
     timeLeft = Math.min(MAX_THINK_SECONDS, timeLeft);
@@ -806,7 +823,7 @@
 
       const san = pvToSan([chosenMoveUci], game.fen())[0] || chosenMoveUci;
       if (timeLeft > 0) {
-        const isWarn = type === 'error' || (presetKey === 'caruana' && timeLeft > 8);
+        const isWarn = type === 'error' || isUnderPressure;
         setStatus(`รอ ${timeLeft} วิ ก่อนเดิน ${san}`, isWarn ? 'warn' : 'ok');
         timeLeft--;
       } else {
@@ -856,7 +873,7 @@
         cls = 'error';
         icon = '⚠';
       } else if (moveType === 'opening') {
-        tag = 'Opening Book / Theory';
+        tag = `Opening (${preset.label})`;
         cls = 'opening';
         icon = '📖';
       } else if (moveType === 'style') {
@@ -921,7 +938,7 @@
     analysisRunning = true;
 
     const preset = PRESETS[selPreset.value];
-    setStatus(deep ? 'Stockfish กำลังคิด (โหมดลึก 14 วิ)...' : `Stockfish กำลังคิด (${preset.label})...`, '');
+    setStatus(deep ? `Stockfish กำลังคิด (โหมดลึก 14 วิ)...` : `Stockfish กำลังคิด (${preset.label})...`, '');
     analysisEl.innerHTML = '<div class="line-row">กำลังคิด...</div>';
 
     try {
