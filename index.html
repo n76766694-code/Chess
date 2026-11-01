@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Kibitz — ผู้ช่วยหมากรุก (Humanizer)</title>
+<script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: #0f0f10; color: #eaeaea;
+    max-width: 520px; margin: auto;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  h1 { font-size: 17px; font-weight: 700; margin: 4px 0 0; letter-spacing: .5px; text-align: center; }
+  h1 span { color: #5cd88e; }
+  .subtitle { font-size: 11px; color: #777; text-align: center; margin-top: -4px; }
+
+  #status {
+    font-size: 13px; text-align: center;
+    padding: 10px 12px; border-radius: 10px;
+    background: #17181a; color: #a8a8a8;
+    min-height: 40px; display: flex; align-items: center; justify-content: center;
+    font-weight: 500;
+  }
+  #status.ok   { color: #5cd88e; background: #10231a; }
+  #status.err  { color: #ff6b6b; background: #2a1414; }
+  #status.warn { color: #ffd84d; background: #262010; }
+
+  .board-wrap {
+    position: relative; width: 100%; aspect-ratio: 1;
+    border-radius: 10px; overflow: hidden;
+    user-select: none; -webkit-user-select: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .board {
+    position: absolute; inset: 0;
+    display: grid; grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+  }
+  .cell {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background-color .12s;
+  }
+  .cell.light { background: #ebecd0; }
+  .cell.dark  { background: #739552; }
+  .cell.last  { box-shadow: inset 0 0 0 3px rgba(255,216,77,0.8); }
+  .cell.selected { box-shadow: inset 0 0 0 4px rgba(255,216,77,1); background-color: #f7ef8a; }
+  .cell.check { background-color: #e05252 !important; }
+  .cell.hint::after {
+    content: ''; position: absolute; width: 24%; height: 24%;
+    border-radius: 50%; background: rgba(20,20,20,0.35); pointer-events: none;
+  }
+  .cell.hint.capture::after {
+    width: 82%; height: 82%; background: transparent;
+    border: 4px solid rgba(20,20,20,0.35); border-radius: 50%;
+  }
+  
+  /* ─── แก้ไขตัวหมากให้ชัดเจน ─── */
+  .piece {
+    position: relative; z-index: 1;
+    pointer-events: none;
+    font-size: min(10vw, 52px); /* ขยายใหญ่ขึ้น */
+    line-height: 1;
+    font-family: "Arial Unicode MS", "Apple Symbols", "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+  }
+  .piece.w { 
+    color: #ffffff; 
+    -webkit-text-stroke: 1.5px #1a1a1a;
+    filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.6));
+  }
+  .piece.b { 
+    color: #1a1a1a; 
+    -webkit-text-stroke: 1.5px #ffffff;
+    filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.6));
+  }
+
+  #arrows {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 5;
+  }
+
+  .settings-box {
+    background: #17181a; border-radius: 10px; padding: 12px;
+    display: flex; flex-direction: column; gap: 10px;
+    border: 1px solid #222;
+  }
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; color: #ccc;
+  }
+  input[type="range"] { flex: 1; margin-left: 12px; accent-color: #5cd88e; }
+  
+  .eval-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #17181a; border-radius: 10px; padding: 10px 12px;
+  }
+  .eval-bar {
+    flex: 1; height: 10px; border-radius: 5px;
+    background: #1a1a1a; overflow: hidden; position: relative;
+  }
+  #evalBarFill { display: none; }
+  #evalText {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 13px; font-weight: 700;
+    min-width: 56px; text-align: right; color: #eaeaea;
+  }
+
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  button {
+    padding: 13px 8px; border: 0; border-radius: 10px;
+    background: #2a2a2c; color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity .12s;
+  }
+  button:disabled { opacity: .35; cursor: default; }
+  button.primary { background: #1f6b3f; }
+  button.secondary { background: #333; font-size: 13px; }
+  button.danger { background: #5c2020; font-size: 13px; }
+
+  #analysisOutput {
+    background: #17181a; border-radius: 10px;
+    padding: 4px; min-height: 60px;
+  }
+  .line-row {
+    display: flex; align-items: baseline; gap: 8px;
+    padding: 8px 10px; border-radius: 8px;
+    font-size: 13px;
+  }
+  .line-row.primary {
+    background: #10231a;
+    font-size: 15px;
+    border: 1px solid #1f6b3f;
+  }
+  .line-row.error {
+    background: #2a1f14;
+    border: 1px solid #6b4f1f;
+  }
+  .line-rank {
+    font-weight: 700; color: #5cd88e; min-width: 16px;
+    font-family: ui-monospace, monospace;
+  }
+  .line-eval {
+    font-family: ui-monospace, monospace; font-weight: 700;
+    color: #5cd88e; min-width: 56px; text-align: right;
+  }
+  .line-pv {
+    font-family: ui-monospace, monospace;
+    color: #999; font-size: 11px;
+    flex: 1; word-break: break-all;
+  }
+  .line-pv b { color: #eaeaea; font-weight: 700; }
+
+  .move-history {
+    font-family: ui-monospace, monospace; font-size: 12px;
+    background: #17181a; border-radius: 10px;
+    padding: 8px 12px; color: #888;
+    max-height: 90px; overflow-y: auto;
+    line-height: 1.7;
+  }
+  .move-history b { color: #5cd88e; }
+
+  .footer-note {
+    font-size: 11px; color: #666; text-align: center;
+    padding: 4px; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<h1>Kibitz <span>•</span> Humanizer</h1>
+<div class="subtitle">เล่นขาว • เดินดำตามเกมจริง</div>
+
+<div id="status">พร้อม</div>
+
+<div class="board-wrap">
+  <div id="board" class="board"></div>
+  <svg id="arrows" viewBox="0 0 480 480" preserveAspectRatio="none"></svg>
+</div>
+
+<div class="settings-box">
+  <div class="setting-row">
+    <label><input type="checkbox" id="chkHuman" checked style="accent-color:#5cd88e; transform:scale(1.2); margin-right:8px; vertical-align:middle;"> โหมดเนียน (Human Mode)</label>
+  </div>
+  <div class="setting-row" id="rowBlunder">
+    <span style="font-size:12px; color:#888;">โอกาสแกล้งพลาด:</span>
+    <input type="range" id="rngBlunder" min="0" max="30" value="15">
+    <span id="lblBlunder" style="font-family:monospace; width:32px; text-align:right;">15%</span>
+  </div>
+</div>
+
+<div class="eval-row">
+  <div class="eval-bar" id="evalBar"><div id="evalBarFill"></div></div>
+  <div id="evalText">0.00</div>
+</div>
+
+<div class="btn-row">
+  <button id="btnAnalyze" class="primary">แนะนำตาเดิน</button>
+  <button id="btnThink">คิดลึก (20 วิ)</button>
+</div>
+
+<div class="btn-row three">
+  <button id="btnUndo" class="secondary">ย้อนกลับ</button>
+  <button id="btnFlip" class="secondary">กลับกระดาน</button>
+  <button id="btnReset" class="danger">เริ่มใหม่</button>
+</div>
+
+<div id="analysisOutput"></div>
+
+<div class="move-history" id="moveHistory">—</div>
+
+<div class="footer-note">
+  คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
+  ถ้าเปิด Human Mode ระบบจะให้เดินช้าลงและมีสิทธิ์พลาดเพื่อความเนียน
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ─── แก้ไขตัวหมากตรงนี้: แยกฝั่งขาว (โปร่ง) กับฝั่งดำ (ทึบ) ชัดเจน ───
+  // เติม \uFE0E เพื่อบังคับให้ iOS แสดงผลเป็น Text ไม่ใช่อิโมจิ
+  const GLYPH = {
+    w: { k: '♔\uFE0E', q: '♕\uFE0E', r: '♖\uFE0E', b: '♗\uFE0E', n: '♘\uFE0E', p: '♙\uFE0E' },
+    b: { k: '♚\uFE0E', q: '♛\uFE0E', r: '♜\uFE0E', b: '♝\uFE0E', n: '♞\uFE0E', p: '♟\uFE0E' }
+  };
+
+  const game = new Chess();
+  
+  let selectedSq = null;
+  let legalDests = new Set();
+  let lastMove = null;
+  let flipped = false;
+  
+  let engine = null;
+  let engineReady = false;
+  let engineLoading = false;
+  let analysisRunning = false;
+  let multiPV = {};
+  let currentDepth = 0;
+  
+  let chosenMoveUci = null;
+  let thinkTimerInterval = null;
+
+  // DOM
+  const boardEl = document.getElementById('board');
+  const arrowsEl = document.getElementById('arrows');
+  const statusEl = document.getElementById('status');
+  const evalTextEl = document.getElementById('evalText');
+  const evalBarEl = document.getElementById('evalBar');
+  const analysisEl = document.getElementById('analysisOutput');
+  const historyEl = document.getElementById('moveHistory');
+  
+  const btnAnalyze = document.getElementById('btnAnalyze');
+  const btnThink = document.getElementById('btnThink');
+  const btnUndo = document.getElementById('btnUndo');
+  const btnFlip = document.getElementById('btnFlip');
+  const btnReset = document.getElementById('btnReset');
+
+  const chkHuman = document.getElementById('chkHuman');
+  const rngBlunder = document.getElementById('rngBlunder');
+  const lblBlunder = document.getElementById('lblBlunder');
+
+  // Slider
+  rngBlunder.addEventListener('input', (e) => {
+    lblBlunder.textContent = e.target.value + '%';
+  });
+
+  // Helpers
+  function inCheck() {
+    return typeof game.in_check === 'function' ? game.in_check() : (typeof game.inCheck === 'function' ? game.inCheck() : false);
+  }
+  function inCheckmate() {
+    return typeof game.in_checkmate === 'function' ? game.in_checkmate() : (typeof game.inCheckmate === 'function' ? game.inCheckmate() : false);
+  }
+  function inStalemate() {
+    return typeof game.in_stalemate === 'function' ? game.in_stalemate() : (typeof game.inStalemate === 'function' ? game.inStalemate() : false);
+  }
+  function gameOver() {
+    return typeof game.game_over === 'function' ? game.game_over() : (typeof game.gameOver === 'function' ? game.gameOver() : false);
+  }
+  function kingSquare(color) {
+    const files = 'abcdefgh';
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const sq = files[c] + (8 - r);
+        const p = game.get(sq);
+        if (p && p.type === 'k' && p.color === color) return sq;
+      }
+    }
+    return null;
+  }
+  function sqToXY(sq) {
+    let f = sq.charCodeAt(0) - 97;
+    let r = 8 - parseInt(sq[1], 10);
+    if (flipped) { f = 7 - f; r = 7 - r; }
+    return [f * 60 + 30, r * 60 + 30];
+  }
+  function setStatus(msg, cls = '') {
+    statusEl.textContent = msg;
+    statusEl.className = cls;
+  }
+
+  // Render
+  function renderBoard() {
+    boardEl.innerHTML = '';
+    const checkSq = inCheck() ? kingSquare(game.turn()) : null;
+
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        let fileIdx = c, rankIdx = 8 - r;
+        if (flipped) { fileIdx = 7 - c; rankIdx = r + 1; }
+        const sq = 'abcdefgh'[fileIdx] + rankIdx;
+        const cell = document.createElement('div');
+        cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+        cell.dataset.sq = sq;
+
+        if (sq === selectedSq) cell.classList.add('selected');
+        if (checkSq === sq) cell.classList.add('check');
+        if (lastMove && (lastMove.from === sq || lastMove.to === sq)) cell.classList.add('last');
+        if (legalDests.has(sq)) {
+          cell.classList.add('hint');
+          if (game.get(sq)) cell.classList.add('capture');
+        }
+
+        const piece = game.get(sq);
+        if (piece) {
+          const span = document.createElement('span');
+          // ใช้คลาส w หรือ b ตามสี
+          span.className = 'piece ' + piece.color;
+          // ดึงตัวหมากจาก GLYPH[สี][ชนิด]
+          span.textContent = GLYPH[piece.color][piece.type];
+          cell.appendChild(span);
+        }
+        cell.addEventListener('click', () => onCellClick(sq));
+        boardEl.appendChild(cell);
+      }
+    }
+  }
+
+  function onCellClick(sq) {
+    if (gameOver()) return;
+
+    if (selectedSq && legalDests.has(sq)) {
+      executeMove(selectedSq, sq);
+      return;
+    }
+
+    const piece = game.get(sq);
+    if (piece && piece.color === game.turn()) {
+      selectedSq = sq;
+      legalDests = new Set();
+      try {
+        const moves = game.moves({ square: sq, verbose: true }) || [];
+        moves.forEach(m => legalDests.add(m.to));
+      } catch (e) {}
+      renderBoard();
+    } else if (selectedSq) {
+      selectedSq = null;
+      legalDests = new Set();
+      renderBoard();
+    }
+  }
+
+  function executeMove(from, to) {
+    let move;
+    try { move = game.move({ from, to, promotion: 'q' }); } catch (e) { move = null; }
+    
+    if (!move) {
+      selectedSq = null; legalDests = new Set(); renderBoard(); return;
+    }
+
+    lastMove = { from, to };
+    selectedSq = null; legalDests = new Set();
+    chosenMoveUci = null;
+    
+    clearAnalysis();
+    renderBoard();
+    renderHistory();
+    updateStatus();
+  }
+
+  function updateStatus() {
+    if (gameOver()) {
+      if (inCheckmate()) setStatus('จนม! ' + (game.turn() === 'w' ? 'ดำชนะ' : 'ขาวชนะ'), 'err');
+      else if (inStalemate()) setStatus('อับ (Stalemate) — เสมอ', 'warn');
+      else setStatus('เกมจบ — เสมอ', 'warn');
+      return;
+    }
+    if (game.turn() === 'w') setStatus('ตาคุณ (ขาว) — คลิกชิ้นหมากเพื่อเดิน', 'ok');
+    else setStatus('ตาดำ — เดินตามที่คู่ต่อสู้เดินจริง', '');
+  }
+
+  // Arrow
+  function drawArrow(uci) {
+    arrowsEl.innerHTML = '';
+    if (!uci || uci.length < 4) return;
+    const [fx, fy] = sqToXY(uci.slice(0, 2));
+    const [tx, ty] = sqToXY(uci.slice(2, 4));
+    const dx = tx - fx, dy = ty - fy;
+    const len = Math.hypot(dx, dy);
+    if (len < 1) return;
+    const ux = dx / len, uy = dy / len;
+    const hl = 24, hw = 18;
+    const bx = tx - ux * hl, by = ty - uy * hl;
+    const px = -uy, py = ux;
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', fx); line.setAttribute('y1', fy);
+    line.setAttribute('x2', bx); line.setAttribute('y2', by);
+    line.setAttribute('stroke', 'rgba(92,216,142,0.95)');
+    line.setAttribute('stroke-width', '8');
+    line.setAttribute('stroke-linecap', 'round');
+    arrowsEl.appendChild(line);
+
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', `${tx},${ty} ${bx + px * hw / 2},${by + py * hw / 2} ${bx - px * hw / 2},${by - py * hw / 2}`);
+    poly.setAttribute('fill', 'rgba(92,216,142,0.95)');
+    arrowsEl.appendChild(poly);
+  }
+
+  function clearArrows() { arrowsEl.innerHTML = ''; }
+
+  // Analysis Cleanup
+  function clearAnalysis() {
+    analysisRunning = false;
+    multiPV = {};
+    currentDepth = 0;
+    chosenMoveUci = null;
+    clearInterval(thinkTimerInterval);
+    clearArrows();
+    analysisEl.innerHTML = '';
+    evalTextEl.textContent = '0.00';
+    updateEvalBarCss(50);
+  }
+
+  function updateEvalBarCss(percent) {
+    const sheetId = 'kibitz-eval-css';
+    let style = document.getElementById(sheetId);
+    if (!style) {
+      style = document.createElement('style');
+      style.id = sheetId;
+      document.head.appendChild(style);
+    }
+    style.textContent = `.eval-bar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: ${percent}%; background: #eaeaea; transition: width .3s ease; }`;
+  }
+
+  // Engine
+  async function ensureEngine() {
+    if (engineReady) return true;
+    if (engineLoading) return false;
+    engineLoading = true;
+    setStatus('กำลังโหลด Stockfish...', '');
+    try {
+      const url = 'https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js';
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const code = await resp.text();
+      const blob = new Blob([code], { type: 'application/javascript' });
+      engine = new Worker(URL.createObjectURL(blob));
+      engine.onmessage = onEngineMsg;
+      engine.onerror = (err) => {
+        setStatus('Engine error: ' + (err.message || err), 'err');
+        engineLoading = false; engineReady = false;
+      };
+      engine.postMessage('uci');
+      engine.postMessage('isready');
+      return false;
+    } catch (err) {
+      setStatus('โหลด Engine ไม่ได้: ' + err.message, 'err');
+      engineLoading = false;
+      return false;
+    }
+  }
+
+  function onEngineMsg(e) {
+    const line = typeof e.data === 'string' ? e.data : '';
+    if (!line) return;
+
+    if (line === 'uciok' || line === 'readyok') {
+      if (!engineReady) {
+        engineReady = true; engineLoading = false;
+        if (!analysisRunning) setStatus('Stockfish พร้อม', 'ok');
+      }
+      return;
+    }
+    if (line.startsWith('info')) { parseInfo(line); return; }
+    if (line.startsWith('bestmove')) { onBestMove(line.split(/\s+/)[1]); }
+  }
+
+  function parseInfo(line) {
+    const tokens = line.split(/\s+/);
+    let depth = 0, multipv = 1, scoreType = null, scoreValue = null;
+    const pv = [];
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i];
+      if (t === 'depth') depth = parseInt(tokens[i + 1], 10);
+      else if (t === 'multipv') multipv = parseInt(tokens[i + 1], 10);
+      else if (t === 'score') { scoreType = tokens[i + 1]; scoreValue = parseInt(tokens[i + 2], 10); }
+      else if (t === 'pv') {
+        for (let j = i + 1; j < tokens.length; j++) pv.push(tokens[j]);
+        break;
+      }
+    }
+    if (!pv.length || scoreType === null) return;
+    multiPV[multipv] = { depth, scoreType, scoreValue, pv, rank: multipv };
+    if (analysisRunning && depth > currentDepth) {
+      currentDepth = depth;
+      if (!chosenMoveUci) setStatus(`กำลังคิด... depth ${depth}`, '');
+    }
+  }
+
+  function onBestMove(best) {
+    if (!analysisRunning) return;
+    analysisRunning = false;
+    if (!best || best === '(none)') { setStatus('ไม่มีตาเดิน', 'warn'); return; }
+
+    // HUMANIZER LOGIC
+    let finalMove = best;
+    let isHumanError = false;
+
+    if (chkHuman.checked && Object.keys(multiPV).length > 1) {
+      const blunderChance = parseInt(rngBlunder.value, 10) / 100;
+      const lines = Object.values(multiPV).sort((a, b) => a.rank - b.rank);
+      
+      if (Math.random() < blunderChance && lines.length >= 3) {
+        const badMoves = lines.slice(2, Math.min(5, lines.length));
+        const pick = badMoves[Math.floor(Math.random() * badMoves.length)];
+        finalMove = pick.pv[0];
+        isHumanError = true;
+      } 
+      else if (Math.random() < 0.20 && lines.length >= 2) {
+        finalMove = lines[1].pv[0];
+        isHumanError = true;
+      }
+    }
+
+    chosenMoveUci = finalMove;
+    drawArrow(chosenMoveUci);
+    renderAnalysisOutput(chosenMoveUci, isHumanError);
+    
+    // Start Think Timer
+    startThinkTimer(isHumanError);
+  }
+
+  function startThinkTimer(isError) {
+    clearInterval(thinkTimerInterval);
+    let timeLeft = Math.floor(Math.random() * 10) + 5; // 5-15 seconds
+    
+    if (isError && Math.random() > 0.5) timeLeft += 5;
+    
+    const initialTime = timeLeft;
+    
+    const updateTimer = () => {
+      const perc = ((initialTime - timeLeft) / initialTime) * 100;
+      updateEvalBarCss(perc);
+      
+      const san = pvToSan([chosenMoveUci], game.fen())[0] || chosenMoveUci;
+      if (timeLeft > 0) {
+        setStatus(`รอ ${timeLeft} วิ ก่อนเดิน ${san}`, isError ? 'warn' : 'ok');
+        timeLeft--;
+      } else {
+        setStatus(`เดิน ${san} ได้เลย! (เวลาผ่านแล้ว)`, 'ok');
+        clearInterval(thinkTimerInterval);
+        updateEvalBarCss(50);
+      }
+    };
+    
+    updateTimer();
+    thinkTimerInterval = setInterval(updateTimer, 1000);
+  }
+
+  function pvToSan(pvUci, fromFen) {
+    if (!pvUci.length) return [];
+    const tmp = new Chess();
+    if (fromFen) { try { tmp.load(fromFen); } catch (e) {} }
+    const out = [];
+    for (const uci of pvUci) {
+      try {
+        const m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || undefined });
+        if (!m) break;
+        out.push(m.san);
+      } catch (e) { break; }
+    }
+    return out;
+  }
+
+  function formatEval(type, value) {
+    if (type === 'mate') return (value > 0 ? '+M' : '-M') + Math.abs(value);
+    let v = value / 100;
+    if (game.turn() === 'b') v = -v;
+    return (v > 0 ? '+' : '') + v.toFixed(2);
+  }
+
+  function renderAnalysisOutput(chosenUci, isError) {
+    const fen = game.fen();
+    let html = '';
+    
+    if (chosenUci) {
+      const san = pvToSan([chosenUci], fen)[0] || chosenUci;
+      html += `
+        <div class="line-row primary ${isError ? 'error' : ''}">
+          <span class="line-rank">${isError ? '⚠️' : '👑'}</span>
+          <span class="line-pv"><b style="font-size:1.2em">${san}</b> ${isError ? '(Human error)' : '(Best move)'}</span>
+        </div>
+      `;
+    }
+
+    for (let i = 1; i <= 3; i++) {
+      const line = multiPV[i];
+      if (!line) continue;
+      const san = pvToSan(line.pv, fen);
+      if (!san.length) continue;
+      if (i === 1 && chosenUci === line.pv[0]) continue;
+      
+      html += `
+        <div class="line-row">
+          <span class="line-rank">${i}</span>
+          <span class="line-pv"><b>${san[0]}</b> ${san.slice(1, 6).join(' ')}</span>
+          <span class="line-eval">${formatEval(line.scoreType, line.scoreValue)}</span>
+        </div>
+      `;
+    }
+    analysisEl.innerHTML = html || '<div class="line-row">ไม่มีข้อมูล</div>';
+  }
+
+  function renderHistory() {
+    const hist = game.history();
+    if (!hist.length) { historyEl.innerHTML = '—'; return; }
+    const parts = [];
+    for (let i = 0; i < hist.length; i += 2) {
+      const n = Math.floor(i / 2) + 1;
+      const w = hist[i] || '';
+      const b = hist[i + 1] || '';
+      parts.push(`<b>${n}.</b> ${w} ${b}`);
+    }
+    historyEl.innerHTML = parts.join('&nbsp;&nbsp;');
+  }
+
+  async function startAnalysis(deep = false) {
+    if (gameOver()) { setStatus('เกมจบแล้ว', 'warn'); return; }
+    if (analysisRunning) return;
+
+    const ready = await ensureEngine();
+    if (!engineReady) {
+      if (!ready) { setStatus('Engine กำลังโหลด — กดอีกทีใน 2 วิ', ''); return; }
+    }
+
+    clearAnalysis();
+    analysisRunning = true;
+    setStatus(deep ? 'Stockfish กำลังคิด (โหมดลึก)...' : 'Stockfish กำลังคิด...', '');
+    analysisEl.innerHTML = '<div class="line-row">กำลังคิด...</div>';
+
+    try {
+      engine.postMessage('setoption name MultiPV value 5');
+      engine.postMessage('setoption name Threads value 2');
+      engine.postMessage('setoption name Hash value 128');
+      engine.postMessage('position fen ' + game.fen());
+      if (deep) engine.postMessage('go movetime 20000');
+      else engine.postMessage('go depth 16');
+    } catch (e) {
+      setStatus('ส่งคำสั่งไม่สำเร็จ: ' + e.message, 'err');
+      analysisRunning = false;
+    }
+  }
+
+  btnAnalyze.onclick = () => startAnalysis(false);
+  btnThink.onclick   = () => startAnalysis(true);
+
+  btnUndo.onclick = () => {
+    if (!game.history().length) return;
+    game.undo();
+    clearAnalysis();
+    selectedSq = null; legalDests = new Set();
+    const hist = game.history({ verbose: true });
+    lastMove = hist.length ? { from: hist[hist.length - 1].from, to: hist[hist.length - 1].to } : null;
+    renderBoard(); renderHistory(); updateStatus();
+  };
+
+  btnReset.onclick = () => {
+    game.reset();
+    clearAnalysis();
+    selectedSq = null; legalDests = new Set(); lastMove = null;
+    renderBoard(); renderHistory(); updateStatus();
+  };
+
+  btnFlip.onclick = () => {
+    flipped = !flipped;
+    renderBoard(); clearArrows();
+  };
+
+  function init() {
+    renderBoard();
+    renderHistory();
+    updateStatus();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
