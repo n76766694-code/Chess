@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — GM Styles + Gambits</title>
+<title>Kibitz — GM Styles + Gambits + Universal + Boa</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -29,15 +29,10 @@
   #status.err  { color: #ff6b6b; background: #2a1414; }
   #status.warn { color: #ffd84d; background: #262010; }
 
-  /* ─── GAMBIT BANNER ─── */
   #gambitBanner {
     background: linear-gradient(135deg, #3a2a10 0%, #1a1000 100%);
-    border: 1px solid #ffb347;
-    border-radius: 10px;
-    padding: 8px 12px;
-    display: none;
-    align-items: center;
-    gap: 10px;
+    border: 1px solid #ffb347; border-radius: 10px;
+    padding: 8px 12px; display: none; align-items: center; gap: 10px;
     animation: pulseGold 2s ease-in-out infinite;
   }
   #gambitBanner.show { display: flex; }
@@ -49,15 +44,25 @@
     50% { box-shadow: 0 0 14px 2px rgba(255,179,71,0.5); }
   }
 
-  /* ─── DESPERADO BANNER ─── */
+  #boaBanner {
+    background: linear-gradient(135deg, #0a2a2a 0%, #051515 100%);
+    border: 1px solid #3ad8c4; border-radius: 10px;
+    padding: 8px 12px; display: none; align-items: center; gap: 10px;
+    animation: pulseTeal 2s ease-in-out infinite;
+  }
+  #boaBanner.show { display: flex; }
+  #boaBanner .g-icon { font-size: 18px; }
+  #boaBanner .g-text { flex: 1; font-size: 12px; color: #b0f0e8; line-height: 1.3; }
+  #boaBanner .g-text strong { color: #3ad8c4; display: block; font-size: 13px; }
+  @keyframes pulseTeal {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(58,216,196,0.3); }
+    50% { box-shadow: 0 0 14px 2px rgba(58,216,196,0.5); }
+  }
+
   #desperadoBanner {
     background: linear-gradient(135deg, #2a1040 0%, #5c1a1a 100%);
-    border: 1px solid #b04aff;
-    border-radius: 10px;
-    padding: 10px 14px;
-    display: none;
-    align-items: center;
-    gap: 10px;
+    border: 1px solid #b04aff; border-radius: 10px;
+    padding: 10px 14px; display: none; align-items: center; gap: 10px;
     animation: pulsePurple 2s ease-in-out infinite;
   }
   #desperadoBanner.show { display: flex; }
@@ -69,15 +74,10 @@
     50% { box-shadow: 0 0 16px 2px rgba(176,74,255,0.6); }
   }
 
-  /* ─── RESIGN BANNER ─── */
   #resignBanner {
     background: linear-gradient(135deg, #5c1a1a 0%, #2a0a0a 100%);
-    border: 1px solid #ff4444;
-    border-radius: 10px;
-    padding: 12px 14px;
-    display: none;
-    flex-direction: column;
-    gap: 10px;
+    border: 1px solid #ff4444; border-radius: 10px;
+    padding: 12px 14px; display: none; flex-direction: column; gap: 10px;
     animation: pulseRed 1.8s ease-in-out infinite;
   }
   #resignBanner.show { display: flex; }
@@ -92,7 +92,6 @@
     50% { box-shadow: 0 0 20px 2px rgba(255,68,68,0.6); }
   }
 
-  /* ─── BANTER BUBBLE ─── */
   #banter {
     background: #1a1a1c; border: 1px solid #2f2f33;
     border-left: 3px solid #5cd88e; border-radius: 10px;
@@ -111,9 +110,13 @@
   #banter.desperado .name { color: #b04aff; }
   #banter.gambit { border-left-color: #ffb347; }
   #banter.gambit .name { color: #ffb347; }
+  #banter.boa { border-left-color: #3ad8c4; }
+  #banter.boa .name { color: #3ad8c4; }
+  #banter.universal { border-left-color: #6ba3ff; }
+  #banter.universal .name { color: #6ba3ff; }
   #banter.dots .txt::after { content: ''; animation: dots 1.4s steps(4, end) infinite; }
   @keyframes dots {
-    0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } 100% { content: ''; }
+    0% { content: ''; } 25% { content: '.'; } 50% { content: '..' } 75% { content: '...' } 100% { content: ''; }
   }
 
   .board-wrap {
@@ -181,9 +184,13 @@
   .line-row.opening { background: #102323; border: 1px solid #1f6b6b; }
   .line-row.desperado { background: #1f102a; border: 1px solid #b04aff; }
   .line-row.gambit { background: #2a1f0f; border: 1px solid #ffb347; font-size: 15px; }
+  .line-row.boa { background: #0f2523; border: 1px solid #3ad8c4; }
+  .line-row.universal { background: #0f1a2a; border: 1px solid #6ba3ff; }
   .line-rank { font-weight: 700; color: #5cd88e; min-width: 20px; font-family: ui-monospace, monospace; text-align: center; }
   .line-row.desperado .line-rank { color: #b04aff; }
   .line-row.gambit .line-rank { color: #ffb347; }
+  .line-row.boa .line-rank { color: #3ad8c4; }
+  .line-row.universal .line-rank { color: #6ba3ff; }
   .line-eval { font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: #5cd88e; min-width: 56px; text-align: right; }
   .line-pv { font-family: ui-monospace, monospace; color: #999; font-size: 11px; flex: 1; word-break: break-all; }
   .line-pv b { color: #eaeaea; font-weight: 700; }
@@ -204,6 +211,14 @@
   <div class="g-text">
     <strong>Gambit Mode Active</strong>
     <span id="gambitLine">—</span>
+  </div>
+</div>
+
+<div id="boaBanner">
+  <div class="g-icon">🐍</div>
+  <div class="g-text">
+    <strong>Boa Constrictor</strong>
+    ไม่แลกหมาก · ไม่ผลีผลาม · บีบคอช้าๆ จนคู่ต่อสู้หายใจไม่ออก
   </div>
 </div>
 
@@ -248,15 +263,23 @@
     </select>
   </div>
   <div class="setting-row">
-    <label>สไตล์ GM</label>
+    <label>สไตล์</label>
     <select id="selPreset">
-      <option value="carlsen">Magnus Carlsen</option>
-      <option value="nakamura">Hikaru Nakamura</option>
-      <option value="kasparov">Garry Kasparov</option>
-      <option value="karpov">Anatoly Karpov</option>
-      <option value="caruana">Fabiano Caruana</option>
-      <option value="alien">⚔️ Alien Gambit (Eric Rosen)</option>
-      <option value="gambits">⚔️ Gambits (รวมทุกแกมบิท)</option>
+      <optgroup label="GM สไตล์">
+        <option value="carlsen">Magnus Carlsen</option>
+        <option value="nakamura">Hikaru Nakamura</option>
+        <option value="kasparov">Garry Kasparov</option>
+        <option value="karpov">Anatoly Karpov</option>
+        <option value="caruana">Fabiano Caruana</option>
+      </optgroup>
+      <optgroup label="สไตล์พิเศษ">
+        <option value="universal">🌐 Universal Player</option>
+        <option value="boa">🐍 Boa Constrictor</option>
+      </optgroup>
+      <optgroup label="Gambit สายบ้า">
+        <option value="alien">⚔️ Alien Gambit (Eric Rosen)</option>
+        <option value="gambits">⚔️ Gambits (รวมทุกแกมบิท)</option>
+      </optgroup>
     </select>
   </div>
   <div class="setting-row">
@@ -292,7 +315,7 @@
 
 <div class="footer-note">
   คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
-  Alien Gambit & Gambits: สุ่มเปิดแบบยอมเสียหมากเพื่อบุก
+  Universal: ปรับตัวตามตำแหน่ง · Boa: บีบคอช้าๆ ไม่รีบ
 </div>
 
 <script>
@@ -306,14 +329,28 @@
   const RESIGN_LATE_GAME_PIECES = 16;
 
   const PRESETS = {
-    carlsen:  { label: 'Magnus',   movetime: 500, filter: 'flexible',  openings: ['e4','c4','Nf3','d4'], timerMin: 1, timerMax: 3, blunderMult: 0.4, tag: 'Carlsen' },
-    nakamura: { label: 'Hikaru',   movetime: 300, filter: 'chaotic',   openings: ['e4','f3','g4','Nf3'], timerMin: 1, timerMax: 2, blunderMult: 1.5, tag: 'Nakamura' },
-    kasparov: { label: 'Kasparov', movetime: 500, filter: 'aggressive',openings: ['e4','d4'],           timerMin: 2, timerMax: 4, blunderMult: 0.5, tag: 'Kasparov' },
-    karpov:   { label: 'Karpov',   movetime: 500, filter: 'defensive', openings: ['d4','c4','Nf3'],     timerMin: 2, timerMax: 4, blunderMult: 0.6, tag: 'Karpov' },
-    caruana:  { label: 'Caruana',  movetime: 600, filter: 'precise',   openings: ['e4','d4'],           timerMin: 1, timerMax: 3, blunderMult: 0.2, tag: 'Caruana' },
+    carlsen:   { label: 'Magnus',   movetime: 500, filter: 'flexible',  openings: ['e4','c4','Nf3','d4'], timerMin: 1, timerMax: 3, blunderMult: 0.4, tag: 'Carlsen' },
+    nakamura:  { label: 'Hikaru',   movetime: 300, filter: 'chaotic',   openings: ['e4','f3','g4','Nf3'], timerMin: 1, timerMax: 2, blunderMult: 1.5, tag: 'Nakamura' },
+    kasparov:  { label: 'Kasparov', movetime: 500, filter: 'aggressive',openings: ['e4','d4'],           timerMin: 2, timerMax: 4, blunderMult: 0.5, tag: 'Kasparov' },
+    karpov:    { label: 'Karpov',   movetime: 500, filter: 'defensive', openings: ['d4','c4','Nf3'],     timerMin: 2, timerMax: 4, blunderMult: 0.6, tag: 'Karpov' },
+    caruana:   { label: 'Caruana',  movetime: 600, filter: 'precise',   openings: ['e4','d4'],           timerMin: 1, timerMax: 3, blunderMult: 0.2, tag: 'Caruana' },
+    // ─── UNIVERSAL PLAYER ───
+    universal: {
+      label: 'Universal', movetime: 700, filter: 'universal',
+      openings: ['e4','d4','c4','Nf3','g3','b3','e3','d3'],
+      timerMin: 2, timerMax: 4, blunderMult: 0.15, tag: 'Universal',
+      hint: 'ปรับตัวตามตำแหน่ง ไม่มีจุดอ่อน บุกเมื่อควรบุก รับเมื่อควรรับ'
+    },
+    // ─── BOA CONSTRICTOR ───
+    boa: {
+      label: 'Boa', movetime: 600, filter: 'boa',
+      openings: ['d4','c4','Nf3','e3','g3','b3','d3'],
+      timerMin: 2, timerMax: 5, blunderMult: 0.4, tag: 'Boa',
+      hint: 'บีบคอช้าๆ คุมพื้นที่ ไม่แลกหมาก รัดจนคู่ต่อสู้พลาดเอง'
+    },
     // ─── GAMBIT MODES ───
     alien: {
-      label: 'Alien Gambit', movetime: 500, filter: 'gambit',
+      label: 'Alien', movetime: 500, filter: 'gambit',
       openings: ['d4','c4','e4','Nf3','f4','c3','Bc4','Nc3','exd4'],
       timerMin: 1, timerMax: 3, blunderMult: 0.6, tag: 'Alien',
       gambitName: 'Alien Gambit (QGA 3.e4)',
@@ -338,24 +375,41 @@
     idle: ['your move.', 'take your time. or don\'t.', 'i\'m waiting.', 'go.', 'stop thinking about it and play.'],
     resigned: ['good. finally.', 'see? that wasn\'t so hard.', 'gg. reset and try not to blunder next time.', 'now you know. move on.'],
     desperado: ['fuck it. all in.', 'we\'re losing anyway. take his king with us.', 'sacrifice everything. GO.', 'no more defense. hunt the king.', 'throw the whole army at him.', 'burn it all down.'],
-    gambit: [
-      'gambit. he won\'t see it coming.',
-      'sacrifice the pawn. trust me.',
-      'this is a trap. he\'ll take it.',
-      'let him have the material. we get the attack.',
-      'alien gambit. play it.',
-      'this line is filthy. play it anyway.',
-      'offer the pawn. offer the knight. who cares.',
-      'gambit time. we\'re not playing safe.',
-      'he thinks he\'s winning material. he\'s losing position.',
-      'sharp line. keep it sharp.',
+    gambit: ['gambit. he won\'t see it coming.', 'sacrifice the pawn. trust me.', 'this is a trap. he\'ll take it.', 'let him have the material. we get the attack.', 'alien gambit. play it.', 'this line is filthy. play it anyway.', 'offer the pawn. offer the knight. who cares.', 'gambit time. we\'re not playing safe.', 'he thinks he\'s winning material. he\'s losing position.', 'sharp line. keep it sharp.'],
+    gambitMove: ['gambit offered. he\'s thinking.', 'pawn gone. attack coming.', 'he took it. idiot.', 'good. now punish him.', 'sacrificed. initiative is ours.'],
+    // ─── UNIVERSAL PLAYER BANTER ───
+    universal: [
+      'reading the position. not the book.',
+      'no style. just truth.',
+      'i don\'t play a script. i play what works.',
+      'this position is telling me what to do.',
+      'no ego. just the best move.',
+      'adapt. always adapt.',
+      'i don\'t have a weakness. that\'s the point.',
+      'whatever he plays, i have an answer.',
+      'quiet when it should be quiet. loud when it should be loud.',
+      'the board decides. not me.',
     ],
-    gambitMove: [
-      'gambit offered. he\'s thinking.',
-      'pawn gone. attack coming.',
-      'he took it. idiot.',
-      'good. now punish him.',
-      'sacrificed. initiative is ours.',
+    // ─── BOA CONSTRICTOR BANTER ───
+    boa: [
+      'slow. quiet. squeeze.',
+      'don\'t rush. constrict.',
+      'no trades. no fireworks. just pressure.',
+      'he\'s getting uncomfortable. good.',
+      'one square at a time. tighten.',
+      'every move i make takes something from him.',
+      'he\'ll crack. they always crack.',
+      'i don\'t need to win fast. i need to win sure.',
+      'spatial advantage. that\'s the plan.',
+      'no tempo for him. only space for me.',
+    ],
+    boaMove: [
+      'another square. another squeeze.',
+      'see how cramped he is?',
+      'tighten the grip.',
+      'he has no plan. i have all of them.',
+      'he\'s suffocating. keep going.',
+      'quiet move. deadly effect.',
     ]
   };
 
@@ -405,6 +459,7 @@
   const desperadoBanner = document.getElementById('desperadoBanner');
   const gambitBanner = document.getElementById('gambitBanner');
   const gambitLine = document.getElementById('gambitLine');
+  const boaBanner = document.getElementById('boaBanner');
   
   const btnAnalyze = document.getElementById('btnAnalyze');
   const btnThink = document.getElementById('btnThink');
@@ -432,34 +487,40 @@
     else if (category === 'goodMove' || category === 'winning') cls = 'pleased';
     else if (category === 'desperado') cls = 'desperado';
     else if (category === 'gambit' || category === 'gambitMove') cls = 'gambit';
+    else if (category === 'boa' || category === 'boaMove') cls = 'boa';
+    else if (category === 'universal') cls = 'universal';
     banterEl.className = cls;
     banterTxtEl.textContent = line;
   }
 
   function isGambitPreset() {
-    const preset = PRESETS[selPreset.value];
-    return preset.filter === 'gambit';
+    return PRESETS[selPreset.value].filter === 'gambit';
+  }
+  function isBoaPreset() {
+    return PRESETS[selPreset.value].filter === 'boa';
+  }
+  function isUniversalPreset() {
+    return PRESETS[selPreset.value].filter === 'universal';
   }
 
-  function updateGambitBanner() {
+  function updateBanners() {
     const preset = PRESETS[selPreset.value];
+    // Gambit banner
     if (preset.filter === 'gambit') {
       gambitLine.textContent = preset.gambitName || '—';
       gambitBanner.classList.add('show');
     } else {
       gambitBanner.classList.remove('show');
     }
+    // Boa banner
+    if (preset.filter === 'boa') boaBanner.classList.add('show');
+    else boaBanner.classList.remove('show');
   }
 
   function isDesperadoMode() {
     const top = multiPV[1];
     if (!top) return false;
-    let cpForUs;
-    if (top.scoreType === 'mate') {
-      cpForUs = top.scoreValue > 0 ? 9999 : -9999;
-    } else {
-      cpForUs = top.scoreValue;
-    }
+    let cpForUs = top.scoreType === 'mate' ? (top.scoreValue > 0 ? 9999 : -9999) : top.scoreValue;
     return cpForUs <= DESPERADO_EVAL_THRESHOLD && cpForUs > RESIGN_EVAL_THRESHOLD;
   }
 
@@ -485,11 +546,7 @@
     if (game.turn() !== myColor) return;
     const top = multiPV[1];
     if (!top) return;
-
-    let cpForUs;
-    if (top.scoreType === 'mate') cpForUs = top.scoreValue > 0 ? 9999 : -9999;
-    else cpForUs = top.scoreValue;
-
+    let cpForUs = top.scoreType === 'mate' ? (top.scoreValue > 0 ? 9999 : -9999) : top.scoreValue;
     const piecesLeft = countPiecesOnBoard();
     const moveCount = game.history().length;
     const isLateGame = piecesLeft <= RESIGN_LATE_GAME_PIECES || moveCount >= RESIGN_LATE_GAME_MOVES;
@@ -503,7 +560,6 @@
       shouldShow = true;
       reason = `เสียเปรียบ ${Math.abs(pawns)} หมาก ในช่วงท้ายเกม — ไม่มีทางพลิก`;
     }
-
     if (shouldShow) {
       resignReason.textContent = reason;
       resignBanner.classList.add('show');
@@ -532,8 +588,10 @@
   };
 
   selPreset.addEventListener('change', () => {
-    updateGambitBanner();
+    updateBanners();
     if (isGambitPreset()) banter('gambit', { force: true });
+    else if (isBoaPreset()) banter('boa', { force: true });
+    else if (isUniversalPreset()) banter('universal', { force: true });
     else banter('opening', { force: true });
   });
   rngBlunder.addEventListener('input', (e) => { lblBlunder.textContent = e.target.value + '%'; });
@@ -548,7 +606,7 @@
     resignDismissed = false; resigned = false;
     resignBanner.classList.remove('show');
     desperadoBanner.classList.remove('show');
-    updateGambitBanner();
+    updateBanners();
     renderBoard(); renderHistory(); updateStatus();
     banter('idle', { force: true });
   });
@@ -728,6 +786,8 @@
     let color = 'rgba(92,216,142,0.95)';
     if (isDesperadoMode()) color = 'rgba(176,74,255,0.95)';
     else if (isGambitPreset()) color = 'rgba(255,179,71,0.95)';
+    else if (isBoaPreset()) color = 'rgba(58,216,196,0.95)';
+    else if (isUniversalPreset()) color = 'rgba(107,163,255,0.95)';
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', fx); line.setAttribute('y1', fy);
     line.setAttribute('x2', bx); line.setAttribute('y2', by);
@@ -815,6 +875,8 @@
       piece: m.piece,
       captured: m.captured,
       san: m.san,
+      from: m.from,
+      to: m.to,
     };
   }
 
@@ -828,27 +890,6 @@
     return gmPreset.openings.some(op => m.san === op || m.san.startsWith(op));
   }
 
-  // ─── GAMBIT DETECTION ───
-  function detectGambitName() {
-    const hist = game.history();
-    if (!hist.length) return null;
-    const line = hist.slice(0, 6).join(' ');
-    if (line.startsWith('e4 e5 f4')) return 'King\'s Gambit';
-    if (line.startsWith('e4 e5 Nf3 Nc6 Bc4 Bc5')) return 'Italian Game';
-    if (line.startsWith('e4 e5 Nf3 Nc6 Bc4 Bc5 b4')) return 'Evans Gambit';
-    if (line.startsWith('e4 c5 d4 cxd4 c3')) return 'Smith-Morra Gambit';
-    if (line.startsWith('e4 e5 d4 exd4 c3')) return 'Danish Gambit';
-    if (line.startsWith('e4 e5 Nf3 Nc6 Nxe5')) return 'Halloween Gambit';
-    if (line.startsWith('d4 d5 c4 dxc4 e4')) return 'Alien Gambit (QGA 3.e4)';
-    if (line.startsWith('d4 Nf6 c4 e5')) return 'Budapest Gambit';
-    if (line.startsWith('d4 Nf6 c4 c5 d5 b5')) return 'Benko Gambit';
-    if (line.startsWith('d4 d5 e4')) return 'Blackmar-Diemer Gambit';
-    if (line.startsWith('e4 e5 Nf3 Nc6 Bc4 Nf6 Ng5')) return 'Fried Liver Attack';
-    if (line.startsWith('f4')) return 'Bird\'s Opening';
-    if (line.startsWith('b4')) return 'Polish (Sokolsky) Opening';
-    return null;
-  }
-
   function desperadoScore(uci, fen) {
     if (!uci || uci.length < 4) return -999;
     const tmp = new Chess();
@@ -856,7 +897,6 @@
     let m = null;
     try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); } catch (e) { return -999; }
     if (!m) return -999;
-
     let score = 0;
     const destSq = uci.slice(2, 4);
     const enemyKingSq = findEnemyKing(tmp);
@@ -890,6 +930,88 @@
       if (p && p.type === 'k' && p.color === enemyColor) return sq;
     }
     return null;
+  }
+
+  // ─── UNIVERSAL PLAYER: adapt based on position type ───
+  function universalSelect(lines) {
+    const topLine = lines[0];
+    const bestScore = topLine.scoreType === 'cp' ? topLine.scoreValue : (topLine.scoreValue > 0 ? 9999 : -9999);
+    const inCheckNow = inCheck();
+    const material = countPiecesOnBoard();
+
+    // If we're up material or in a sharp position, play the best move
+    // If we're behind, look for the most active option that keeps counterplay
+
+    // 1. Winning or equal: choose best
+    if (bestScore >= -50) {
+      // If we have clear advantage and there's a forcing move within top 3, take it
+      if (bestScore > 150) {
+        const forcing = lines.slice(0, 3).find(l => {
+          const c = classifyMove(l.pv[0], game.fen());
+          return c && (c.check || c.promotion);
+        });
+        if (forcing) return { move: forcing.pv[0], type: 'style' };
+      }
+      return { move: topLine.pv[0], type: 'best' };
+    }
+
+    // 2. Slightly worse: choose second-best if it complicates
+    if (bestScore >= -150) {
+      const complicating = lines.slice(0, 3).find(l => {
+        const c = classifyMove(l.pv[0], game.fen());
+        return c && (c.check || c.capture);
+      });
+      if (complicating) return { move: complicating.pv[0], type: 'style' };
+      return { move: topLine.pv[0], type: 'best' };
+    }
+
+    // 3. Clearly worse: pick the most active move (fight back)
+    const active = lines.find(l => {
+      const c = classifyMove(l.pv[0], game.fen());
+      return c && (c.capture || c.check);
+    });
+    if (active) return { move: active.pv[0], type: 'style' };
+    return { move: topLine.pv[0], type: 'best' };
+  }
+
+  // ─── BOA CONSTRICTOR: slow squeeze, no trades unless favorable ───
+  function boaSelect(lines) {
+    // We want: quiet moves, controlling squares, no unnecessary captures/checks unless forced
+    // Among top 3, prefer quiet moves that don't trade
+    const candidates = lines.slice(0, 3);
+
+    // Score each candidate
+    let best = null, bestScore = -Infinity;
+    for (const line of candidates) {
+      const c = classifyMove(line.pv[0], game.fen());
+      if (!c) continue;
+
+      let score = 100 - (line.rank - 1) * 20; // prefer higher-ranked
+      // Reward quiet moves
+      if (!c.capture && !c.check) score += 40;
+      // Reward central pawn pushes
+      const destFile = c.to[0], destRank = parseInt(c.to[1], 10);
+      const centralFiles = ['c', 'd', 'e', 'f'];
+      if (c.piece === 'p' && centralFiles.includes(destFile) && destRank >= 3 && destRank <= 6) {
+        score += 25;
+      }
+      // Reward moves into opponent half (space control)
+      if ((myColor === 'w' && destRank >= 4) || (myColor === 'b' && destRank <= 5)) {
+        score += 15;
+      }
+      // Penalize exchanges
+      if (c.capture) score -= 30;
+      // Penalize premature checks (unless mating)
+      if (c.check && c.san.indexOf('#') === -1) score -= 10;
+
+      if (score > bestScore) {
+        bestScore = score;
+        best = line;
+      }
+    }
+
+    if (best) return { move: best.pv[0], type: 'style' };
+    return { move: lines[0].pv[0], type: 'best' };
   }
 
   function selectMove(best, presetKey) {
@@ -927,7 +1049,6 @@
     if (chkOpenings.checked && game.history().length < 10) {
       const openingCandidates = lines.filter(l => isPreferredOpening(l.pv[0], game.fen(), preset));
       if (openingCandidates.length > 0) {
-        // Gambit mode allows wider loss tolerance (gambits = offering material)
         const lossTolerance = preset.filter === 'gambit' ? 80 : 50;
         const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 0;
         const safeCandidates = openingCandidates.filter(l => {
@@ -944,9 +1065,18 @@
     let candidate = lines[0];
     let type = 'best';
 
-    // ─── GAMBIT FILTER (aggressive but prefers sacrifices) ───
+    // ─── UNIVERSAL PLAYER ───
+    if (preset.filter === 'universal') {
+      return universalSelect(lines);
+    }
+
+    // ─── BOA CONSTRICTOR ───
+    if (preset.filter === 'boa') {
+      return boaSelect(lines);
+    }
+
+    // ─── GAMBIT ───
     if (preset.filter === 'gambit') {
-      // First pass: prefer checks/captures/promotions
       const sharp = lines.find(l => {
         const c = classifyMove(l.pv[0], game.fen());
         return c && (c.check || c.promotion || (c.capture && (c.captured === 'q' || c.captured === 'r' || c.captured === 'b' || c.captured === 'n')));
@@ -955,11 +1085,9 @@
         candidate = sharp;
         type = 'style';
       } else {
-        // Second pass: prefer pawn pushes to the opponent's half
         const pawnPush = lines.find(l => {
           const c = classifyMove(l.pv[0], game.fen());
           if (!c || c.piece !== 'p') return false;
-          // push into opponent territory (rank 4 or 5+)
           const destRank = parseInt(l.pv[0].slice(3, 4), 10);
           return (myColor === 'w' && destRank >= 4) || (myColor === 'b' && destRank <= 5);
         });
@@ -1025,9 +1153,11 @@
       banter('desperado', { force: true });
       desperadoBanner.classList.add('show');
     }
-    // Gambit banter
     if (isGambitPreset() && decision.type === 'opening' && game.history().length < 10) {
       banter('gambit', { force: true });
+    }
+    if (isBoaPreset() && decision.type === 'style') {
+      banter('boaMove', { force: true });
     }
   }
 
@@ -1039,6 +1169,8 @@
     let timeLeft = isOpening ? 1 + Math.floor(Math.random() * 2) : humanDelay(preset.timerMin, preset.timerMax);
     if (type === 'error' && Math.random() > 0.5) timeLeft += 1;
     if (type === 'desperado' && Math.random() > 0.5) timeLeft += 2;
+    // Boa takes its sweet time
+    if (isBoaPreset() && !isOpening && Math.random() > 0.5) timeLeft += 1;
     timeLeft = Math.min(MAX_THINK_SECONDS, timeLeft);
     const initialTime = timeLeft;
 
@@ -1098,13 +1230,16 @@
       if (moveType === 'error') { tag = 'Human error'; cls = 'error'; icon = '⚠'; }
       else if (moveType === 'desperado') { tag = 'DESPERADO'; cls = 'desperado'; icon = '🔥'; }
       else if (moveType === 'opening') {
-        if (isGambitPreset()) {
-          tag = `Gambit (${preset.tag})`; cls = 'gambit'; icon = '⚔️';
-        } else {
-          tag = `Opening (${preset.tag})`; cls = 'opening'; icon = '📖';
-        }
+        if (isGambitPreset()) { tag = `Gambit (${preset.tag})`; cls = 'gambit'; icon = '⚔️'; }
+        else { tag = `Opening (${preset.tag})`; cls = 'opening'; icon = '📖'; }
       }
-      else if (moveType === 'style') { tag = preset.tag; cls = 'style'; icon = '★'; }
+      else if (moveType === 'style') {
+        tag = preset.tag;
+        if (isBoaPreset()) { cls = 'boa'; icon = '🐍'; }
+        else if (isUniversalPreset()) { cls = 'universal'; icon = '🌐'; }
+        else if (isGambitPreset()) { cls = 'gambit'; icon = '⚔️'; }
+        else { cls = 'style'; icon = '★'; }
+      }
       else { tag = 'Best move'; cls = 'primary'; icon = '👑'; }
 
       html += `
@@ -1207,6 +1342,8 @@
     desperadoBanner.classList.remove('show');
     renderBoard(); renderHistory(); updateStatus();
     if (isGambitPreset()) banter('gambit', { force: true });
+    else if (isBoaPreset()) banter('boa', { force: true });
+    else if (isUniversalPreset()) banter('universal', { force: true });
     else banter('opening', { force: true });
   };
 
@@ -1219,8 +1356,10 @@
     renderBoard();
     renderHistory();
     updateStatus();
-    updateGambitBanner();
+    updateBanners();
     if (isGambitPreset()) banter('gambit', { force: true });
+    else if (isBoaPreset()) banter('boa', { force: true });
+    else if (isUniversalPreset()) banter('universal', { force: true });
     else banter('opening', { force: true });
   }
 
