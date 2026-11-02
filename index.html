@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — GM Styles + Desperado</title>
+<title>Kibitz — GM Styles + Gambits</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -29,6 +29,26 @@
   #status.err  { color: #ff6b6b; background: #2a1414; }
   #status.warn { color: #ffd84d; background: #262010; }
 
+  /* ─── GAMBIT BANNER ─── */
+  #gambitBanner {
+    background: linear-gradient(135deg, #3a2a10 0%, #1a1000 100%);
+    border: 1px solid #ffb347;
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    animation: pulseGold 2s ease-in-out infinite;
+  }
+  #gambitBanner.show { display: flex; }
+  #gambitBanner .g-icon { font-size: 18px; }
+  #gambitBanner .g-text { flex: 1; font-size: 12px; color: #ffd9a0; line-height: 1.3; }
+  #gambitBanner .g-text strong { color: #ffb347; display: block; font-size: 13px; }
+  @keyframes pulseGold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,179,71,0.3); }
+    50% { box-shadow: 0 0 14px 2px rgba(255,179,71,0.5); }
+  }
+
   /* ─── DESPERADO BANNER ─── */
   #desperadoBanner {
     background: linear-gradient(135deg, #2a1040 0%, #5c1a1a 100%);
@@ -42,9 +62,7 @@
   }
   #desperadoBanner.show { display: flex; }
   #desperadoBanner .d-icon { font-size: 20px; }
-  #desperadoBanner .d-text {
-    flex: 1; font-size: 12px; color: #e0c4ff; line-height: 1.4;
-  }
+  #desperadoBanner .d-text { flex: 1; font-size: 12px; color: #e0c4ff; line-height: 1.4; }
   #desperadoBanner .d-text strong { color: #b04aff; display: block; font-size: 13px; margin-bottom: 2px; }
   @keyframes pulsePurple {
     0%, 100% { box-shadow: 0 0 0 0 rgba(176,74,255,0.4); }
@@ -91,6 +109,8 @@
   #banter.pleased .name { color: #5cd88e; }
   #banter.desperado { border-left-color: #b04aff; }
   #banter.desperado .name { color: #b04aff; }
+  #banter.gambit { border-left-color: #ffb347; }
+  #banter.gambit .name { color: #ffb347; }
   #banter.dots .txt::after { content: ''; animation: dots 1.4s steps(4, end) infinite; }
   @keyframes dots {
     0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } 100% { content: ''; }
@@ -160,8 +180,10 @@
   .line-row.style { background: #1a1530; border: 1px solid #4a3f8a; }
   .line-row.opening { background: #102323; border: 1px solid #1f6b6b; }
   .line-row.desperado { background: #1f102a; border: 1px solid #b04aff; }
+  .line-row.gambit { background: #2a1f0f; border: 1px solid #ffb347; font-size: 15px; }
   .line-rank { font-weight: 700; color: #5cd88e; min-width: 20px; font-family: ui-monospace, monospace; text-align: center; }
   .line-row.desperado .line-rank { color: #b04aff; }
+  .line-row.gambit .line-rank { color: #ffb347; }
   .line-eval { font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: #5cd88e; min-width: 56px; text-align: right; }
   .line-pv { font-family: ui-monospace, monospace; color: #999; font-size: 11px; flex: 1; word-break: break-all; }
   .line-pv b { color: #eaeaea; font-weight: 700; }
@@ -176,6 +198,14 @@
 
 <h1>Kibitz <span>•</span> GM Styles</h1>
 <div class="subtitle" id="subtitle">คุณเล่นขาว • ฝ่ายตรงข้ามเดินดำ</div>
+
+<div id="gambitBanner">
+  <div class="g-icon">⚔️</div>
+  <div class="g-text">
+    <strong>Gambit Mode Active</strong>
+    <span id="gambitLine">—</span>
+  </div>
+</div>
 
 <div id="desperadoBanner">
   <div class="d-icon">🔥</div>
@@ -225,6 +255,8 @@
       <option value="kasparov">Garry Kasparov</option>
       <option value="karpov">Anatoly Karpov</option>
       <option value="caruana">Fabiano Caruana</option>
+      <option value="alien">⚔️ Alien Gambit (Eric Rosen)</option>
+      <option value="gambits">⚔️ Gambits (รวมทุกแกมบิท)</option>
     </select>
   </div>
   <div class="setting-row">
@@ -260,7 +292,7 @@
 
 <div class="footer-note">
   คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
-  ถ้าเสียเปรียบหนัก Kibitz จะเปิด Desperado บุกแหลกแทนการยอมแพ้
+  Alien Gambit & Gambits: สุ่มเปิดแบบยอมเสียหมากเพื่อบุก
 </div>
 
 <script>
@@ -269,7 +301,7 @@
 
   const MAX_THINK_SECONDS = 7;
   const RESIGN_EVAL_THRESHOLD = -600;
-  const DESPERADO_EVAL_THRESHOLD = -200; // เริ่มเปิดโหมดบุกเมื่อติดลบ 2 หมาก
+  const DESPERADO_EVAL_THRESHOLD = -200;
   const RESIGN_LATE_GAME_MOVES = 30;
   const RESIGN_LATE_GAME_PIECES = 16;
 
@@ -278,7 +310,20 @@
     nakamura: { label: 'Hikaru',   movetime: 300, filter: 'chaotic',   openings: ['e4','f3','g4','Nf3'], timerMin: 1, timerMax: 2, blunderMult: 1.5, tag: 'Nakamura' },
     kasparov: { label: 'Kasparov', movetime: 500, filter: 'aggressive',openings: ['e4','d4'],           timerMin: 2, timerMax: 4, blunderMult: 0.5, tag: 'Kasparov' },
     karpov:   { label: 'Karpov',   movetime: 500, filter: 'defensive', openings: ['d4','c4','Nf3'],     timerMin: 2, timerMax: 4, blunderMult: 0.6, tag: 'Karpov' },
-    caruana:  { label: 'Caruana',  movetime: 600, filter: 'precise',   openings: ['e4','d4'],           timerMin: 1, timerMax: 3, blunderMult: 0.2, tag: 'Caruana' }
+    caruana:  { label: 'Caruana',  movetime: 600, filter: 'precise',   openings: ['e4','d4'],           timerMin: 1, timerMax: 3, blunderMult: 0.2, tag: 'Caruana' },
+    // ─── GAMBIT MODES ───
+    alien: {
+      label: 'Alien Gambit', movetime: 500, filter: 'gambit',
+      openings: ['d4','c4','e4','Nf3','f4','c3','Bc4','Nc3','exd4'],
+      timerMin: 1, timerMax: 3, blunderMult: 0.6, tag: 'Alien',
+      gambitName: 'Alien Gambit (QGA 3.e4)',
+    },
+    gambits: {
+      label: 'Gambits', movetime: 500, filter: 'gambit',
+      openings: ['e4','d4','c4','Nf3','f4','b4','c3','Bc4','Nxe5','Bxf7','exd4','exd5'],
+      timerMin: 1, timerMax: 3, blunderMult: 0.8, tag: 'Gambit',
+      gambitName: 'Gambit Sampler (KG/Evans/Smith-Morra/Danish/Alien/Halloween)',
+    }
   };
 
   const BANTER = {
@@ -292,7 +337,26 @@
     opening: ['opening. standard stuff.', 'just play chess.', 'book moves. don\'t overthink.', 'development first. you know this.', 'stop playing weird. play sound.'],
     idle: ['your move.', 'take your time. or don\'t.', 'i\'m waiting.', 'go.', 'stop thinking about it and play.'],
     resigned: ['good. finally.', 'see? that wasn\'t so hard.', 'gg. reset and try not to blunder next time.', 'now you know. move on.'],
-    desperado: ['fuck it. all in.', 'we\'re losing anyway. take his king with us.', 'sacrifice everything. GO.', 'no more defense. hunt the king.', 'throw the whole army at him.', 'burn it all down.']
+    desperado: ['fuck it. all in.', 'we\'re losing anyway. take his king with us.', 'sacrifice everything. GO.', 'no more defense. hunt the king.', 'throw the whole army at him.', 'burn it all down.'],
+    gambit: [
+      'gambit. he won\'t see it coming.',
+      'sacrifice the pawn. trust me.',
+      'this is a trap. he\'ll take it.',
+      'let him have the material. we get the attack.',
+      'alien gambit. play it.',
+      'this line is filthy. play it anyway.',
+      'offer the pawn. offer the knight. who cares.',
+      'gambit time. we\'re not playing safe.',
+      'he thinks he\'s winning material. he\'s losing position.',
+      'sharp line. keep it sharp.',
+    ],
+    gambitMove: [
+      'gambit offered. he\'s thinking.',
+      'pawn gone. attack coming.',
+      'he took it. idiot.',
+      'good. now punish him.',
+      'sacrificed. initiative is ours.',
+    ]
   };
 
   const GLYPH = {
@@ -339,6 +403,8 @@
   const btnDoResign = document.getElementById('btnDoResign');
   const btnIgnoreResign = document.getElementById('btnIgnoreResign');
   const desperadoBanner = document.getElementById('desperadoBanner');
+  const gambitBanner = document.getElementById('gambitBanner');
+  const gambitLine = document.getElementById('gambitLine');
   
   const btnAnalyze = document.getElementById('btnAnalyze');
   const btnThink = document.getElementById('btnThink');
@@ -365,11 +431,26 @@
     else if (category === 'badMove' || category === 'critical' || category === 'resign') cls = 'angry';
     else if (category === 'goodMove' || category === 'winning') cls = 'pleased';
     else if (category === 'desperado') cls = 'desperado';
+    else if (category === 'gambit' || category === 'gambitMove') cls = 'gambit';
     banterEl.className = cls;
     banterTxtEl.textContent = line;
   }
 
-  // ─── DESPERADO CHECK ───
+  function isGambitPreset() {
+    const preset = PRESETS[selPreset.value];
+    return preset.filter === 'gambit';
+  }
+
+  function updateGambitBanner() {
+    const preset = PRESETS[selPreset.value];
+    if (preset.filter === 'gambit') {
+      gambitLine.textContent = preset.gambitName || '—';
+      gambitBanner.classList.add('show');
+    } else {
+      gambitBanner.classList.remove('show');
+    }
+  }
+
   function isDesperadoMode() {
     const top = multiPV[1];
     if (!top) return false;
@@ -377,21 +458,17 @@
     if (top.scoreType === 'mate') {
       cpForUs = top.scoreValue > 0 ? 9999 : -9999;
     } else {
-      cpForUs = top.scoreValue; // from side-to-move perspective
+      cpForUs = top.scoreValue;
     }
     return cpForUs <= DESPERADO_EVAL_THRESHOLD && cpForUs > RESIGN_EVAL_THRESHOLD;
   }
 
   function updateDesperadoBanner() {
     const active = isDesperadoMode() && !resigned && !gameOver();
-    if (active) {
-      desperadoBanner.classList.add('show');
-    } else {
-      desperadoBanner.classList.remove('show');
-    }
+    if (active) desperadoBanner.classList.add('show');
+    else desperadoBanner.classList.remove('show');
   }
 
-  // ─── RESIGN ADVISOR ───
   function countPiecesOnBoard() {
     let n = 0;
     for (let r = 0; r < 8; r++) {
@@ -410,19 +487,14 @@
     if (!top) return;
 
     let cpForUs;
-    if (top.scoreType === 'mate') {
-      cpForUs = top.scoreValue > 0 ? 9999 : -9999;
-    } else {
-      cpForUs = top.scoreValue;
-    }
+    if (top.scoreType === 'mate') cpForUs = top.scoreValue > 0 ? 9999 : -9999;
+    else cpForUs = top.scoreValue;
 
     const piecesLeft = countPiecesOnBoard();
     const moveCount = game.history().length;
     const isLateGame = piecesLeft <= RESIGN_LATE_GAME_PIECES || moveCount >= RESIGN_LATE_GAME_MOVES;
 
-    let shouldShow = false;
-    let reason = '';
-
+    let shouldShow = false, reason = '';
     if (top.scoreType === 'mate' && cpForUs < 0) {
       shouldShow = true;
       reason = `โดนบังคับจนมใน ${Math.abs(top.scoreValue)} ตา — ไม่มีทางหนี`;
@@ -459,7 +531,11 @@
     banter('losing', { force: true });
   };
 
-  selPreset.addEventListener('change', () => { banter('opening', { force: true }); });
+  selPreset.addEventListener('change', () => {
+    updateGambitBanner();
+    if (isGambitPreset()) banter('gambit', { force: true });
+    else banter('opening', { force: true });
+  });
   rngBlunder.addEventListener('input', (e) => { lblBlunder.textContent = e.target.value + '%'; });
 
   selSide.addEventListener('change', (e) => {
@@ -472,6 +548,7 @@
     resignDismissed = false; resigned = false;
     resignBanner.classList.remove('show');
     desperadoBanner.classList.remove('show');
+    updateGambitBanner();
     renderBoard(); renderHistory(); updateStatus();
     banter('idle', { force: true });
   });
@@ -636,8 +713,8 @@
       else setStatus('เกมจบ — เสมอ', 'warn');
       return;
     }
-    if (game.turn() === myColor) { setStatus(`ตาคุณ — คลิกชิ้นหมากเพื่อเดิน`, 'ok'); }
-    else { setStatus(`ตาคู่ต่อสู้ — เดินตามที่คู่ต่อสู้เดินจริง`, ''); }
+    if (game.turn() === myColor) setStatus(`ตาคุณ — คลิกชิ้นหมากเพื่อเดิน`, 'ok');
+    else setStatus(`ตาคู่ต่อสู้ — เดินตามที่คู่ต่อสู้เดินจริง`, '');
   }
 
   function drawArrow(uci) {
@@ -648,15 +725,18 @@
     if (len < 1) return;
     const ux = dx / len, uy = dy / len, hl = 24, hw = 18;
     const bx = tx - ux * hl, by = ty - uy * hl, px = -uy, py = ux;
+    let color = 'rgba(92,216,142,0.95)';
+    if (isDesperadoMode()) color = 'rgba(176,74,255,0.95)';
+    else if (isGambitPreset()) color = 'rgba(255,179,71,0.95)';
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', fx); line.setAttribute('y1', fy);
     line.setAttribute('x2', bx); line.setAttribute('y2', by);
-    line.setAttribute('stroke', isDesperadoMode() ? 'rgba(176,74,255,0.95)' : 'rgba(92,216,142,0.95)');
+    line.setAttribute('stroke', color);
     line.setAttribute('stroke-width', '8'); line.setAttribute('stroke-linecap', 'round');
     arrowsEl.appendChild(line);
     const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
     poly.setAttribute('points', `${tx},${ty} ${bx + px * hw / 2},${by + py * hw / 2} ${bx - px * hw / 2},${by - py * hw / 2}`);
-    poly.setAttribute('fill', isDesperadoMode() ? 'rgba(176,74,255,0.95)' : 'rgba(92,216,142,0.95)');
+    poly.setAttribute('fill', color);
     arrowsEl.appendChild(poly);
   }
 
@@ -734,6 +814,7 @@
       check: m.san.indexOf('+') !== -1 || m.san.indexOf('#') !== -1,
       piece: m.piece,
       captured: m.captured,
+      san: m.san,
     };
   }
 
@@ -747,7 +828,27 @@
     return gmPreset.openings.some(op => m.san === op || m.san.startsWith(op));
   }
 
-  // ─── DESPERADO MOVE SCORING ───
+  // ─── GAMBIT DETECTION ───
+  function detectGambitName() {
+    const hist = game.history();
+    if (!hist.length) return null;
+    const line = hist.slice(0, 6).join(' ');
+    if (line.startsWith('e4 e5 f4')) return 'King\'s Gambit';
+    if (line.startsWith('e4 e5 Nf3 Nc6 Bc4 Bc5')) return 'Italian Game';
+    if (line.startsWith('e4 e5 Nf3 Nc6 Bc4 Bc5 b4')) return 'Evans Gambit';
+    if (line.startsWith('e4 c5 d4 cxd4 c3')) return 'Smith-Morra Gambit';
+    if (line.startsWith('e4 e5 d4 exd4 c3')) return 'Danish Gambit';
+    if (line.startsWith('e4 e5 Nf3 Nc6 Nxe5')) return 'Halloween Gambit';
+    if (line.startsWith('d4 d5 c4 dxc4 e4')) return 'Alien Gambit (QGA 3.e4)';
+    if (line.startsWith('d4 Nf6 c4 e5')) return 'Budapest Gambit';
+    if (line.startsWith('d4 Nf6 c4 c5 d5 b5')) return 'Benko Gambit';
+    if (line.startsWith('d4 d5 e4')) return 'Blackmar-Diemer Gambit';
+    if (line.startsWith('e4 e5 Nf3 Nc6 Bc4 Nf6 Ng5')) return 'Fried Liver Attack';
+    if (line.startsWith('f4')) return 'Bird\'s Opening';
+    if (line.startsWith('b4')) return 'Polish (Sokolsky) Opening';
+    return null;
+  }
+
   function desperadoScore(uci, fen) {
     if (!uci || uci.length < 4) return -999;
     const tmp = new Chess();
@@ -758,52 +859,35 @@
 
     let score = 0;
     const destSq = uci.slice(2, 4);
-
-    // 1. จี้คิงหรือควีนของศัตรู (ถ้าเดินไปวางใกล้ๆ หรือจี้)
     const enemyKingSq = findEnemyKing(tmp);
     if (enemyKingSq) {
-      const destFile = destSq.charCodeAt(0) - 97;
-      const destRank = parseInt(destSq[1], 10);
-      const kingFile = enemyKingSq.charCodeAt(0) - 97;
-      const kingRank = parseInt(enemyKingSq[1], 10);
-      const dist = Math.max(Math.abs(destFile - kingFile), Math.abs(destRank - kingRank));
-      if (dist <= 2) score += 50;   // เข้าใกล้คิงมาก
-      if (dist <= 1) score += 100;  // จี้ประชิดคิง
+      const dF = destSq.charCodeAt(0) - 97, dR = parseInt(destSq[1], 10);
+      const kF = enemyKingSq.charCodeAt(0) - 97, kR = parseInt(enemyKingSq[1], 10);
+      const dist = Math.max(Math.abs(dF - kF), Math.abs(dR - kR));
+      if (dist <= 2) score += 50;
+      if (dist <= 1) score += 100;
     }
-
-    // 2. ส่งหมากตัวใหญ่ (Queen/King/Rook) บุก
     if (m.piece === 'q') score += 20;
-    if (m.piece === 'k') score += 15; // เอา King บุก ( suicidal แต่霸气)
-
-    // 3. ถ้าเช็คได้ ให้น้ำหนักเยอะมาก
+    if (m.piece === 'k') score += 15;
     if (m.san.indexOf('+') !== -1) score += 150;
     if (m.san.indexOf('#') !== -1) score += 1000;
-
-    // 4. กินหมาก
     if (m.flags.indexOf('c') !== -1) {
-      // กิน Queen = ดีสุด
       if (m.captured === 'q') score += 200;
       else if (m.captured === 'r') score += 60;
       else if (m.captured === 'b' || m.captured === 'n') score += 40;
       else score += 20;
     }
-
-    // 5. ยอมเสียหมากตัวเอง (sacrifice) — ถ้าเดินไปให้กิน แต่ได้จี้คิง ก็ถือว่าคุ้ม
-    // ถ้าเป็นหมากมูลค่าสูงและไม่ถูกกินทันที (จะโดนแก้) ไม่มีทางรู้ใน 1 ตา แต่ให้คะแนนติดลบเล็กน้อยถ้าเป็นเบี้ย
-    if (m.piece === 'p') score -= 5;  // การเดินเบี้ยทั่วไปไม่ค่อยนับเป็น desperado
-
+    if (m.piece === 'p') score -= 5;
     return score;
   }
 
   function findEnemyKing(tmpChess) {
     const enemyColor = myColor === 'w' ? 'b' : 'w';
     const files = 'abcdefgh';
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const sq = files[c] + (8 - r);
-        const p = tmpChess.get(sq);
-        if (p && p.type === 'k' && p.color === enemyColor) return sq;
-      }
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
+      const sq = files[c] + (8 - r);
+      const p = tmpChess.get(sq);
+      if (p && p.type === 'k' && p.color === enemyColor) return sq;
     }
     return null;
   }
@@ -826,17 +910,11 @@
     }
     if (topLine && topLine.scoreType === 'cp' && topLine.scoreValue < -150) mustPlayBest = true;
 
-    // ─── DESPERADO MODE ───
-    // ถ้าตกอยู่ใน Desperado Mode ให้เลือกตาที่ก้าวร้าวที่สุด ไม่ต้องสนใจ best move
     if (isDesperadoMode() && !resignDismissed) {
-      let bestDesperado = null;
-      let bestDesperadoScore = -Infinity;
+      let bestDesperado = null, bestDesperadoScore = -Infinity;
       for (const line of lines) {
         const dScore = desperadoScore(line.pv[0], game.fen());
-        if (dScore > bestDesperadoScore) {
-          bestDesperadoScore = dScore;
-          bestDesperado = line;
-        }
+        if (dScore > bestDesperadoScore) { bestDesperadoScore = dScore; bestDesperado = line; }
       }
       if (bestDesperado && bestDesperadoScore >= 20) {
         return { move: bestDesperado.pv[0], type: 'desperado' };
@@ -845,13 +923,16 @@
 
     if (mustPlayBest) return { move: topLine.pv[0], type: 'best' };
 
+    // ─── OPENING REPERTOIRE ───
     if (chkOpenings.checked && game.history().length < 10) {
       const openingCandidates = lines.filter(l => isPreferredOpening(l.pv[0], game.fen(), preset));
       if (openingCandidates.length > 0) {
+        // Gambit mode allows wider loss tolerance (gambits = offering material)
+        const lossTolerance = preset.filter === 'gambit' ? 80 : 50;
         const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 0;
         const safeCandidates = openingCandidates.filter(l => {
           if (l.scoreType !== 'cp' || lines[0].scoreType !== 'cp') return true;
-          return Math.abs(l.scoreValue - bestScore) <= 50;
+          return Math.abs(l.scoreValue - bestScore) <= lossTolerance;
         });
         if (safeCandidates.length > 0) {
           const pick = safeCandidates[Math.floor(Math.random() * safeCandidates.length)];
@@ -863,7 +944,31 @@
     let candidate = lines[0];
     let type = 'best';
 
-    if (preset.filter === 'aggressive') {
+    // ─── GAMBIT FILTER (aggressive but prefers sacrifices) ───
+    if (preset.filter === 'gambit') {
+      // First pass: prefer checks/captures/promotions
+      const sharp = lines.find(l => {
+        const c = classifyMove(l.pv[0], game.fen());
+        return c && (c.check || c.promotion || (c.capture && (c.captured === 'q' || c.captured === 'r' || c.captured === 'b' || c.captured === 'n')));
+      });
+      if (sharp && sharp.rank !== 1) {
+        candidate = sharp;
+        type = 'style';
+      } else {
+        // Second pass: prefer pawn pushes to the opponent's half
+        const pawnPush = lines.find(l => {
+          const c = classifyMove(l.pv[0], game.fen());
+          if (!c || c.piece !== 'p') return false;
+          // push into opponent territory (rank 4 or 5+)
+          const destRank = parseInt(l.pv[0].slice(3, 4), 10);
+          return (myColor === 'w' && destRank >= 4) || (myColor === 'b' && destRank <= 5);
+        });
+        if (pawnPush && pawnPush.rank !== 1) {
+          candidate = pawnPush;
+          type = 'style';
+        }
+      }
+    } else if (preset.filter === 'aggressive') {
       const aggro = lines.find(l => { const c = classifyMove(l.pv[0], game.fen()); return c && (c.capture || c.check || c.promotion); });
       if (aggro && aggro.rank !== 1) { candidate = aggro; type = 'style'; }
     } else if (preset.filter === 'defensive') {
@@ -916,10 +1021,13 @@
     renderAnalysisOutput(chosenMoveUci, decision.type);
     startThinkTimer(decision.type, presetKey);
 
-    // แบนเนอร์เพิ่ม
     if (decision.type === 'desperado') {
       banter('desperado', { force: true });
       desperadoBanner.classList.add('show');
+    }
+    // Gambit banter
+    if (isGambitPreset() && decision.type === 'opening' && game.history().length < 10) {
+      banter('gambit', { force: true });
     }
   }
 
@@ -930,7 +1038,6 @@
 
     let timeLeft = isOpening ? 1 + Math.floor(Math.random() * 2) : humanDelay(preset.timerMin, preset.timerMax);
     if (type === 'error' && Math.random() > 0.5) timeLeft += 1;
-    // desperado mode บางทีอาจจะ "คิดนานขึ้น" เพราะลังเล/ตัดสินใจครั้งใหญ่
     if (type === 'desperado' && Math.random() > 0.5) timeLeft += 2;
     timeLeft = Math.min(MAX_THINK_SECONDS, timeLeft);
     const initialTime = timeLeft;
@@ -989,9 +1096,15 @@
       const san = pvToSan([chosenUci], fen)[0] || chosenUci;
       let tag, cls, icon;
       if (moveType === 'error') { tag = 'Human error'; cls = 'error'; icon = '⚠'; }
-      else if (moveType === 'opening') { tag = `Opening (${preset.tag})`; cls = 'opening'; icon = '📖'; }
-      else if (moveType === 'style') { tag = preset.tag; cls = 'style'; icon = '★'; }
       else if (moveType === 'desperado') { tag = 'DESPERADO'; cls = 'desperado'; icon = '🔥'; }
+      else if (moveType === 'opening') {
+        if (isGambitPreset()) {
+          tag = `Gambit (${preset.tag})`; cls = 'gambit'; icon = '⚔️';
+        } else {
+          tag = `Opening (${preset.tag})`; cls = 'opening'; icon = '📖';
+        }
+      }
+      else if (moveType === 'style') { tag = preset.tag; cls = 'style'; icon = '★'; }
       else { tag = 'Best move'; cls = 'primary'; icon = '👑'; }
 
       html += `
@@ -1093,7 +1206,8 @@
     resignBanner.classList.remove('show');
     desperadoBanner.classList.remove('show');
     renderBoard(); renderHistory(); updateStatus();
-    banter('opening', { force: true });
+    if (isGambitPreset()) banter('gambit', { force: true });
+    else banter('opening', { force: true });
   };
 
   btnFlip.onclick = () => {
@@ -1105,7 +1219,9 @@
     renderBoard();
     renderHistory();
     updateStatus();
-    banter('opening', { force: true });
+    updateGambitBanner();
+    if (isGambitPreset()) banter('gambit', { force: true });
+    else banter('opening', { force: true });
   }
 
   init();
