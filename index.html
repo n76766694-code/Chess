@@ -3,249 +3,72 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — GM Styles + Gambits + Universal + Boa</title>
+<title>Kibitz — Humanized</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    margin: 0; padding: 10px;
-    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    background: #0f0f10; color: #eaeaea;
-    max-width: 520px; margin: auto;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  h1 { font-size: 17px; font-weight: 700; margin: 4px 0 0; letter-spacing: .5px; text-align: center; }
-  h1 span { color: #5cd88e; }
-  .subtitle { font-size: 11px; color: #777; text-align: center; margin-top: -4px; }
-
-  #status {
-    font-size: 13px; text-align: center;
-    padding: 10px 12px; border-radius: 10px;
-    background: #17181a; color: #a8a8a8;
-    min-height: 44px; display: flex; align-items: center; justify-content: center;
-    font-weight: 500; line-height: 1.4;
-  }
-  #status.ok   { color: #5cd88e; background: #10231a; }
-  #status.err  { color: #ff6b6b; background: #2a1414; }
-  #status.warn { color: #ffd84d; background: #262010; }
-
-  #gambitBanner {
-    background: linear-gradient(135deg, #3a2a10 0%, #1a1000 100%);
-    border: 1px solid #ffb347; border-radius: 10px;
-    padding: 8px 12px; display: none; align-items: center; gap: 10px;
-    animation: pulseGold 2s ease-in-out infinite;
-  }
-  #gambitBanner.show { display: flex; }
-  #gambitBanner .g-icon { font-size: 18px; }
-  #gambitBanner .g-text { flex: 1; font-size: 12px; color: #ffd9a0; line-height: 1.3; }
-  #gambitBanner .g-text strong { color: #ffb347; display: block; font-size: 13px; }
-  @keyframes pulseGold {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,179,71,0.3); }
-    50% { box-shadow: 0 0 14px 2px rgba(255,179,71,0.5); }
-  }
-
-  #boaBanner {
-    background: linear-gradient(135deg, #0a2a2a 0%, #051515 100%);
-    border: 1px solid #3ad8c4; border-radius: 10px;
-    padding: 8px 12px; display: none; align-items: center; gap: 10px;
-    animation: pulseTeal 2s ease-in-out infinite;
-  }
-  #boaBanner.show { display: flex; }
-  #boaBanner .g-icon { font-size: 18px; }
-  #boaBanner .g-text { flex: 1; font-size: 12px; color: #b0f0e8; line-height: 1.3; }
-  #boaBanner .g-text strong { color: #3ad8c4; display: block; font-size: 13px; }
-  @keyframes pulseTeal {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(58,216,196,0.3); }
-    50% { box-shadow: 0 0 14px 2px rgba(58,216,196,0.5); }
-  }
-
-  #desperadoBanner {
-    background: linear-gradient(135deg, #2a1040 0%, #5c1a1a 100%);
-    border: 1px solid #b04aff; border-radius: 10px;
-    padding: 10px 14px; display: none; align-items: center; gap: 10px;
-    animation: pulsePurple 2s ease-in-out infinite;
-  }
-  #desperadoBanner.show { display: flex; }
-  #desperadoBanner .d-icon { font-size: 20px; }
-  #desperadoBanner .d-text { flex: 1; font-size: 12px; color: #e0c4ff; line-height: 1.4; }
-  #desperadoBanner .d-text strong { color: #b04aff; display: block; font-size: 13px; margin-bottom: 2px; }
-  @keyframes pulsePurple {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(176,74,255,0.4); }
-    50% { box-shadow: 0 0 16px 2px rgba(176,74,255,0.6); }
-  }
-
-  #resignBanner {
-    background: linear-gradient(135deg, #5c1a1a 0%, #2a0a0a 100%);
-    border: 1px solid #ff4444; border-radius: 10px;
-    padding: 12px 14px; display: none; flex-direction: column; gap: 10px;
-    animation: pulseRed 1.8s ease-in-out infinite;
-  }
-  #resignBanner.show { display: flex; }
-  #resignBanner .resign-msg { font-size: 13px; color: #ffd0d0; line-height: 1.5; }
-  #resignBanner .resign-msg strong { color: #ff6b6b; font-size: 14px; display: block; margin-bottom: 4px; }
-  #resignBanner .resign-actions { display: flex; gap: 8px; }
-  #resignBanner button { flex: 1; padding: 10px; font-size: 13px; }
-  #resignBanner .btn-resign { background: #ff4444; color: #fff; font-weight: 700; }
-  #resignBanner .btn-ignore { background: #333; color: #ccc; }
-  @keyframes pulseRed {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(255,68,68,0.4); }
-    50% { box-shadow: 0 0 20px 2px rgba(255,68,68,0.6); }
-  }
-
-  #banter {
-    background: #1a1a1c; border: 1px solid #2f2f33;
-    border-left: 3px solid #5cd88e; border-radius: 10px;
-    padding: 10px 12px; font-size: 13px; line-height: 1.5;
-    color: #d0d0d0; min-height: 42px;
-    display: flex; align-items: center; gap: 8px;
-    transition: opacity .3s;
-  }
-  #banter .name { font-weight: 700; color: #5cd88e; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; flex-shrink: 0; }
-  #banter .txt { flex: 1; }
-  #banter.thinking .name { color: #ffd84d; }
-  #banter.angry .name { color: #ff6b6b; }
-  #banter.angry { border-left-color: #ff6b6b; }
-  #banter.pleased .name { color: #5cd88e; }
-  #banter.desperado { border-left-color: #b04aff; }
-  #banter.desperado .name { color: #b04aff; }
-  #banter.gambit { border-left-color: #ffb347; }
-  #banter.gambit .name { color: #ffb347; }
-  #banter.boa { border-left-color: #3ad8c4; }
-  #banter.boa .name { color: #3ad8c4; }
-  #banter.universal { border-left-color: #6ba3ff; }
-  #banter.universal .name { color: #6ba3ff; }
-  #banter.dots .txt::after { content: ''; animation: dots 1.4s steps(4, end) infinite; }
-  @keyframes dots {
-    0% { content: ''; } 25% { content: '.'; } 50% { content: '..' } 75% { content: '...' } 100% { content: ''; }
-  }
-
-  .board-wrap {
-    position: relative; width: 100%; aspect-ratio: 1;
-    border-radius: 10px; overflow: hidden;
-    user-select: none; -webkit-user-select: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    touch-action: none;
-  }
-  .board { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); }
-  .cell { position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color .12s; }
-  .cell.light { background: #ebecd0; }
-  .cell.dark  { background: #739552; }
-  .cell.last  { box-shadow: inset 0 0 0 3px rgba(255,216,77,0.8); }
-  .cell.selected { box-shadow: inset 0 0 0 4px rgba(255,216,77,1); background-color: #f7ef8a; }
-  .cell.check { background-color: #e05252 !important; }
-  .cell.hint::after { content: ''; position: absolute; width: 24%; height: 24%; border-radius: 50%; background: rgba(20,20,20,0.35); pointer-events: none; }
-  .cell.hint.capture::after { width: 82%; height: 82%; background: transparent; border: 4px solid rgba(20,20,20,0.35); border-radius: 50%; }
-  .piece { position: relative; z-index: 1; pointer-events: none; font-size: min(10vw, 52px); line-height: 1; font-family: "Arial Unicode MS", "Apple Symbols", "Segoe UI Symbol", "DejaVu Sans", sans-serif; }
-  .piece.w { color: #ffffff; -webkit-text-stroke: 1.5px #1a1a1a; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.6)); }
-  .piece.b { color: #1a1a1a; -webkit-text-stroke: 1.5px #ffffff; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.6)); }
-
-  #arrows { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
-  #cursorSim {
-    position: absolute; width: 18px; height: 18px;
-    border-radius: 50%; background: rgba(255,255,255,0.4);
-    border: 2px solid rgba(0,0,0,0.5);
-    pointer-events: none; z-index: 6;
-    transform: translate(-50%, -50%);
-    transition: opacity .2s; opacity: 0;
-  }
-
-  .settings-box { background: #17181a; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 12px; border: 1px solid #222; }
-  .setting-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #ccc; gap: 10px; }
-  .setting-row label { font-size: 12px; color: #888; min-width: 90px; }
-  input[type="range"] { flex: 1; accent-color: #5cd88e; }
-  select {
-    flex: 1; background: #0f0f10; color: #eaeaea;
-    border: 1px solid #333; border-radius: 8px;
-    padding: 8px 10px; font-size: 13px; font-weight: 600;
-    -webkit-appearance: none; appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23888'/></svg>");
-    background-repeat: no-repeat; background-position: right 10px center; padding-right: 26px;
-  }
-  .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aaa; }
-  .toggle-row input { accent-color: #5cd88e; transform: scale(1.1); }
-
-  .eval-row { display: flex; align-items: center; gap: 10px; background: #17181a; border-radius: 10px; padding: 10px 12px; }
-  .eval-bar { flex: 1; height: 10px; border-radius: 5px; background: #1a1a1a; overflow: hidden; position: relative; }
-  #evalText { font-family: ui-monospace, Menlo, monospace; font-size: 13px; font-weight: 700; min-width: 56px; text-align: right; color: #eaeaea; }
-
-  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .btn-row.three { grid-template-columns: 1fr 1fr 1fr; }
-  button { padding: 13px 8px; border: 0; border-radius: 10px; background: #2a2a2c; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .12s; }
-  button:disabled { opacity: .35; cursor: default; }
-  button.primary { background: #1f6b3f; }
-  button.secondary { background: #333; font-size: 13px; }
-  button.danger { background: #5c2020; font-size: 13px; }
-
-  #analysisOutput { background: #17181a; border-radius: 10px; padding: 4px; min-height: 60px; }
-  .line-row { display: flex; align-items: baseline; gap: 8px; padding: 8px 10px; border-radius: 8px; font-size: 13px; }
-  .line-row.primary { background: #10231a; font-size: 15px; border: 1px solid #1f6b3f; }
-  .line-row.error { background: #2a1f14; border: 1px solid #6b4f1f; }
-  .line-row.style { background: #1a1530; border: 1px solid #4a3f8a; }
-  .line-row.opening { background: #102323; border: 1px solid #1f6b6b; }
-  .line-row.desperado { background: #1f102a; border: 1px solid #b04aff; }
-  .line-row.gambit { background: #2a1f0f; border: 1px solid #ffb347; font-size: 15px; }
-  .line-row.boa { background: #0f2523; border: 1px solid #3ad8c4; }
-  .line-row.universal { background: #0f1a2a; border: 1px solid #6ba3ff; }
-  .line-rank { font-weight: 700; color: #5cd88e; min-width: 20px; font-family: ui-monospace, monospace; text-align: center; }
-  .line-row.desperado .line-rank { color: #b04aff; }
-  .line-row.gambit .line-rank { color: #ffb347; }
-  .line-row.boa .line-rank { color: #3ad8c4; }
-  .line-row.universal .line-rank { color: #6ba3ff; }
-  .line-eval { font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: #5cd88e; min-width: 56px; text-align: right; }
-  .line-pv { font-family: ui-monospace, monospace; color: #999; font-size: 11px; flex: 1; word-break: break-all; }
-  .line-pv b { color: #eaeaea; font-weight: 700; }
-
-  .move-history { font-family: ui-monospace, monospace; font-size: 12px; background: #17181a; border-radius: 10px; padding: 8px 12px; color: #888; max-height: 90px; overflow-y: auto; line-height: 1.7; }
-  .move-history b { color: #5cd88e; }
-
-  .footer-note { font-size: 11px; color: #666; text-align: center; padding: 4px; line-height: 1.5; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;padding:10px;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#0f0f10;color:#eaeaea;max-width:520px;margin:auto;display:flex;flex-direction:column;gap:10px}
+  h1{font-size:17px;font-weight:700;margin:4px 0 0;text-align:center;letter-spacing:.5px}h1 span{color:#5cd88e}
+  .subtitle{font-size:11px;color:#777;text-align:center;margin-top:-4px}
+  #status{font-size:13px;text-align:center;padding:10px 12px;border-radius:10px;background:#17181a;color:#a8a8a8;min-height:44px;display:flex;align-items:center;justify-content:center;font-weight:500;line-height:1.4}
+  #status.ok{color:#5cd88e;background:#10231a}#status.err{color:#ff6b6b;background:#2a1414}#status.warn{color:#ffd84d;background:#262010}
+  #gambitBanner{background:linear-gradient(135deg,#3a2a10,#1a1000);border:1px solid #ffb347;border-radius:10px;padding:8px 12px;display:none;align-items:center;gap:10px;animation:pulseGold 2s ease-in-out infinite}
+  #gambitBanner.show{display:flex}#gambitBanner .g-icon{font-size:18px}#gambitBanner .g-text{flex:1;font-size:12px;color:#ffd9a0;line-height:1.3}#gambitBanner .g-text strong{color:#ffb347;display:block;font-size:13px}
+  @keyframes pulseGold{0%,100%{box-shadow:0 0 0 0 rgba(255,179,71,.3)}50%{box-shadow:0 0 14px 2px rgba(255,179,71,.5)}}
+  #boaBanner{background:linear-gradient(135deg,#0a2a2a,#051515);border:1px solid #3ad8c4;border-radius:10px;padding:8px 12px;display:none;align-items:center;gap:10px;animation:pulseTeal 2s ease-in-out infinite}
+  #boaBanner.show{display:flex}#boaBanner .g-icon{font-size:18px}#boaBanner .g-text{flex:1;font-size:12px;color:#b0f0e8;line-height:1.3}#boaBanner .g-text strong{color:#3ad8c4;display:block;font-size:13px}
+  @keyframes pulseTeal{0%,100%{box-shadow:0 0 0 0 rgba(58,216,196,.3)}50%{box-shadow:0 0 14px 2px rgba(58,216,196,.5)}}
+  #desperadoBanner{background:linear-gradient(135deg,#2a1040,#5c1a1a);border:1px solid #b04aff;border-radius:10px;padding:10px 14px;display:none;align-items:center;gap:10px;animation:pulsePurple 2s ease-in-out infinite}
+  #desperadoBanner.show{display:flex}#desperadoBanner .d-icon{font-size:20px}#desperadoBanner .d-text{flex:1;font-size:12px;color:#e0c4ff;line-height:1.4}#desperadoBanner .d-text strong{color:#b04aff;display:block;font-size:13px;margin-bottom:2px}
+  @keyframes pulsePurple{0%,100%{box-shadow:0 0 0 0 rgba(176,74,255,.4)}50%{box-shadow:0 0 16px 2px rgba(176,74,255,.6)}}
+  #resignBanner{background:linear-gradient(135deg,#5c1a1a,#2a0a0a);border:1px solid #ff4444;border-radius:10px;padding:12px 14px;display:none;flex-direction:column;gap:10px;animation:pulseRed 1.8s ease-in-out infinite}
+  #resignBanner.show{display:flex}#resignBanner .resign-msg{font-size:13px;color:#ffd0d0;line-height:1.5}#resignBanner .resign-msg strong{color:#ff6b6b;font-size:14px;display:block;margin-bottom:4px}
+  #resignBanner .resign-actions{display:flex;gap:8px}#resignBanner button{flex:1;padding:10px;font-size:13px}#resignBanner .btn-resign{background:#ff4444;color:#fff;font-weight:700}#resignBanner .btn-ignore{background:#333;color:#ccc}
+  @keyframes pulseRed{0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,.4)}50%{box-shadow:0 0 20px 2px rgba(255,68,68,.6)}}
+  #banter{background:#1a1a1c;border:1px solid #2f2f33;border-left:3px solid #5cd88e;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;color:#d0d0d0;min-height:42px;display:flex;align-items:center;gap:8px;transition:opacity .3s}
+  #banter .name{font-weight:700;color:#5cd88e;font-size:11px;text-transform:uppercase;letter-spacing:.8px;flex-shrink:0}#banter .txt{flex:1}
+  #banter.thinking .name{color:#ffd84d}#banter.angry .name{color:#ff6b6b}#banter.angry{border-left-color:#ff6b6b}#banter.pleased .name{color:#5cd88e}
+  #banter.desperado{border-left-color:#b04aff}#banter.desperado .name{color:#b04aff}#banter.gambit{border-left-color:#ffb347}#banter.gambit .name{color:#ffb347}#banter.boa{border-left-color:#3ad8c4}#banter.boa .name{color:#3ad8c4}#banter.universal{border-left-color:#6ba3ff}#banter.universal .name{color:#6ba3ff}
+  #banter.dots .txt::after{content:'';animation:dots 1.4s steps(4,end) infinite}@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}100%{content:''}}
+  .board-wrap{position:relative;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;user-select:none;-webkit-user-select:none;box-shadow:0 4px 12px rgba(0,0,0,.5);touch-action:none}
+  .board{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr)}
+  .cell{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .12s}
+  .cell.light{background:#ebecd0}.cell.dark{background:#739552}.cell.last{box-shadow:inset 0 0 0 3px rgba(255,216,77,.8)}.cell.selected{box-shadow:inset 0 0 0 4px rgba(255,216,77,1);background-color:#f7ef8a}.cell.check{background-color:#e05252!important}
+  .cell.hint::after{content:'';position:absolute;width:24%;height:24%;border-radius:50%;background:rgba(20,20,20,.35);pointer-events:none}.cell.hint.capture::after{width:82%;height:82%;background:transparent;border:4px solid rgba(20,20,20,.35);border-radius:50%}
+  .piece{position:relative;z-index:1;pointer-events:none;font-size:min(10vw,52px);line-height:1;font-family:"Arial Unicode MS","Apple Symbols","Segoe UI Symbol","DejaVu Sans",sans-serif}
+  .piece.w{color:#fff;-webkit-text-stroke:1.5px #1a1a1a;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}.piece.b{color:#1a1a1a;-webkit-text-stroke:1.5px #fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
+  #arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+  #cursorSim{position:absolute;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.4);border:2px solid rgba(0,0,0,.5);pointer-events:none;z-index:6;transform:translate(-50%,-50%);transition:opacity .2s;opacity:0}
+  .settings-box{background:#17181a;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:12px;border:1px solid #222}
+  .setting-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#ccc;gap:10px}.setting-row label{font-size:12px;color:#888;min-width:90px}
+  input[type="range"]{flex:1;accent-color:#5cd88e}
+  select{flex:1;background:#0f0f10;color:#eaeaea;border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:600;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23888'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+  .toggle-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#aaa}.toggle-row input{accent-color:#5cd88e;transform:scale(1.1)}
+  .eval-row{display:flex;align-items:center;gap:10px;background:#17181a;border-radius:10px;padding:10px 12px}
+  .eval-bar{flex:1;height:10px;border-radius:5px;background:#1a1a1a;overflow:hidden;position:relative}#evalText{font-family:ui-monospace,Menlo,monospace;font-size:13px;font-weight:700;min-width:56px;text-align:right;color:#eaeaea}
+  .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn-row.three{grid-template-columns:1fr 1fr 1fr}
+  button{padding:13px 8px;border:0;border-radius:10px;background:#2a2a2c;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .12s}button:disabled{opacity:.35;cursor:default}
+  button.primary{background:#1f6b3f}button.secondary{background:#333;font-size:13px}button.danger{background:#5c2020;font-size:13px}
+  #analysisOutput{background:#17181a;border-radius:10px;padding:4px;min-height:60px}
+  .line-row{display:flex;align-items:baseline;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px}
+  .line-row.primary{background:#10231a;font-size:15px;border:1px solid #1f6b3f}.line-row.error{background:#2a1f14;border:1px solid #6b4f1f}.line-row.style{background:#1a1530;border:1px solid #4a3f8a}.line-row.opening{background:#102323;border:1px solid #1f6b6b}.line-row.desperado{background:#1f102a;border:1px solid #b04aff}.line-row.gambit{background:#2a1f0f;border:1px solid #ffb347;font-size:15px}.line-row.boa{background:#0f2523;border:1px solid #3ad8c4}.line-row.universal{background:#0f1a2a;border:1px solid #6ba3ff}
+  .line-rank{font-weight:700;color:#5cd88e;min-width:20px;font-family:ui-monospace,monospace;text-align:center}.line-row.desperado .line-rank{color:#b04aff}.line-row.gambit .line-rank{color:#ffb347}.line-row.boa .line-rank{color:#3ad8c4}.line-row.universal .line-rank{color:#6ba3ff}
+  .line-eval{font-family:ui-monospace,Menlo,monospace;font-weight:700;color:#5cd88e;min-width:56px;text-align:right}.line-pv{font-family:ui-monospace,monospace;color:#999;font-size:11px;flex:1;word-break:break-all}.line-pv b{color:#eaeaea;font-weight:700}
+  .move-history{font-family:ui-monospace,monospace;font-size:12px;background:#17181a;border-radius:10px;padding:8px 12px;color:#888;max-height:90px;overflow-y:auto;line-height:1.7}.move-history b{color:#5cd88e}
+  .footer-note{font-size:11px;color:#666;text-align:center;padding:4px;line-height:1.5}
 </style>
 </head>
 <body>
 
-<h1>Kibitz <span>•</span> GM Styles</h1>
+<h1>Kibitz <span>•</span> Humanized</h1>
 <div class="subtitle" id="subtitle">คุณเล่นขาว • ฝ่ายตรงข้ามเดินดำ</div>
 
-<div id="gambitBanner">
-  <div class="g-icon">⚔️</div>
-  <div class="g-text">
-    <strong>Gambit Mode Active</strong>
-    <span id="gambitLine">—</span>
-  </div>
-</div>
+<div id="gambitBanner"><div class="g-icon">⚔️</div><div class="g-text"><strong>Gambit Mode</strong><span id="gambitLine">—</span></div></div>
+<div id="boaBanner"><div class="g-icon">🐍</div><div class="g-text"><strong>Boa Constrictor</strong>บีบคอช้าๆ ไม่แลกหมาก</div></div>
+<div id="desperadoBanner"><div class="d-icon">🔥</div><div class="d-text"><strong>Desperado Mode</strong>เสียเปรียบหนัก — บุกแหลก</div></div>
+<div id="resignBanner"><div class="resign-msg"><strong>ยอมแพ้เถอะ</strong><span id="resignReason">—</span></div><div class="resign-actions"><button class="btn-resign" id="btnDoResign">ยอมแพ้</button><button class="btn-ignore" id="btnIgnoreResign">เล่นต่อ</button></div></div>
 
-<div id="boaBanner">
-  <div class="g-icon">🐍</div>
-  <div class="g-text">
-    <strong>Boa Constrictor</strong>
-    ไม่แลกหมาก · ไม่ผลีผลาม · บีบคอช้าๆ จนคู่ต่อสู้หายใจไม่ออก
-  </div>
-</div>
-
-<div id="desperadoBanner">
-  <div class="d-icon">🔥</div>
-  <div class="d-text">
-    <strong>Desperado Mode Active</strong>
-    เราเสียเปรียบหนัก — สลับเป็นโหมดบ้าบิ่น บุกจี้ King/Queen คู่ต่อสู้!
-  </div>
-</div>
-
-<div id="resignBanner">
-  <div class="resign-msg">
-    <strong>ยอมแพ้เถอะ</strong>
-    <span id="resignReason">—</span>
-  </div>
-  <div class="resign-actions">
-    <button class="btn-resign" id="btnDoResign">ยอมแพ้</button>
-    <button class="btn-ignore" id="btnIgnoreResign">เล่นต่อ</button>
-  </div>
-</div>
-
-<div id="banter">
-  <span class="name">Kibitz</span>
-  <span class="txt">พร้อมแล้ว เริ่มได้</span>
-</div>
-
+<div id="banter"><span class="name">Kibitz</span><span class="txt">พร้อมแล้ว เริ่มได้</span></div>
 <div id="status">พร้อม</div>
 
 <div class="board-wrap">
@@ -255,1115 +78,639 @@
 </div>
 
 <div class="settings-box">
-  <div class="setting-row">
-    <label>ฝั่งที่คุณเล่น</label>
-    <select id="selSide">
-      <option value="w">ขาว (White) — คุณเริ่มก่อน</option>
-      <option value="b">ดำ (Black) — คู่ต่อสู้เริ่มก่อน</option>
-    </select>
-  </div>
-  <div class="setting-row">
-    <label>สไตล์</label>
-    <select id="selPreset">
-      <optgroup label="GM สไตล์">
-        <option value="carlsen">Magnus Carlsen</option>
-        <option value="nakamura">Hikaru Nakamura</option>
-        <option value="kasparov">Garry Kasparov</option>
-        <option value="karpov">Anatoly Karpov</option>
-        <option value="caruana">Fabiano Caruana</option>
-      </optgroup>
-      <optgroup label="สไตล์พิเศษ">
-        <option value="universal">🌐 Universal Player</option>
-        <option value="boa">🐍 Boa Constrictor</option>
-      </optgroup>
-      <optgroup label="Gambit สายบ้า">
-        <option value="alien">⚔️ Alien Gambit (Eric Rosen)</option>
-        <option value="gambits">⚔️ Gambits (รวมทุกแกมบิท)</option>
-      </optgroup>
-    </select>
-  </div>
-  <div class="setting-row">
-    <label>โอกาสแกล้งพลาด</label>
-    <input type="range" id="rngBlunder" min="0" max="30" value="5">
-    <span id="lblBlunder" style="font-family:monospace; width:36px; text-align:right; color:#5cd88e; font-weight:700;">5%</span>
-  </div>
-  <div class="setting-row">
-    <div class="toggle-row"><input type="checkbox" id="chkOpenings" checked> สุ่มไม้เปิด</div>
-    <div class="toggle-row"><input type="checkbox" id="chkAntiCheat" checked> Anti-Cheat</div>
-    <div class="toggle-row"><input type="checkbox" id="chkCoach" checked> Coach</div>
-  </div>
+  <div class="setting-row"><label>ฝั่งที่คุณเล่น</label><select id="selSide"><option value="w">ขาว — เริ่มก่อน</option><option value="b">ดำ — คู่ต่อสู้เริ่มก่อน</option></select></div>
+  <div class="setting-row"><label>สไตล์</label><select id="selPreset">
+    <optgroup label="GM">
+      <option value="carlsen">Magnus Carlsen</option><option value="nakamura">Hikaru Nakamura</option><option value="kasparov">Garry Kasparov</option><option value="karpov">Anatoly Karpov</option><option value="caruana">Fabiano Caruana</option>
+    </optgroup>
+    <optgroup label="พิเศษ">
+      <option value="universal">🌐 Universal Player</option><option value="boa">🐍 Boa Constrictor</option>
+    </optgroup>
+    <optgroup label="Gambit">
+      <option value="alien">⚔️ Alien Gambit</option><option value="gambits">⚔️ Gambits รวม</option>
+    </optgroup>
+  </select></div>
+  <div class="setting-row"><label>โอกาสแกล้งพลาด</label><input type="range" id="rngBlunder" min="0" max="30" value="5"><span id="lblBlunder" style="font-family:monospace;width:36px;text-align:right;color:#5cd88e;font-weight:700">5%</span></div>
+  <div class="setting-row"><div class="toggle-row"><input type="checkbox" id="chkOpenings" checked> สุ่มไม้เปิด</div><div class="toggle-row"><input type="checkbox" id="chkAntiCheat" checked> Anti-Cheat</div><div class="toggle-row"><input type="checkbox" id="chkCoach" checked> Coach</div></div>
 </div>
 
-<div class="eval-row">
-  <div class="eval-bar" id="evalBar"></div>
-  <div id="evalText">0.00</div>
-</div>
-
-<div class="btn-row">
-  <button id="btnAnalyze" class="primary">แนะนำตาเดิน</button>
-  <button id="btnThink">คิดลึก</button>
-</div>
-
-<div class="btn-row three">
-  <button id="btnUndo" class="secondary">ย้อนกลับ</button>
-  <button id="btnFlip" class="secondary">กลับกระดาน</button>
-  <button id="btnReset" class="danger">เริ่มใหม่</button>
-</div>
-
+<div class="eval-row"><div class="eval-bar" id="evalBar"></div><div id="evalText">0.00</div></div>
+<div class="btn-row"><button id="btnAnalyze" class="primary">แนะนำตาเดิน</button><button id="btnThink">คิดลึก</button></div>
+<div class="btn-row three"><button id="btnUndo" class="secondary">ย้อนกลับ</button><button id="btnFlip" class="secondary">กลับกระดาน</button><button id="btnReset" class="danger">เริ่มใหม่</button></div>
 <div id="analysisOutput"></div>
 <div class="move-history" id="moveHistory">—</div>
-
-<div class="footer-note">
-  คลิกชิ้นหมาก → จุดเขียวคือจุดที่เดินได้<br>
-  Universal: ปรับตัวตามตำแหน่ง · Boa: บีบคอช้าๆ ไม่รีบ
-</div>
+<div class="footer-note">Anti-Cheat v2: Accuracy curve + Timing complexity + Fatigue + Mouse jitter</div>
 
 <script>
-(() => {
-  'use strict';
-
-  const MAX_THINK_SECONDS = 7;
-  const RESIGN_EVAL_THRESHOLD = -600;
-  const DESPERADO_EVAL_THRESHOLD = -200;
-  const RESIGN_LATE_GAME_MOVES = 30;
-  const RESIGN_LATE_GAME_PIECES = 16;
-
-  const PRESETS = {
-    carlsen:   { label: 'Magnus',   movetime: 500, filter: 'flexible',  openings: ['e4','c4','Nf3','d4'], timerMin: 1, timerMax: 3, blunderMult: 0.4, tag: 'Carlsen' },
-    nakamura:  { label: 'Hikaru',   movetime: 300, filter: 'chaotic',   openings: ['e4','f3','g4','Nf3'], timerMin: 1, timerMax: 2, blunderMult: 1.5, tag: 'Nakamura' },
-    kasparov:  { label: 'Kasparov', movetime: 500, filter: 'aggressive',openings: ['e4','d4'],           timerMin: 2, timerMax: 4, blunderMult: 0.5, tag: 'Kasparov' },
-    karpov:    { label: 'Karpov',   movetime: 500, filter: 'defensive', openings: ['d4','c4','Nf3'],     timerMin: 2, timerMax: 4, blunderMult: 0.6, tag: 'Karpov' },
-    caruana:   { label: 'Caruana',  movetime: 600, filter: 'precise',   openings: ['e4','d4'],           timerMin: 1, timerMax: 3, blunderMult: 0.2, tag: 'Caruana' },
-    // ─── UNIVERSAL PLAYER ───
-    universal: {
-      label: 'Universal', movetime: 700, filter: 'universal',
-      openings: ['e4','d4','c4','Nf3','g3','b3','e3','d3'],
-      timerMin: 2, timerMax: 4, blunderMult: 0.15, tag: 'Universal',
-      hint: 'ปรับตัวตามตำแหน่ง ไม่มีจุดอ่อน บุกเมื่อควรบุก รับเมื่อควรรับ'
-    },
-    // ─── BOA CONSTRICTOR ───
-    boa: {
-      label: 'Boa', movetime: 600, filter: 'boa',
-      openings: ['d4','c4','Nf3','e3','g3','b3','d3'],
-      timerMin: 2, timerMax: 5, blunderMult: 0.4, tag: 'Boa',
-      hint: 'บีบคอช้าๆ คุมพื้นที่ ไม่แลกหมาก รัดจนคู่ต่อสู้พลาดเอง'
-    },
-    // ─── GAMBIT MODES ───
-    alien: {
-      label: 'Alien', movetime: 500, filter: 'gambit',
-      openings: ['d4','c4','e4','Nf3','f4','c3','Bc4','Nc3','exd4'],
-      timerMin: 1, timerMax: 3, blunderMult: 0.6, tag: 'Alien',
-      gambitName: 'Alien Gambit (QGA 3.e4)',
-    },
-    gambits: {
-      label: 'Gambits', movetime: 500, filter: 'gambit',
-      openings: ['e4','d4','c4','Nf3','f4','b4','c3','Bc4','Nxe5','Bxf7','exd4','exd5'],
-      timerMin: 1, timerMax: 3, blunderMult: 0.8, tag: 'Gambit',
-      gambitName: 'Gambit Sampler (KG/Evans/Smith-Morra/Danish/Alien/Halloween)',
-    }
-  };
-
-  const BANTER = {
-    thinking: ['hold on. thinking.', 'sit still, i\'m not done.', 'you\'re breathing loud. shut up a sec.', 'give me three seconds. don\'t touch anything.', 'okay okay. i see it.', 'this position is garbage, by the way.', 'don\'t help. just wait.', 'trying to save your ass here.', 'mm. no. not that.', 'i\'m looking. stop staring at me.'],
-    goodMove: ['oh. that\'s actually good.', 'fine. fine. i\'ll allow it.', 'okay that was clean.', 'don\'t let it get to your head.', 'lucky. but good.', 'hm. approved.', 'you\'re not as dumb as you look today.'],
-    badMove: ['the fuck was that?', 'no. no no no.', 'you just hung a piece, genius.', 'why. WHY.', 'i could have told you that was bad. i literally was about to.', 'that move made me physically uncomfortable.', 'bold. stupid, but bold.', 'that\'s a 1400 move. you\'re not 1400.', 'christ.', 'i leave you alone for one second.'],
-    critical: ['CAREFUL.', 'stop. look at your king.', 'not that. anything but that.', 'you\'re walking into a fork, idiot.', 'this is the move that loses games.', 'wait — put that back.', 'are you trying to lose?'],
-    winning: ['okay now finish it. don\'t get cute.', 'you\'re winning. don\'t fuck it up.', 'keep it simple. trade down.', 'boring is beautiful right now.', 'don\'t blow this.'],
-    losing: ['we\'re in trouble. focus.', 'this is bad. like, actually bad.', 'you got outplayed. now fight back.', 'stop panicking and defend.', 'dig in. we\'re not dead yet.'],
-    resign: ['it\'s over. just resign.', 'stop. you\'re not coming back from this.', 'you know this is dead. resign and save the clock.', 'don\'t drag it out. resign.', 'this is a loss. resign now.', 'there\'s nothing here. resign.', 'you\'re wasting both our time. resign.'],
-    opening: ['opening. standard stuff.', 'just play chess.', 'book moves. don\'t overthink.', 'development first. you know this.', 'stop playing weird. play sound.'],
-    idle: ['your move.', 'take your time. or don\'t.', 'i\'m waiting.', 'go.', 'stop thinking about it and play.'],
-    resigned: ['good. finally.', 'see? that wasn\'t so hard.', 'gg. reset and try not to blunder next time.', 'now you know. move on.'],
-    desperado: ['fuck it. all in.', 'we\'re losing anyway. take his king with us.', 'sacrifice everything. GO.', 'no more defense. hunt the king.', 'throw the whole army at him.', 'burn it all down.'],
-    gambit: ['gambit. he won\'t see it coming.', 'sacrifice the pawn. trust me.', 'this is a trap. he\'ll take it.', 'let him have the material. we get the attack.', 'alien gambit. play it.', 'this line is filthy. play it anyway.', 'offer the pawn. offer the knight. who cares.', 'gambit time. we\'re not playing safe.', 'he thinks he\'s winning material. he\'s losing position.', 'sharp line. keep it sharp.'],
-    gambitMove: ['gambit offered. he\'s thinking.', 'pawn gone. attack coming.', 'he took it. idiot.', 'good. now punish him.', 'sacrificed. initiative is ours.'],
-    // ─── UNIVERSAL PLAYER BANTER ───
-    universal: [
-      'reading the position. not the book.',
-      'no style. just truth.',
-      'i don\'t play a script. i play what works.',
-      'this position is telling me what to do.',
-      'no ego. just the best move.',
-      'adapt. always adapt.',
-      'i don\'t have a weakness. that\'s the point.',
-      'whatever he plays, i have an answer.',
-      'quiet when it should be quiet. loud when it should be loud.',
-      'the board decides. not me.',
-    ],
-    // ─── BOA CONSTRICTOR BANTER ───
-    boa: [
-      'slow. quiet. squeeze.',
-      'don\'t rush. constrict.',
-      'no trades. no fireworks. just pressure.',
-      'he\'s getting uncomfortable. good.',
-      'one square at a time. tighten.',
-      'every move i make takes something from him.',
-      'he\'ll crack. they always crack.',
-      'i don\'t need to win fast. i need to win sure.',
-      'spatial advantage. that\'s the plan.',
-      'no tempo for him. only space for me.',
-    ],
-    boaMove: [
-      'another square. another squeeze.',
-      'see how cramped he is?',
-      'tighten the grip.',
-      'he has no plan. i have all of them.',
-      'he\'s suffocating. keep going.',
-      'quiet move. deadly effect.',
-    ]
-  };
-
-  const GLYPH = {
-    w: { k: '♔\uFE0E', q: '♕\uFE0E', r: '♖\uFE0E', b: '♗\uFE0E', n: '♘\uFE0E', p: '♙\uFE0E' },
-    b: { k: '♚\uFE0E', q: '♛\uFE0E', r: '♜\uFE0E', b: '♝\uFE0E', n: '♞\uFE0E', p: '♟\uFE0E' }
-  };
-
-  const game = new Chess();
-  
-  let myColor = 'w';
-  let selectedSq = null;
-  let legalDests = new Set();
-  let lastMove = null;
-  let flipped = false;
-  
-  let engine = null;
-  let engineReady = false;
-  let engineLoading = false;
-  let analysisRunning = false;
-  let multiPV = {};
-  let currentDepth = 0;
-  
-  let chosenMoveUci = null;
-  let thinkTimerInterval = null;
-  let lastBanterAt = 0;
-  let preMoveEval = null;
-  let resignDismissed = false;
-  let resigned = false;
-
-  const boardEl = document.getElementById('board');
-  const arrowsEl = document.getElementById('arrows');
-  const statusEl = document.getElementById('status');
-  const evalTextEl = document.getElementById('evalText');
-  const evalBarEl = document.getElementById('evalBar');
-  const analysisEl = document.getElementById('analysisOutput');
-  const historyEl = document.getElementById('moveHistory');
-  const subtitle = document.getElementById('subtitle');
-  const banterEl = document.getElementById('banter');
-  const banterNameEl = banterEl.querySelector('.name');
-  const banterTxtEl = banterEl.querySelector('.txt');
-  const cursorSim = document.getElementById('cursorSim');
-  const resignBanner = document.getElementById('resignBanner');
-  const resignReason = document.getElementById('resignReason');
-  const btnDoResign = document.getElementById('btnDoResign');
-  const btnIgnoreResign = document.getElementById('btnIgnoreResign');
-  const desperadoBanner = document.getElementById('desperadoBanner');
-  const gambitBanner = document.getElementById('gambitBanner');
-  const gambitLine = document.getElementById('gambitLine');
-  const boaBanner = document.getElementById('boaBanner');
-  
-  const btnAnalyze = document.getElementById('btnAnalyze');
-  const btnThink = document.getElementById('btnThink');
-  const btnUndo = document.getElementById('btnUndo');
-  const btnFlip = document.getElementById('btnFlip');
-  const btnReset = document.getElementById('btnReset');
-
-  const selSide = document.getElementById('selSide');
-  const selPreset = document.getElementById('selPreset');
-  const rngBlunder = document.getElementById('rngBlunder');
-  const lblBlunder = document.getElementById('lblBlunder');
-  const chkOpenings = document.getElementById('chkOpenings');
-  const chkAntiCheat = document.getElementById('chkAntiCheat');
-  const chkCoach = document.getElementById('chkCoach');
-
-  function banter(category, opts = {}) {
-    if (Date.now() - lastBanterAt < 1200 && !opts.force) return;
-    lastBanterAt = Date.now();
-    const pool = BANTER[category] || BANTER.idle;
-    const line = pool[Math.floor(Math.random() * pool.length)];
-    banterNameEl.textContent = PRESETS[selPreset.value].label;
-    let cls = '';
-    if (category === 'thinking') cls = 'thinking dots';
-    else if (category === 'badMove' || category === 'critical' || category === 'resign') cls = 'angry';
-    else if (category === 'goodMove' || category === 'winning') cls = 'pleased';
-    else if (category === 'desperado') cls = 'desperado';
-    else if (category === 'gambit' || category === 'gambitMove') cls = 'gambit';
-    else if (category === 'boa' || category === 'boaMove') cls = 'boa';
-    else if (category === 'universal') cls = 'universal';
-    banterEl.className = cls;
-    banterTxtEl.textContent = line;
-  }
-
-  function isGambitPreset() {
-    return PRESETS[selPreset.value].filter === 'gambit';
-  }
-  function isBoaPreset() {
-    return PRESETS[selPreset.value].filter === 'boa';
-  }
-  function isUniversalPreset() {
-    return PRESETS[selPreset.value].filter === 'universal';
-  }
-
-  function updateBanners() {
-    const preset = PRESETS[selPreset.value];
-    // Gambit banner
-    if (preset.filter === 'gambit') {
-      gambitLine.textContent = preset.gambitName || '—';
-      gambitBanner.classList.add('show');
-    } else {
-      gambitBanner.classList.remove('show');
-    }
-    // Boa banner
-    if (preset.filter === 'boa') boaBanner.classList.add('show');
-    else boaBanner.classList.remove('show');
-  }
-
-  function isDesperadoMode() {
-    const top = multiPV[1];
-    if (!top) return false;
-    let cpForUs = top.scoreType === 'mate' ? (top.scoreValue > 0 ? 9999 : -9999) : top.scoreValue;
-    return cpForUs <= DESPERADO_EVAL_THRESHOLD && cpForUs > RESIGN_EVAL_THRESHOLD;
-  }
-
-  function updateDesperadoBanner() {
-    const active = isDesperadoMode() && !resigned && !gameOver();
-    if (active) desperadoBanner.classList.add('show');
-    else desperadoBanner.classList.remove('show');
-  }
-
-  function countPiecesOnBoard() {
-    let n = 0;
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const sq = 'abcdefgh'[c] + (8 - r);
-        if (game.get(sq)) n++;
-      }
-    }
-    return n;
-  }
-
-  function checkResignCondition() {
-    if (resigned || resignDismissed || gameOver()) return;
-    if (game.turn() !== myColor) return;
-    const top = multiPV[1];
-    if (!top) return;
-    let cpForUs = top.scoreType === 'mate' ? (top.scoreValue > 0 ? 9999 : -9999) : top.scoreValue;
-    const piecesLeft = countPiecesOnBoard();
-    const moveCount = game.history().length;
-    const isLateGame = piecesLeft <= RESIGN_LATE_GAME_PIECES || moveCount >= RESIGN_LATE_GAME_MOVES;
-
-    let shouldShow = false, reason = '';
-    if (top.scoreType === 'mate' && cpForUs < 0) {
-      shouldShow = true;
-      reason = `โดนบังคับจนมใน ${Math.abs(top.scoreValue)} ตา — ไม่มีทางหนี`;
-    } else if (top.scoreType === 'cp' && cpForUs <= RESIGN_EVAL_THRESHOLD && isLateGame) {
-      const pawns = (cpForUs / 100).toFixed(1);
-      shouldShow = true;
-      reason = `เสียเปรียบ ${Math.abs(pawns)} หมาก ในช่วงท้ายเกม — ไม่มีทางพลิก`;
-    }
-    if (shouldShow) {
-      resignReason.textContent = reason;
-      resignBanner.classList.add('show');
-      desperadoBanner.classList.remove('show');
-      banter('resign', { force: true });
-    } else {
-      resignBanner.classList.remove('show');
-    }
-  }
-
-  btnDoResign.onclick = () => {
-    resigned = true;
-    resignBanner.classList.remove('show');
-    desperadoBanner.classList.remove('show');
-    clearInterval(thinkTimerInterval);
-    clearArrows();
-    setStatus('ยอมแพ้แล้ว — เกมจบ', 'err');
-    banter('resigned', { force: true });
-    analysisRunning = false;
-  };
-
-  btnIgnoreResign.onclick = () => {
-    resignDismissed = true;
-    resignBanner.classList.remove('show');
-    banter('losing', { force: true });
-  };
-
-  selPreset.addEventListener('change', () => {
-    updateBanners();
-    if (isGambitPreset()) banter('gambit', { force: true });
-    else if (isBoaPreset()) banter('boa', { force: true });
-    else if (isUniversalPreset()) banter('universal', { force: true });
-    else banter('opening', { force: true });
-  });
-  rngBlunder.addEventListener('input', (e) => { lblBlunder.textContent = e.target.value + '%'; });
-
-  selSide.addEventListener('change', (e) => {
-    myColor = e.target.value;
-    flipped = (myColor === 'b');
-    subtitle.textContent = `คุณเล่น${myColor === 'w' ? 'ขาว • คุณเริ่มก่อน' : 'ดำ • คู่ต่อสู้เริ่มก่อน'}`;
-    game.reset();
-    clearAnalysis();
-    selectedSq = null; legalDests = new Set(); lastMove = null;
-    resignDismissed = false; resigned = false;
-    resignBanner.classList.remove('show');
-    desperadoBanner.classList.remove('show');
-    updateBanners();
-    renderBoard(); renderHistory(); updateStatus();
-    banter('idle', { force: true });
-  });
-
-  function inCheck() { return typeof game.in_check === 'function' ? game.in_check() : (typeof game.inCheck === 'function' ? game.inCheck() : false); }
-  function inCheckmate() { return typeof game.in_checkmate === 'function' ? game.in_checkmate() : (typeof game.inCheckmate === 'function' ? game.inCheckmate() : false); }
-  function inStalemate() { return typeof game.in_stalemate === 'function' ? game.in_stalemate() : (typeof game.inStalemate === 'function' ? game.inStalemate() : false); }
-  function gameOver() { return typeof game.game_over === 'function' ? game.game_over() : (typeof game.gameOver === 'function' ? game.gameOver() : false); }
-  function kingSquare(color) {
-    const files = 'abcdefgh';
-    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
-      const sq = files[c] + (8 - r);
-      const p = game.get(sq);
-      if (p && p.type === 'k' && p.color === color) return sq;
-    }
-    return null;
-  }
-  function sqToXY(sq) {
-    let f = sq.charCodeAt(0) - 97;
-    let r = 8 - parseInt(sq[1], 10);
-    if (flipped) { f = 7 - f; r = 7 - r; }
-    return [f * 60 + 30, r * 60 + 30];
-  }
-  function setStatus(msg, cls = '') { statusEl.textContent = msg; statusEl.className = cls; }
-
-  function renderBoard() {
-    boardEl.innerHTML = '';
-    const checkSq = inCheck() ? kingSquare(game.turn()) : null;
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        let fileIdx = c, rankIdx = 8 - r;
-        if (flipped) { fileIdx = 7 - c; rankIdx = r + 1; }
-        const sq = 'abcdefgh'[fileIdx] + rankIdx;
-        const cell = document.createElement('div');
-        cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
-        cell.dataset.sq = sq;
-        if (sq === selectedSq) cell.classList.add('selected');
-        if (checkSq === sq) cell.classList.add('check');
-        if (lastMove && (lastMove.from === sq || lastMove.to === sq)) cell.classList.add('last');
-        if (legalDests.has(sq)) { cell.classList.add('hint'); if (game.get(sq)) cell.classList.add('capture'); }
-        const piece = game.get(sq);
-        if (piece) {
-          const span = document.createElement('span');
-          span.className = 'piece ' + piece.color;
-          span.textContent = GLYPH[piece.color][piece.type];
-          cell.appendChild(span);
-        }
-        cell.addEventListener('click', () => onCellClick(sq));
-        boardEl.appendChild(cell);
-      }
-    }
-  }
-
-  function onCellClick(sq) {
-    if (gameOver() || resigned) return;
-    if (selectedSq && legalDests.has(sq)) { attemptMove(selectedSq, sq); return; }
-    const piece = game.get(sq);
-    if (piece && piece.color === game.turn()) {
-      selectedSq = sq; legalDests = new Set();
-      try { const moves = game.moves({ square: sq, verbose: true }) || []; moves.forEach(m => legalDests.add(m.to)); } catch (e) {}
-      renderBoard();
-    } else if (selectedSq) { selectedSq = null; legalDests = new Set(); renderBoard(); }
-  }
-
-  function humanDelay(min, max) {
-    const u = Math.random(), v = Math.random();
-    const normal = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-    const t = Math.max(0, Math.min(1, (normal + 2.5) / 5));
-    return Math.round(min + t * (max - min));
-  }
-
-  function simulateCursorTo(sq) {
-    if (!chkAntiCheat.checked) return Promise.resolve();
-    return new Promise(resolve => {
-      const wrap = boardEl.parentElement;
-      const rect = wrap.getBoundingClientRect();
-      let c = 'abcdefgh'.indexOf(sq[0]), r = 8 - parseInt(sq[1], 10);
-      if (flipped) { c = 7 - c; r = 7 - r; }
-      const cellW = rect.width / 8, cellH = rect.height / 8;
-      const tx = rect.left + c * cellW + cellW / 2, ty = rect.top + r * cellH + cellH / 2;
-      const startX = tx + (Math.random() - 0.5) * 60, startY = ty + (Math.random() - 0.5) * 60;
-      cursorSim.style.left = (startX - rect.left) + 'px';
-      cursorSim.style.top = (startY - rect.top) + 'px';
-      cursorSim.style.opacity = '0.7';
-      const start = performance.now(), dur = 120 + Math.random() * 90;
-      function step(now) {
-        const t = Math.min(1, (now - start) / dur), ease = 1 - Math.pow(1 - t, 3);
-        cursorSim.style.left = ((startX - rect.left) + (tx - startX) * ease) + 'px';
-        cursorSim.style.top = ((startY - rect.top) + (ty - startY) * ease) + 'px';
-        if (t < 1) requestAnimationFrame(step);
-        else { setTimeout(() => { cursorSim.style.opacity = '0'; resolve(); }, 40); }
-      }
-      requestAnimationFrame(step);
-    });
-  }
-
-  async function attemptMove(from, to) {
-    if (chkCoach.checked && preMoveEval !== null) await coachCheck(from, to);
-    simulateCursorTo(to).then(() => { executeMove(from, to); });
-  }
-
-  function coachCheck(from, to) {
-    return new Promise(resolve => {
-      const tmp = new Chess();
-      try { tmp.load(game.fen()); } catch (e) { resolve(); return; }
-      let m = null;
-      try { m = tmp.move({ from, to, promotion: 'q' }); } catch (e) { resolve(); return; }
-      if (!m || !engineReady) { resolve(); return; }
-      let resolved = false;
-      const done = () => { if (!resolved) { resolved = true; resolve(); } };
-      const handler = (e) => {
-        const line = typeof e.data === 'string' ? e.data : '';
-        if (line.startsWith('bestmove')) { engine.removeEventListener('message', handler); done(); }
-        if (line.startsWith('info') && line.includes('score cp')) {
-          const match = line.match(/score cp (-?\d+)/);
-          if (match) {
-            let cp = parseInt(match[1], 10);
-            if (tmp.turn() === 'b') cp = -cp;
-            if (myColor === 'b') cp = -cp;
-            const delta = (preMoveEval || 0) - cp;
-            if (delta > 100) banter('critical', { force: true });
-            else if (delta > 40) banter('badMove', { force: true });
-          }
-        }
-      };
-      engine.addEventListener('message', handler);
-      engine.postMessage('position fen ' + tmp.fen());
-      engine.postMessage('go movetime 200');
-      setTimeout(done, 400);
-    });
-  }
-
-  function executeMove(from, to) {
-    let move;
-    try { move = game.move({ from, to, promotion: 'q' }); } catch (e) { move = null; }
-    if (!move) { selectedSq = null; legalDests = new Set(); renderBoard(); return; }
-    lastMove = { from, to }; selectedSq = null; legalDests = new Set();
-    chosenMoveUci = null;
-    clearAnalysis();
-    renderBoard(); renderHistory(); updateStatus();
-    if (gameOver()) { if (inCheckmate()) banter('winning', { force: true }); return; }
-    if (multiPV[1]) {
-      const score = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
-      if (score > 200) banter('winning');
-      else if (score < -200) banter('losing');
-    }
-  }
-
-  function getScoreFromPerspective(scoreType, scoreValue, turnWhoMoved) {
-    if (scoreType === 'mate') return scoreValue > 0 ? 9999 : -9999;
-    let v = scoreValue;
-    if (turnWhoMoved === 'b') v = -v;
-    if (myColor === 'b') v = -v;
-    return v;
-  }
-
-  function updateStatus() {
-    if (resigned) { setStatus('ยอมแพ้แล้ว — เกมจบ', 'err'); return; }
-    if (gameOver()) {
-      if (inCheckmate()) setStatus('จนม! ' + (game.turn() === 'w' ? 'ดำชนะ' : 'ขาวชนะ'), 'err');
-      else if (inStalemate()) setStatus('อับ — เสมอ', 'warn');
-      else setStatus('เกมจบ — เสมอ', 'warn');
-      return;
-    }
-    if (game.turn() === myColor) setStatus(`ตาคุณ — คลิกชิ้นหมากเพื่อเดิน`, 'ok');
-    else setStatus(`ตาคู่ต่อสู้ — เดินตามที่คู่ต่อสู้เดินจริง`, '');
-  }
-
-  function drawArrow(uci) {
-    arrowsEl.innerHTML = '';
-    if (!uci || uci.length < 4) return;
-    const [fx, fy] = sqToXY(uci.slice(0, 2)), [tx, ty] = sqToXY(uci.slice(2, 4));
-    const dx = tx - fx, dy = ty - fy, len = Math.hypot(dx, dy);
-    if (len < 1) return;
-    const ux = dx / len, uy = dy / len, hl = 24, hw = 18;
-    const bx = tx - ux * hl, by = ty - uy * hl, px = -uy, py = ux;
-    let color = 'rgba(92,216,142,0.95)';
-    if (isDesperadoMode()) color = 'rgba(176,74,255,0.95)';
-    else if (isGambitPreset()) color = 'rgba(255,179,71,0.95)';
-    else if (isBoaPreset()) color = 'rgba(58,216,196,0.95)';
-    else if (isUniversalPreset()) color = 'rgba(107,163,255,0.95)';
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', fx); line.setAttribute('y1', fy);
-    line.setAttribute('x2', bx); line.setAttribute('y2', by);
-    line.setAttribute('stroke', color);
-    line.setAttribute('stroke-width', '8'); line.setAttribute('stroke-linecap', 'round');
-    arrowsEl.appendChild(line);
-    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    poly.setAttribute('points', `${tx},${ty} ${bx + px * hw / 2},${by + py * hw / 2} ${bx - px * hw / 2},${by - py * hw / 2}`);
-    poly.setAttribute('fill', color);
-    arrowsEl.appendChild(poly);
-  }
-
-  function clearArrows() { arrowsEl.innerHTML = ''; }
-
-  function clearAnalysis() {
-    analysisRunning = false; multiPV = {}; currentDepth = 0; chosenMoveUci = null;
-    clearInterval(thinkTimerInterval); clearArrows();
-    analysisEl.innerHTML = ''; evalTextEl.textContent = '0.00';
-    updateEvalBarCss(50); preMoveEval = null;
-  }
-
-  function updateEvalBarCss(percent) {
-    const sheetId = 'kibitz-eval-css';
-    let style = document.getElementById(sheetId);
-    if (!style) { style = document.createElement('style'); style.id = sheetId; document.head.appendChild(style); }
-    style.textContent = `.eval-bar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: ${percent}%; background: #eaeaea; transition: width .3s ease; }`;
-  }
-
-  async function ensureEngine() {
-    if (engineReady) return true;
-    if (engineLoading) return false;
-    engineLoading = true; setStatus('กำลังโหลด Stockfish...', '');
-    try {
-      const url = 'https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js';
-      const resp = await fetch(url);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const code = await resp.text();
-      const blob = new Blob([code], { type: 'application/javascript' });
-      engine = new Worker(URL.createObjectURL(blob));
-      engine.onmessage = onEngineMsg;
-      engine.onerror = (err) => { setStatus('Engine error: ' + (err.message || err), 'err'); engineLoading = false; engineReady = false; };
-      engine.postMessage('uci'); engine.postMessage('isready');
-      return false;
-    } catch (err) { setStatus('โหลด Engine ไม่ได้: ' + err.message, 'err'); engineLoading = false; return false; }
-  }
-
-  function onEngineMsg(e) {
-    const line = typeof e.data === 'string' ? e.data : '';
-    if (!line) return;
-    if (line === 'uciok' || line === 'readyok') {
-      if (!engineReady) { engineReady = true; engineLoading = false; if (!analysisRunning) setStatus('Stockfish พร้อม', 'ok'); }
-      return;
-    }
-    if (line.startsWith('info')) { parseInfo(line); return; }
-    if (line.startsWith('bestmove')) { onBestMove(line.split(/\s+/)[1]); }
-  }
-
-  function parseInfo(line) {
-    const tokens = line.split(/\s+/);
-    let depth = 0, multipv = 1, scoreType = null, scoreValue = null;
-    const pv = [];
-    for (let i = 0; i < tokens.length; i++) {
-      const t = tokens[i];
-      if (t === 'depth') depth = parseInt(tokens[i + 1], 10);
-      else if (t === 'multipv') multipv = parseInt(tokens[i + 1], 10);
-      else if (t === 'score') { scoreType = tokens[i + 1]; scoreValue = parseInt(tokens[i + 2], 10); }
-      else if (t === 'pv') { for (let j = i + 1; j < tokens.length; j++) pv.push(tokens[j]); break; }
-    }
-    if (!pv.length || scoreType === null) return;
-    multiPV[multipv] = { depth, scoreType, scoreValue, pv, rank: multipv };
-    if (analysisRunning && depth > currentDepth) currentDepth = depth;
-  }
-
-  function classifyMove(uci, fen) {
-    if (!uci || uci.length < 4) return null;
-    const tmp = new Chess();
-    try { tmp.load(fen); } catch (e) { return null; }
-    let m = null;
-    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); } catch (e) { return null; }
-    if (!m) return null;
-    return {
-      capture: m.flags.indexOf('c') !== -1,
-      promotion: m.flags.indexOf('p') !== -1,
-      check: m.san.indexOf('+') !== -1 || m.san.indexOf('#') !== -1,
-      piece: m.piece,
-      captured: m.captured,
-      san: m.san,
-      from: m.from,
-      to: m.to,
-    };
-  }
-
-  function isPreferredOpening(uci, fen, gmPreset) {
-    if (!uci || uci.length < 4) return false;
-    const tmp = new Chess();
-    try { tmp.load(fen); } catch (e) { return false; }
-    let m = null;
-    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); } catch (e) { return false; }
-    if (!m) return false;
-    return gmPreset.openings.some(op => m.san === op || m.san.startsWith(op));
-  }
-
-  function desperadoScore(uci, fen) {
-    if (!uci || uci.length < 4) return -999;
-    const tmp = new Chess();
-    try { tmp.load(fen); } catch (e) { return -999; }
-    let m = null;
-    try { m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || 'q' }); } catch (e) { return -999; }
-    if (!m) return -999;
-    let score = 0;
-    const destSq = uci.slice(2, 4);
-    const enemyKingSq = findEnemyKing(tmp);
-    if (enemyKingSq) {
-      const dF = destSq.charCodeAt(0) - 97, dR = parseInt(destSq[1], 10);
-      const kF = enemyKingSq.charCodeAt(0) - 97, kR = parseInt(enemyKingSq[1], 10);
-      const dist = Math.max(Math.abs(dF - kF), Math.abs(dR - kR));
-      if (dist <= 2) score += 50;
-      if (dist <= 1) score += 100;
-    }
-    if (m.piece === 'q') score += 20;
-    if (m.piece === 'k') score += 15;
-    if (m.san.indexOf('+') !== -1) score += 150;
-    if (m.san.indexOf('#') !== -1) score += 1000;
-    if (m.flags.indexOf('c') !== -1) {
-      if (m.captured === 'q') score += 200;
-      else if (m.captured === 'r') score += 60;
-      else if (m.captured === 'b' || m.captured === 'n') score += 40;
-      else score += 20;
-    }
-    if (m.piece === 'p') score -= 5;
-    return score;
-  }
-
-  function findEnemyKing(tmpChess) {
-    const enemyColor = myColor === 'w' ? 'b' : 'w';
-    const files = 'abcdefgh';
-    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) {
-      const sq = files[c] + (8 - r);
-      const p = tmpChess.get(sq);
-      if (p && p.type === 'k' && p.color === enemyColor) return sq;
-    }
-    return null;
-  }
-
-  // ─── UNIVERSAL PLAYER: adapt based on position type ───
-  function universalSelect(lines) {
-    const topLine = lines[0];
-    const bestScore = topLine.scoreType === 'cp' ? topLine.scoreValue : (topLine.scoreValue > 0 ? 9999 : -9999);
-    const inCheckNow = inCheck();
-    const material = countPiecesOnBoard();
-
-    // If we're up material or in a sharp position, play the best move
-    // If we're behind, look for the most active option that keeps counterplay
-
-    // 1. Winning or equal: choose best
-    if (bestScore >= -50) {
-      // If we have clear advantage and there's a forcing move within top 3, take it
-      if (bestScore > 150) {
-        const forcing = lines.slice(0, 3).find(l => {
-          const c = classifyMove(l.pv[0], game.fen());
-          return c && (c.check || c.promotion);
-        });
-        if (forcing) return { move: forcing.pv[0], type: 'style' };
-      }
-      return { move: topLine.pv[0], type: 'best' };
-    }
-
-    // 2. Slightly worse: choose second-best if it complicates
-    if (bestScore >= -150) {
-      const complicating = lines.slice(0, 3).find(l => {
-        const c = classifyMove(l.pv[0], game.fen());
-        return c && (c.check || c.capture);
-      });
-      if (complicating) return { move: complicating.pv[0], type: 'style' };
-      return { move: topLine.pv[0], type: 'best' };
-    }
-
-    // 3. Clearly worse: pick the most active move (fight back)
-    const active = lines.find(l => {
-      const c = classifyMove(l.pv[0], game.fen());
-      return c && (c.capture || c.check);
-    });
-    if (active) return { move: active.pv[0], type: 'style' };
-    return { move: topLine.pv[0], type: 'best' };
-  }
-
-  // ─── BOA CONSTRICTOR: slow squeeze, no trades unless favorable ───
-  function boaSelect(lines) {
-    // We want: quiet moves, controlling squares, no unnecessary captures/checks unless forced
-    // Among top 3, prefer quiet moves that don't trade
-    const candidates = lines.slice(0, 3);
-
-    // Score each candidate
-    let best = null, bestScore = -Infinity;
-    for (const line of candidates) {
-      const c = classifyMove(line.pv[0], game.fen());
-      if (!c) continue;
-
-      let score = 100 - (line.rank - 1) * 20; // prefer higher-ranked
-      // Reward quiet moves
-      if (!c.capture && !c.check) score += 40;
-      // Reward central pawn pushes
-      const destFile = c.to[0], destRank = parseInt(c.to[1], 10);
-      const centralFiles = ['c', 'd', 'e', 'f'];
-      if (c.piece === 'p' && centralFiles.includes(destFile) && destRank >= 3 && destRank <= 6) {
-        score += 25;
-      }
-      // Reward moves into opponent half (space control)
-      if ((myColor === 'w' && destRank >= 4) || (myColor === 'b' && destRank <= 5)) {
-        score += 15;
-      }
-      // Penalize exchanges
-      if (c.capture) score -= 30;
-      // Penalize premature checks (unless mating)
-      if (c.check && c.san.indexOf('#') === -1) score -= 10;
-
-      if (score > bestScore) {
-        bestScore = score;
-        best = line;
-      }
-    }
-
-    if (best) return { move: best.pv[0], type: 'style' };
-    return { move: lines[0].pv[0], type: 'best' };
-  }
-
-  function selectMove(best, presetKey) {
-    const preset = PRESETS[presetKey];
-    const sliderPct = parseInt(rngBlunder.value, 10) / 100;
-    const blunderChance = sliderPct * preset.blunderMult;
-
-    const lines = Object.values(multiPV).sort((a, b) => a.rank - b.rank);
-    if (!lines.length) return { move: best, type: 'best' };
-
-    const topLine = lines[0];
-    const secondLine = lines[1];
-
-    let mustPlayBest = false;
-    if (inCheck()) mustPlayBest = true;
-    if (topLine && secondLine && topLine.scoreType === 'cp' && secondLine.scoreType === 'cp') {
-      if (Math.abs(secondLine.scoreValue - topLine.scoreValue) > 150) mustPlayBest = true;
-    }
-    if (topLine && topLine.scoreType === 'cp' && topLine.scoreValue < -150) mustPlayBest = true;
-
-    if (isDesperadoMode() && !resignDismissed) {
-      let bestDesperado = null, bestDesperadoScore = -Infinity;
-      for (const line of lines) {
-        const dScore = desperadoScore(line.pv[0], game.fen());
-        if (dScore > bestDesperadoScore) { bestDesperadoScore = dScore; bestDesperado = line; }
-      }
-      if (bestDesperado && bestDesperadoScore >= 20) {
-        return { move: bestDesperado.pv[0], type: 'desperado' };
-      }
-    }
-
-    if (mustPlayBest) return { move: topLine.pv[0], type: 'best' };
-
-    // ─── OPENING REPERTOIRE ───
-    if (chkOpenings.checked && game.history().length < 10) {
-      const openingCandidates = lines.filter(l => isPreferredOpening(l.pv[0], game.fen(), preset));
-      if (openingCandidates.length > 0) {
-        const lossTolerance = preset.filter === 'gambit' ? 80 : 50;
-        const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 0;
-        const safeCandidates = openingCandidates.filter(l => {
-          if (l.scoreType !== 'cp' || lines[0].scoreType !== 'cp') return true;
-          return Math.abs(l.scoreValue - bestScore) <= lossTolerance;
-        });
-        if (safeCandidates.length > 0) {
-          const pick = safeCandidates[Math.floor(Math.random() * safeCandidates.length)];
-          return { move: pick.pv[0], type: 'opening' };
-        }
-      }
-    }
-
-    let candidate = lines[0];
-    let type = 'best';
-
-    // ─── UNIVERSAL PLAYER ───
-    if (preset.filter === 'universal') {
-      return universalSelect(lines);
-    }
-
-    // ─── BOA CONSTRICTOR ───
-    if (preset.filter === 'boa') {
-      return boaSelect(lines);
-    }
-
-    // ─── GAMBIT ───
-    if (preset.filter === 'gambit') {
-      const sharp = lines.find(l => {
-        const c = classifyMove(l.pv[0], game.fen());
-        return c && (c.check || c.promotion || (c.capture && (c.captured === 'q' || c.captured === 'r' || c.captured === 'b' || c.captured === 'n')));
-      });
-      if (sharp && sharp.rank !== 1) {
-        candidate = sharp;
-        type = 'style';
-      } else {
-        const pawnPush = lines.find(l => {
-          const c = classifyMove(l.pv[0], game.fen());
-          if (!c || c.piece !== 'p') return false;
-          const destRank = parseInt(l.pv[0].slice(3, 4), 10);
-          return (myColor === 'w' && destRank >= 4) || (myColor === 'b' && destRank <= 5);
-        });
-        if (pawnPush && pawnPush.rank !== 1) {
-          candidate = pawnPush;
-          type = 'style';
-        }
-      }
-    } else if (preset.filter === 'aggressive') {
-      const aggro = lines.find(l => { const c = classifyMove(l.pv[0], game.fen()); return c && (c.capture || c.check || c.promotion); });
-      if (aggro && aggro.rank !== 1) { candidate = aggro; type = 'style'; }
-    } else if (preset.filter === 'defensive') {
-      const quiet = lines.find(l => { if (l.rank > 3) return false; const c = classifyMove(l.pv[0], game.fen()); return c && !c.capture && !c.check; });
-      if (quiet && quiet.rank !== 1) { candidate = quiet; type = 'style'; }
-    } else if (preset.filter === 'chaotic') {
-      if (lines.length >= 2) {
-        const pick = lines[Math.floor(Math.random() * Math.min(3, lines.length))];
-        candidate = pick;
-        if (pick.rank !== 1) type = 'style';
-      }
-    } else if (preset.filter === 'flexible') {
-      if (lines.length >= 2) {
-        const bestScore = lines[0].scoreType === 'cp' ? lines[0].scoreValue : 9999;
-        const closeLines = lines.filter(l => {
-          if (l.scoreType !== 'cp' || lines[0].scoreType !== 'cp') return false;
-          return Math.abs(l.scoreValue - bestScore) <= 30;
-        });
-        if (closeLines.length > 1) {
-          const pick = closeLines[Math.floor(Math.random() * closeLines.length)];
-          if (pick.rank !== 1) { candidate = pick; type = 'style'; }
-        }
-      }
-    }
-
-    if (Math.random() < blunderChance && lines.length >= 3) {
-      const badPool = lines.slice(2, Math.min(5, lines.length));
-      if (badPool.length) {
-        const pick = badPool[Math.floor(Math.random() * badPool.length)];
-        return { move: pick.pv[0], type: 'error' };
-      }
-    }
-
-    return { move: candidate.pv[0], type };
-  }
-
-  function onBestMove(best) {
-    if (!analysisRunning) return;
-    analysisRunning = false;
-    if (!best || best === '(none)') { setStatus('ไม่มีตาเดิน', 'warn'); return; }
-
-    updateDesperadoBanner();
-    checkResignCondition();
-
-    const presetKey = selPreset.value;
-    const decision = selectMove(best, presetKey);
-
-    chosenMoveUci = decision.move;
-    drawArrow(chosenMoveUci);
-    renderAnalysisOutput(chosenMoveUci, decision.type);
-    startThinkTimer(decision.type, presetKey);
-
-    if (decision.type === 'desperado') {
-      banter('desperado', { force: true });
-      desperadoBanner.classList.add('show');
-    }
-    if (isGambitPreset() && decision.type === 'opening' && game.history().length < 10) {
-      banter('gambit', { force: true });
-    }
-    if (isBoaPreset() && decision.type === 'style') {
-      banter('boaMove', { force: true });
-    }
-  }
-
-  function startThinkTimer(type, presetKey) {
-    clearInterval(thinkTimerInterval);
-    const preset = PRESETS[presetKey];
-    const isOpening = game.history().length < 10;
-
-    let timeLeft = isOpening ? 1 + Math.floor(Math.random() * 2) : humanDelay(preset.timerMin, preset.timerMax);
-    if (type === 'error' && Math.random() > 0.5) timeLeft += 1;
-    if (type === 'desperado' && Math.random() > 0.5) timeLeft += 2;
-    // Boa takes its sweet time
-    if (isBoaPreset() && !isOpening && Math.random() > 0.5) timeLeft += 1;
-    timeLeft = Math.min(MAX_THINK_SECONDS, timeLeft);
-    const initialTime = timeLeft;
-
-    if (chkAntiCheat.checked && Math.random() > 0.4) {
-      const banterDelay = 200 + Math.random() * (timeLeft * 1000 * 0.7);
-      setTimeout(() => { if (thinkTimerInterval) banter('thinking', { force: true }); }, banterDelay);
-    }
-
-    const updateTimer = () => {
-      const perc = ((initialTime - timeLeft) / initialTime) * 100;
-      updateEvalBarCss(perc);
-      const san = pvToSan([chosenMoveUci], game.fen())[0] || chosenMoveUci;
-      if (timeLeft > 0) {
-        setStatus(`รอ ${timeLeft} วิ — ${san}`, (type === 'error' || type === 'desperado') ? 'warn' : 'ok');
-        timeLeft--;
-      } else {
-        setStatus(`เดิน ${san} ได้เลย`, 'ok');
-        clearInterval(thinkTimerInterval);
-        thinkTimerInterval = null;
-        updateEvalBarCss(50);
-      }
-    };
-    updateTimer();
-    thinkTimerInterval = setInterval(updateTimer, 1000);
-  }
-
-  function pvToSan(pvUci, fromFen) {
-    if (!pvUci.length) return [];
-    const tmp = new Chess();
-    if (fromFen) { try { tmp.load(fromFen); } catch (e) {} }
-    const out = [];
-    for (const uci of pvUci) {
-      try {
-        const m = tmp.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: uci.slice(4, 5) || undefined });
-        if (!m) break;
-        out.push(m.san);
-      } catch (e) { break; }
-    }
-    return out;
-  }
-
-  function formatEval(type, value) {
-    if (type === 'mate') return (value > 0 ? '+M' : '-M') + Math.abs(value);
-    let v = value / 100;
-    if (game.turn() === 'b') v = -v;
-    return (v > 0 ? '+' : '') + v.toFixed(2);
-  }
-
-  function renderAnalysisOutput(chosenUci, moveType) {
-    const fen = game.fen();
-    const preset = PRESETS[selPreset.value];
-    let html = '';
-
-    if (chosenUci) {
-      const san = pvToSan([chosenUci], fen)[0] || chosenUci;
-      let tag, cls, icon;
-      if (moveType === 'error') { tag = 'Human error'; cls = 'error'; icon = '⚠'; }
-      else if (moveType === 'desperado') { tag = 'DESPERADO'; cls = 'desperado'; icon = '🔥'; }
-      else if (moveType === 'opening') {
-        if (isGambitPreset()) { tag = `Gambit (${preset.tag})`; cls = 'gambit'; icon = '⚔️'; }
-        else { tag = `Opening (${preset.tag})`; cls = 'opening'; icon = '📖'; }
-      }
-      else if (moveType === 'style') {
-        tag = preset.tag;
-        if (isBoaPreset()) { cls = 'boa'; icon = '🐍'; }
-        else if (isUniversalPreset()) { cls = 'universal'; icon = '🌐'; }
-        else if (isGambitPreset()) { cls = 'gambit'; icon = '⚔️'; }
-        else { cls = 'style'; icon = '★'; }
-      }
-      else { tag = 'Best move'; cls = 'primary'; icon = '👑'; }
-
-      html += `
-        <div class="line-row ${cls}">
-          <span class="line-rank">${icon}</span>
-          <span class="line-pv"><b style="font-size:1.2em">${san}</b> <span style="color:#888">(${tag})</span></span>
-        </div>
-      `;
-    }
-
-    for (let i = 1; i <= 3; i++) {
-      const line = multiPV[i];
-      if (!line) continue;
-      if (line.pv[0] === chosenUci) continue;
-      const san = pvToSan(line.pv, fen);
-      if (!san.length) continue;
-      html += `
-        <div class="line-row">
-          <span class="line-rank">${i}</span>
-          <span class="line-pv"><b>${san[0]}</b> ${san.slice(1, 6).join(' ')}</span>
-          <span class="line-eval">${formatEval(line.scoreType, line.scoreValue)}</span>
-        </div>
-      `;
-    }
-    analysisEl.innerHTML = html || '<div class="line-row">ไม่มีข้อมูล</div>';
-  }
-
-  function renderHistory() {
-    const hist = game.history();
-    if (!hist.length) { historyEl.innerHTML = '—'; return; }
-    const parts = [];
-    for (let i = 0; i < hist.length; i += 2) {
-      const n = Math.floor(i / 2) + 1;
-      const w = hist[i] || '';
-      const b = hist[i + 1] || '';
-      parts.push(`<b>${n}.</b> ${w} ${b}`);
-    }
-    historyEl.innerHTML = parts.join('&nbsp;&nbsp;');
-  }
-
-  async function startAnalysis(deep = false) {
-    if (gameOver() || resigned) { setStatus('เกมจบแล้ว', 'warn'); return; }
-    if (analysisRunning) return;
-
-    const ready = await ensureEngine();
-    if (!engineReady) {
-      if (!ready) { setStatus('Engine กำลังโหลด — กดอีกทีใน 2 วิ', ''); return; }
-    }
-
-    clearAnalysis();
-    analysisRunning = true;
-    resignBanner.classList.remove('show');
-
-    if (multiPV[1]) {
-      preMoveEval = getScoreFromPerspective(multiPV[1].scoreType, multiPV[1].scoreValue, game.turn());
-    }
-
-    const preset = PRESETS[selPreset.value];
-    setStatus(`Stockfish กำลังคิด...`, '');
-    analysisEl.innerHTML = '<div class="line-row">กำลังคิด...</div>';
-
-    try {
-      engine.postMessage('setoption name MultiPV value 5');
-      engine.postMessage('setoption name Threads value 2');
-      engine.postMessage('setoption name Hash value 128');
-      engine.postMessage('position fen ' + game.fen());
-
-      if (deep) engine.postMessage('go movetime 3000');
-      else if (game.history().length < 10) engine.postMessage('go movetime 300');
-      else engine.postMessage('go movetime ' + preset.movetime);
-    } catch (e) {
-      setStatus('ส่งคำสั่งไม่สำเร็จ: ' + e.message, 'err');
-      analysisRunning = false;
-    }
-  }
-
-  btnAnalyze.onclick = () => startAnalysis(false);
-  btnThink.onclick   = () => startAnalysis(true);
-
-  btnUndo.onclick = () => {
-    if (!game.history().length) return;
-    game.undo();
-    clearAnalysis();
-    selectedSq = null; legalDests = new Set();
-    const hist = game.history({ verbose: true });
-    lastMove = hist.length ? { from: hist[hist.length - 1].from, to: hist[hist.length - 1].to } : null;
-    resignDismissed = false; resigned = false;
-    resignBanner.classList.remove('show');
-    desperadoBanner.classList.remove('show');
-    renderBoard(); renderHistory(); updateStatus();
-    banter('idle', { force: true });
-  };
-
-  btnReset.onclick = () => {
-    game.reset();
-    clearAnalysis();
-    selectedSq = null; legalDests = new Set(); lastMove = null;
-    resignDismissed = false; resigned = false;
-    resignBanner.classList.remove('show');
-    desperadoBanner.classList.remove('show');
-    renderBoard(); renderHistory(); updateStatus();
-    if (isGambitPreset()) banter('gambit', { force: true });
-    else if (isBoaPreset()) banter('boa', { force: true });
-    else if (isUniversalPreset()) banter('universal', { force: true });
-    else banter('opening', { force: true });
-  };
-
-  btnFlip.onclick = () => {
-    flipped = !flipped;
-    renderBoard(); clearArrows();
-  };
-
-  function init() {
-    renderBoard();
-    renderHistory();
-    updateStatus();
-    updateBanners();
-    if (isGambitPreset()) banter('gambit', { force: true });
-    else if (isBoaPreset()) banter('boa', { force: true });
-    else if (isUniversalPreset()) banter('universal', { force: true });
-    else banter('opening', { force: true });
-  }
-
-  init();
+(()=>{
+'use strict';
+const MAX_THINK_SECONDS=12;
+const RESIGN_EVAL_THRESHOLD=-600;
+const DESPERADO_EVAL_THRESHOLD=-200;
+const RESIGN_LATE_GAME_MOVES=30;
+const RESIGN_LATE_GAME_PIECES=16;
+
+const PRESETS={
+carlsen:{label:'Magnus',movetime:500,filter:'flexible',openings:['e4','c4','Nf3','d4'],timerMin:1,timerMax:3,blunderMult:0.4,tag:'Carlsen'},
+nakamura:{label:'Hikaru',movetime:300,filter:'chaotic',openings:['e4','f3','g4','Nf3'],timerMin:1,timerMax:2,blunderMult:1.5,tag:'Nakamura'},
+kasparov:{label:'Kasparov',movetime:500,filter:'aggressive',openings:['e4','d4'],timerMin:2,timerMax:4,blunderMult:0.5,tag:'Kasparov'},
+karpov:{label:'Karpov',movetime:500,filter:'defensive',openings:['d4','c4','Nf3'],timerMin:2,timerMax:4,blunderMult:0.6,tag:'Karpov'},
+caruana:{label:'Caruana',movetime:600,filter:'precise',openings:['e4','d4'],timerMin:1,timerMax:3,blunderMult:0.2,tag:'Caruana'},
+universal:{label:'Universal',movetime:700,filter:'universal',openings:['e4','d4','c4','Nf3','g3','b3','e3','d3'],timerMin:2,timerMax:4,blunderMult:0.15,tag:'Universal'},
+boa:{label:'Boa',movetime:600,filter:'boa',openings:['d4','c4','Nf3','e3','g3','b3','d3'],timerMin:2,timerMax:5,blunderMult:0.4,tag:'Boa'},
+alien:{label:'Alien',movetime:500,filter:'gambit',openings:['d4','c4','e4','Nf3','f4','c3','Bc4','Nc3','exd4'],timerMin:1,timerMax:3,blunderMult:0.6,tag:'Alien',gambitName:'Alien Gambit'},
+gambits:{label:'Gambits',movetime:500,filter:'gambit',openings:['e4','d4','c4','Nf3','f4','b4','c3','Bc4','Nxe5','Bxf7','exd4','exd5'],timerMin:1,timerMax:3,blunderMult:0.8,tag:'Gambit',gambitName:'Gambit Sampler'}
+};
+
+const BANTER={
+thinking:['hold on. thinking.','sit still.','give me a sec.','okay okay. i see it.','this position is garbage.','trying to save your ass here.','mm. no. not that.'],
+goodMove:['oh. that\'s good.','fine. i\'ll allow it.','okay that was clean.','lucky. but good.','hm. approved.'],
+badMove:['the fuck was that?','no no no.','you just hung a piece.','why. WHY.','that made me uncomfortable.','bold. stupid, but bold.'],
+critical:['CAREFUL.','stop. look at your king.','not that.','you\'re walking into a fork.','wait — put that back.'],
+winning:['finish it. don\'t get cute.','don\'t fuck it up.','boring is beautiful.'],
+losing:['we\'re in trouble. focus.','this is bad.','fight back.'],
+resign:['it\'s over. resign.','not coming back from this.','resign and save the clock.'],
+opening:['opening. standard.','just play chess.','development first.'],
+idle:['your move.','i\'m waiting.','go.'],
+resigned:['good. finally.','gg.'],
+desperado:['fuck it. all in.','take his king with us.','sacrifice everything.'],
+gambit:['gambit. he won\'t see it.','sacrifice the pawn.','this line is filthy.','offer it. who cares.'],
+gambitMove:['he took it. idiot.','good. punish him.','initiative is ours.'],
+universal:['reading the position. not the book.','no style. just truth.','adapt.'],
+boa:['slow. quiet. squeeze.','no trades. just pressure.','he\'s suffocating.','quiet move. deadly effect.']
+};
+
+const GLYPH={w:{k:'♔\uFE0E',q:'♕\uFE0E',r:'♖\uFE0E',b:'♗\uFE0E',n:'♘\uFE0E',p:'♙\uFE0E'},b:{k:'♚\uFE0E',q:'♛\uFE0E',r:'♜\uFE0E',b:'♝\uFE0E',n:'♞\uFE0E',p:'♟\uFE0E'}};
+
+const game=new Chess();
+let myColor='w';
+let selectedSq=null,legalDests=new Set(),lastMove=null,flipped=false;
+let engine=null,engineReady=false,engineLoading=false,analysisRunning=false,multiPV={},currentDepth=0;
+let chosenMoveUci=null,thinkTimerInterval=null,lastBanterAt=0,preMoveEval=null,resignDismissed=false,resigned=false;
+
+// ─── ANTI-CHEAT STATE ───
+let recentTimings=[];          // last 10 think times (ms)
+let perfectStreak=0;           // consecutive best-move picks
+let moveNumber=0;              // total moves played by us
+let forcedMoveBuffer=[];       // recent forced moves
+
+const boardEl=document.getElementById('board'),arrowsEl=document.getElementById('arrows'),statusEl=document.getElementById('status'),evalTextEl=document.getElementById('evalText'),evalBarEl=document.getElementById('evalBar'),analysisEl=document.getElementById('analysisOutput'),historyEl=document.getElementById('moveHistory'),subtitle=document.getElementById('subtitle'),banterEl=document.getElementById('banter'),banterNameEl=banterEl.querySelector('.name'),banterTxtEl=banterEl.querySelector('.txt'),cursorSim=document.getElementById('cursorSim'),resignBanner=document.getElementById('resignBanner'),resignReason=document.getElementById('resignReason'),btnDoResign=document.getElementById('btnDoResign'),btnIgnoreResign=document.getElementById('btnIgnoreResign'),desperadoBanner=document.getElementById('desperadoBanner'),gambitBanner=document.getElementById('gambitBanner'),gambitLine=document.getElementById('gambitLine'),boaBanner=document.getElementById('boaBanner');
+const btnAnalyze=document.getElementById('btnAnalyze'),btnThink=document.getElementById('btnThink'),btnUndo=document.getElementById('btnUndo'),btnFlip=document.getElementById('btnFlip'),btnReset=document.getElementById('btnReset');
+const selSide=document.getElementById('selSide'),selPreset=document.getElementById('selPreset'),rngBlunder=document.getElementById('rngBlunder'),lblBlunder=document.getElementById('lblBlunder'),chkOpenings=document.getElementById('chkOpenings'),chkAntiCheat=document.getElementById('chkAntiCheat'),chkCoach=document.getElementById('chkCoach');
+
+function banter(cat,opts={}){
+if(Date.now()-lastBanterAt<1200&&!opts.force)return;lastBanterAt=Date.now();
+const pool=BANTER[cat]||BANTER.idle;const line=pool[Math.floor(Math.random()*pool.length)];
+banterNameEl.textContent=PRESETS[selPreset.value].label;
+let cls='';
+if(cat==='thinking')cls='thinking dots';else if(['badMove','critical','resign'].includes(cat))cls='angry';else if(['goodMove','winning'].includes(cat))cls='pleased';else if(cat==='desperado')cls='desperado';else if(['gambit','gambitMove'].includes(cat))cls='gambit';else if(['boa','boaMove'].includes(cat))cls='boa';else if(cat==='universal')cls='universal';
+banterEl.className=cls;banterTxtEl.textContent=line;
+}
+
+function isGambitPreset(){return PRESETS[selPreset.value].filter==='gambit'}
+function isBoaPreset(){return PRESETS[selPreset.value].filter==='boa'}
+function isUniversalPreset(){return PRESETS[selPreset.value].filter==='universal'}
+
+function updateBanners(){
+const preset=PRESETS[selPreset.value];
+if(preset.filter==='gambit'){gambitLine.textContent=preset.gambitName||'—';gambitBanner.classList.add('show')}else gambitBanner.classList.remove('show');
+if(preset.filter==='boa')boaBanner.classList.add('show');else boaBanner.classList.remove('show');
+}
+
+function isDesperadoMode(){
+const top=multiPV[1];if(!top)return false;
+let cp=top.scoreType==='mate'?(top.scoreValue>0?9999:-9999):top.scoreValue;
+return cp<=DESPERADO_EVAL_THRESHOLD&&cp>RESIGN_EVAL_THRESHOLD;
+}
+
+function updateDesperadoBanner(){
+const active=isDesperadoMode()&&!resigned&&!gameOver();
+if(active)desperadoBanner.classList.add('show');else desperadoBanner.classList.remove('show');
+}
+
+function countPiecesOnBoard(){let n=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq='abcdefgh'[c]+(8-r);if(game.get(sq))n++}return n}
+
+function checkResignCondition(){
+if(resigned||resignDismissed||gameOver())return;if(game.turn()!==myColor)return;
+const top=multiPV[1];if(!top)return;
+let cp=top.scoreType==='mate'?(top.scoreValue>0?9999:-9999):top.scoreValue;
+const pieces=countPiecesOnBoard(),moves=game.history().length,late=pieces<=RESIGN_LATE_GAME_PIECES||moves>=RESIGN_LATE_GAME_MOVES;
+let show=false,reason='';
+if(top.scoreType==='mate'&&cp<0){show=true;reason=`forced mate in ${Math.abs(top.scoreValue)} — no escape`}
+else if(top.scoreType==='cp'&&cp<=RESIGN_EVAL_THRESHOLD&&late){const p=(cp/100).toFixed(1);show=true;reason=`down ${Math.abs(p)} pawns in late game — no comeback`}
+if(show){resignReason.textContent=reason;resignBanner.classList.add('show');desperadoBanner.classList.remove('show');banter('resign',{force:true})}else resignBanner.classList.remove('show');
+}
+
+btnDoResign.onclick=()=>{resigned=true;resignBanner.classList.remove('show');desperadoBanner.classList.remove('show');clearInterval(thinkTimerInterval);clearArrows();setStatus('resigned — game over','err');banter('resigned',{force:true});analysisRunning=false};
+btnIgnoreResign.onclick=()=>{resignDismissed=true;resignBanner.classList.remove('show');banter('losing',{force:true})};
+
+selPreset.addEventListener('change',()=>{updateBanners();if(isGambitPreset())banter('gambit',{force:true});else if(isBoaPreset())banter('boa',{force:true});else if(isUniversalPreset())banter('universal',{force:true});else banter('opening',{force:true})});
+rngBlunder.addEventListener('input',e=>{lblBlunder.textContent=e.target.value+'%'});
+
+selSide.addEventListener('change',e=>{
+myColor=e.target.value;flipped=(myColor==='b');subtitle.textContent=`playing ${myColor==='w'?'White':'Black'}`;
+game.reset();clearAnalysis();selectedSq=null;legalDests=new Set();lastMove=null;resignDismissed=false;resigned=false;
+recentTimings=[];perfectStreak=0;moveNumber=0;
+resignBanner.classList.remove('show');desperadoBanner.classList.remove('show');updateBanners();renderBoard();renderHistory();updateStatus();banter('idle',{force:true});
+});
+
+function inCheck(){return typeof game.in_check==='function'?game.in_check():(typeof game.inCheck==='function'?game.inCheck():false)}
+function inCheckmate(){return typeof game.in_checkmate==='function'?game.in_checkmate():(typeof game.inCheckmate==='function'?game.inCheckmate():false)}
+function inStalemate(){return typeof game.in_stalemate==='function'?game.in_stalemate():(typeof game.inStalemate==='function'?game.inStalemate():false)}
+function gameOver(){return typeof game.game_over==='function'?game.game_over():(typeof game.gameOver==='function'?game.gameOver():false)}
+function kingSquare(color){const files='abcdefgh';for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq=files[c]+(8-r);const p=game.get(sq);if(p&&p.type==='k'&&p.color===color)return sq}return null}
+function sqToXY(sq){let f=sq.charCodeAt(0)-97,r=8-parseInt(sq[1],10);if(flipped){f=7-f;r=7-r}return[f*60+30,r*60+30]}
+function setStatus(msg,cls=''){statusEl.textContent=msg;statusEl.className=cls}
+
+function renderBoard(){
+boardEl.innerHTML='';const checkSq=inCheck()?kingSquare(game.turn()):null;
+for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+let fi=c,ri=8-r;if(flipped){fi=7-c;ri=r+1}const sq='abcdefgh'[fi]+ri;
+const cell=document.createElement('div');cell.className='cell '+((r+c)%2===0?'light':'dark');cell.dataset.sq=sq;
+if(sq===selectedSq)cell.classList.add('selected');if(checkSq===sq)cell.classList.add('check');if(lastMove&&(lastMove.from===sq||lastMove.to===sq))cell.classList.add('last');
+if(legalDests.has(sq)){cell.classList.add('hint');if(game.get(sq))cell.classList.add('capture')}
+const piece=game.get(sq);if(piece){const span=document.createElement('span');span.className='piece '+piece.color;span.textContent=GLYPH[piece.color][piece.type];cell.appendChild(span)}
+cell.addEventListener('click',()=>onCellClick(sq));boardEl.appendChild(cell);
+}
+}
+
+function onCellClick(sq){
+if(gameOver()||resigned)return;
+if(selectedSq&&legalDests.has(sq)){attemptMove(selectedSq,sq);return}
+const piece=game.get(sq);
+if(piece&&piece.color===game.turn()){selectedSq=sq;legalDests=new Set();try{const moves=game.moves({square:sq,verbose:true})||[];moves.forEach(m=>legalDests.add(m.to))}catch(e){}renderBoard()}
+else if(selectedSq){selectedSq=null;legalDests=new Set();renderBoard()}
+}
+
+// ─── HUMAN DELAY: log-normal with skew ───
+function humanDelay(minMs,maxMs){
+const u=Math.random(),v=Math.random();
+const normal=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+const t=Math.max(0,Math.min(1,(normal+2.5)/5));
+return Math.round(minMs+t*(maxMs-minMs));
+}
+
+// ─── MOUSE SIMULATION: Bézier + jitter + micro-pause ───
+function simulateCursorTo(sq){
+if(!chkAntiCheat.checked)return Promise.resolve();
+return new Promise(resolve=>{
+const wrap=boardEl.parentElement,rect=wrap.getBoundingClientRect();
+let c='abcdefgh'.indexOf(sq[0]),r=8-parseInt(sq[1],10);if(flipped){c=7-c;r=7-r}
+const cw=rect.width/8,ch=rect.height/8;
+const tx=rect.left+c*cw+cw/2,ty=rect.top+r*ch+ch/2;
+// start with offset (hand travelling from previous position area)
+const startX=tx+(Math.random()-0.5)*80,startY=ty+(Math.random()-0.5)*80;
+cursorSim.style.left=(startX-rect.left)+'px';cursorSim.style.top=(startY-rect.top)+'px';cursorSim.style.opacity='0.7';
+
+// cubic Bézier control points (random within bounding box for natural arc)
+const cp1x=startX+(tx-startX)*0.3+(Math.random()-0.5)*60;
+const cp1y=startY+(ty-startY)*0.3+(Math.random()-0.5)*60;
+const cp2x=startX+(tx-startX)*0.7+(Math.random()-0.5)*60;
+const cp2y=startY+(ty-startY)*0.7+(Math.random()-0.5)*60;
+
+const start=performance.now(),dur=180+Math.random()*160;
+const microPauseAt=0.15+Math.random()*0.7; // random pause point
+let paused=false,pauseUntil=0;
+
+function step(now){
+const t=Math.min(1,(now-start)/dur);
+// micro-pause simulation
+if(!paused&&t>microPauseAt){paused=true;pauseUntil=now+40+Math.random()*60;}
+if(paused&&now<pauseUntil){requestAnimationFrame(step);return;}
+
+const u=1-t;
+// Bézier cubic
+const bx=u*u*u*startX+3*u*u*t*cp1x+3*u*t*t*cp2x+t*t*t*tx;
+const by=u*u*u*startY+3*u*u*t*cp1y+3*u*t*t*cp2y+t*t*t*ty;
+// jitter ±1.5px
+const jx=(Math.random()-0.5)*3,jy=(Math.random()-0.5)*3;
+cursorSim.style.left=(bx-rect.left+jx)+'px';
+cursorSim.style.top=(by-rect.top+jy)+'px';
+
+if(t<1)requestAnimationFrame(step);
+else{setTimeout(()=>{cursorSim.style.opacity='0';resolve()},40)}
+}
+requestAnimationFrame(step);
+});
+}
+
+async function attemptMove(from,to){
+if(chkCoach.checked&&preMoveEval!==null)await coachCheck(from,to);
+simulateCursorTo(to).then(()=>executeMove(from,to));
+}
+
+function coachCheck(from,to){
+return new Promise(resolve=>{
+const tmp=new Chess();try{tmp.load(game.fen())}catch(e){resolve();return}
+let m=null;try{m=tmp.move({from,to,promotion:'q'})}catch(e){resolve();return}
+if(!m||!engineReady){resolve();return}
+let resolved=false;const done=()=>{if(!resolved){resolved=true;resolve()}};
+const handler=e=>{
+const line=typeof e.data==='string'?e.data:'';
+if(line.startsWith('bestmove')){engine.removeEventListener('message',handler);done()}
+if(line.startsWith('info')&&line.includes('score cp')){
+const match=line.match(/score cp (-?\d+)/);
+if(match){let cp=parseInt(match[1],10);if(tmp.turn()==='b')cp=-cp;if(myColor==='b')cp=-cp;const delta=(preMoveEval||0)-cp;
+if(delta>100)banter('critical',{force:true});else if(delta>40)banter('badMove',{force:true})}
+}
+};
+engine.addEventListener('message',handler);engine.postMessage('position fen '+tmp.fen());engine.postMessage('go movetime 200');setTimeout(done,400);
+});
+}
+
+function executeMove(from,to){
+let move;try{move=game.move({from,to,promotion:'q'})}catch(e){move=null}
+if(!move){selectedSq=null;legalDests=new Set();renderBoard();return}
+lastMove={from,to};selectedSq=null;legalDests=new Set();chosenMoveUci=null;moveNumber++;
+clearAnalysis();renderBoard();renderHistory();updateStatus();
+if(gameOver()){if(inCheckmate())banter('winning',{force:true});return}
+if(multiPV[1]){const score=getScoreFromPerspective(multiPV[1].scoreType,multiPV[1].scoreValue,game.turn());if(score>200)banter('winning');else if(score<-200)banter('losing')}
+}
+
+function getScoreFromPerspective(scoreType,scoreValue,turnWhoMoved){
+if(scoreType==='mate')return scoreValue>0?9999:-9999;
+let v=scoreValue;if(turnWhoMoved==='b')v=-v;if(myColor==='b')v=-v;return v;
+}
+
+function updateStatus(){
+if(resigned){setStatus('resigned — game over','err');return}
+if(gameOver()){if(inCheckmate())setStatus('checkmate! '+(game.turn()==='w'?'Black wins':'White wins'),'err');else if(inStalemate())setStatus('stalemate — draw','warn');else setStatus('game over — draw','warn');return}
+if(game.turn()===myColor)setStatus('your move — tap a piece','ok');else setStatus('opponent to move — follow their actual move','');
+}
+
+function drawArrow(uci){
+arrowsEl.innerHTML='';if(!uci||uci.length<4)return;
+const[fx,fy]=sqToXY(uci.slice(0,2)),[tx,ty]=sqToXY(uci.slice(2,4));
+const dx=tx-fx,dy=ty-fy,len=Math.hypot(dx,dy);if(len<1)return;
+const ux=dx/len,uy=dy/len,hl=24,hw=18,bx=tx-ux*hl,by=ty-uy*hl,px=-uy,py=ux;
+let color='rgba(92,216,142,0.95)';
+if(isDesperadoMode())color='rgba(176,74,255,0.95)';else if(isGambitPreset())color='rgba(255,179,71,0.95)';else if(isBoaPreset())color='rgba(58,216,196,0.95)';else if(isUniversalPreset())color='rgba(107,163,255,0.95)';
+const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+line.setAttribute('x1',fx);line.setAttribute('y1',fy);line.setAttribute('x2',bx);line.setAttribute('y2',by);line.setAttribute('stroke',color);line.setAttribute('stroke-width','8');line.setAttribute('stroke-linecap','round');arrowsEl.appendChild(line);
+const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+poly.setAttribute('points',`${tx},${ty} ${bx+px*hw/2},${by+py*hw/2} ${bx-px*hw/2},${by-py*hw/2}`);poly.setAttribute('fill',color);arrowsEl.appendChild(poly);
+}
+
+function clearArrows(){arrowsEl.innerHTML=''}
+
+function clearAnalysis(){
+analysisRunning=false;multiPV={};currentDepth=0;chosenMoveUci=null;clearInterval(thinkTimerInterval);clearArrows();analysisEl.innerHTML='';evalTextEl.textContent='0.00';updateEvalBarCss(50);preMoveEval=null;
+}
+
+function updateEvalBarCss(percent){
+const id='kibitz-eval-css';let style=document.getElementById(id);
+if(!style){style=document.createElement('style');style.id=id;document.head.appendChild(style)}
+style.textContent=`.eval-bar::before{content:'';position:absolute;left:0;top:0;bottom:0;width:${percent}%;background:#eaeaea;transition:width .3s ease}`;
+}
+
+async function ensureEngine(){
+if(engineReady)return true;if(engineLoading)return false;engineLoading=true;setStatus('loading Stockfish...','');
+try{
+const url='https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js';
+const resp=await fetch(url);if(!resp.ok)throw new Error('HTTP '+resp.status);
+const code=await resp.text();const blob=new Blob([code],{type:'application/javascript'});
+engine=new Worker(URL.createObjectURL(blob));engine.onmessage=onEngineMsg;engine.onerror=err=>{setStatus('engine error','err');engineLoading=false;engineReady=false};
+engine.postMessage('uci');engine.postMessage('isready');return false;
+}catch(err){setStatus('engine load failed','err');engineLoading=false;return false}
+}
+
+function onEngineMsg(e){
+const line=typeof e.data==='string'?e.data:'';if(!line)return;
+if(line==='uciok'||line==='readyok'){if(!engineReady){engineReady=true;engineLoading=false;if(!analysisRunning)setStatus('Stockfish ready','ok')}return}
+if(line.startsWith('info')){parseInfo(line);return}
+if(line.startsWith('bestmove')){onBestMove(line.split(/\s+/)[1])}
+}
+
+function parseInfo(line){
+const tokens=line.split(/\s+/);let depth=0,multipv=1,scoreType=null,scoreValue=null;const pv=[];
+for(let i=0;i<tokens.length;i++){const t=tokens[i];
+if(t==='depth')depth=parseInt(tokens[i+1],10);else if(t==='multipv')multipv=parseInt(tokens[i+1],10);else if(t==='score'){scoreType=tokens[i+1];scoreValue=parseInt(tokens[i+2],10)}else if(t==='pv'){for(let j=i+1;j<tokens.length;j++)pv.push(tokens[j]);break}}
+if(!pv.length||scoreType===null)return;
+multiPV[multipv]={depth,scoreType,scoreValue,pv,rank:multipv};
+if(analysisRunning&&depth>currentDepth)currentDepth=depth;
+}
+
+function classifyMove(uci,fen){
+if(!uci||uci.length<4)return null;
+const tmp=new Chess();try{tmp.load(fen)}catch(e){return null}
+let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return null}
+if(!m)return null;
+return{capture:m.flags.indexOf('c')!==-1,promotion:m.flags.indexOf('p')!==-1,check:m.san.indexOf('+')!==-1||m.san.indexOf('#')!==-1,piece:m.piece,captured:m.captured,san:m.san,from:m.from,to:m.to};
+}
+
+function isPreferredOpening(uci,fen,preset){
+if(!uci||uci.length<4)return false;
+const tmp=new Chess();try{tmp.load(fen)}catch(e){return false}
+let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return false}
+if(!m)return false;
+return preset.openings.some(op=>m.san===op||m.san.startsWith(op));
+}
+
+function desperadoScore(uci,fen){
+if(!uci||uci.length<4)return-999;
+const tmp=new Chess();try{tmp.load(fen)}catch(e){return-999}
+let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return-999}
+if(!m)return-999;
+let score=0;const dest=uci.slice(2,4),eking=findEnemyKing(tmp);
+if(eking){const dF=dest.charCodeAt(0)-97,dR=parseInt(dest[1],10),kF=eking.charCodeAt(0)-97,kR=parseInt(eking[1],10),dist=Math.max(Math.abs(dF-kF),Math.abs(dR-kR));if(dist<=2)score+=50;if(dist<=1)score+=100}
+if(m.piece==='q')score+=20;if(m.piece==='k')score+=15;if(m.san.indexOf('+')!==-1)score+=150;if(m.san.indexOf('#')!==-1)score+=1000;
+if(m.flags.indexOf('c')!==-1){if(m.captured==='q')score+=200;else if(m.captured==='r')score+=60;else if(m.captured==='b'||m.captured==='n')score+=40;else score+=20}
+if(m.piece==='p')score-=5;return score;
+}
+
+function findEnemyKing(tmpChess){
+const enemy=myColor==='w'?'b':'w',files='abcdefgh';
+for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq=files[c]+(8-r);const p=tmpChess.get(sq);if(p&&p.type==='k'&&p.color===enemy)return sq}
+return null;
+}
+
+function universalSelect(lines){
+const top=lines[0],bestScore=top.scoreType==='cp'?top.scoreValue:(top.scoreValue>0?9999:-9999);
+if(bestScore>=-50){if(bestScore>150){const f=lines.slice(0,3).find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.check||c.promotion)});if(f)return{move:f.pv[0],type:'style'}}return{move:top.pv[0],type:'best'}}
+if(bestScore>=-150){const c=lines.slice(0,3).find(l=>{const x=classifyMove(l.pv[0],game.fen());return x&&(x.check||x.capture)});if(c)return{move:c.pv[0],type:'style'};return{move:top.pv[0],type:'best'}}
+const a=lines.find(l=>{const x=classifyMove(l.pv[0],game.fen());return x&&(x.capture||x.check)});if(a)return{move:a.pv[0],type:'style'};return{move:top.pv[0],type:'best'};
+}
+
+function boaSelect(lines){
+const cands=lines.slice(0,3);let best=null,bestScore=-Infinity;
+for(const line of cands){const c=classifyMove(line.pv[0],game.fen());if(!c)continue;
+let score=100-(line.rank-1)*20;
+if(!c.capture&&!c.check)score+=40;
+const df=c.to[0],dr=parseInt(c.to[1],10),central=['c','d','e','f'];
+if(c.piece==='p'&&central.includes(df)&&dr>=3&&dr<=6)score+=25;
+if((myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5))score+=15;
+if(c.capture)score-=30;if(c.check&&c.san.indexOf('#')===-1)score-=10;
+if(score>bestScore){bestScore=score;best=line}
+}
+if(best)return{move:best.pv[0],type:'style'};return{move:lines[0].pv[0],type:'best'};
+}
+
+// ─── COMPLEXITY ESTIMATOR ───
+function estimateComplexity(fen){
+try{
+const tmp=new Chess();tmp.load(fen);
+const legalCount=tmp.moves().length;
+const inChk=tmp.in_check?tmp.in_check():tmp.inCheck?tmp.inCheck():false;
+// rough: more legal moves + check = more complex
+let score=legalCount/40; // normalise
+if(inChk)score+=0.4;
+if(tmp.history().length>25)score+=0.15; // late game more complex (tactical)
+return Math.min(1,score);
+}catch(e){return 0.5}
+}
+
+// ─── SELECT MOVE (with accuracy decay) ───
+function selectMove(best,presetKey){
+const preset=PRESETS[presetKey];
+const sliderPct=parseInt(rngBlunder.value,10)/100;
+const blunderChance=sliderPct*preset.blunderMult;
+
+const lines=Object.values(multiPV).sort((a,b)=>a.rank-b.rank);
+if(!lines.length)return{move:best,type:'best'};
+
+const topLine=lines[0],secondLine=lines[1];
+
+let mustPlayBest=false;
+if(inCheck())mustPlayBest=true;
+if(topLine&&secondLine&&topLine.scoreType==='cp'&&secondLine.scoreType==='cp'){
+if(Math.abs(secondLine.scoreValue-topLine.scoreValue)>150)mustPlayBest=true;
+}
+if(topLine&&topLine.scoreType==='cp'&&topLine.scoreValue<-150)mustPlayBest=true;
+
+if(isDesperadoMode()&&!resignDismissed){
+let b=null,bs=-Infinity;
+for(const line of lines){const d=desperadoScore(line.pv[0],game.fen());if(d>bs){bs=d;b=line}}
+if(b&&bs>=20)return{move:b.pv[0],type:'desperado'};
+}
+
+if(mustPlayBest)return{move:topLine.pv[0],type:'best'};
+
+// ─── ACCURACY DECAY: force suboptimal in complex positions if streak too long ───
+const complexity=estimateComplexity(game.fen());
+if(chkAntiCheat.checked&&perfectStreak>=3&&complexity>0.55&&Math.random()<0.45){
+// pick a slightly suboptimal but still reasonable move from rank 2-3
+const subPool=lines.slice(1,3).filter(l=>{
+if(l.scoreType!=='cp')return false;
+const gap=Math.abs(l.scoreValue-(topLine.scoreType==='cp'?topLine.scoreValue:0));
+return gap<=90; // not a blunder, just slightly worse
+});
+if(subPool.length){const pick=subPool[Math.floor(Math.random()*subPool.length)];return{move:pick.pv[0],type:'style'}}
+}
+
+if(chkOpenings.checked&&game.history().length<10){
+const oc=lines.filter(l=>isPreferredOpening(l.pv[0],game.fen(),preset));
+if(oc.length>0){
+const tol=preset.filter==='gambit'?80:50;
+const bestScore=lines[0].scoreType==='cp'?lines[0].scoreValue:0;
+const safe=oc.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return true;return Math.abs(l.scoreValue-bestScore)<=tol});
+if(safe.length>0){const pick=safe[Math.floor(Math.random()*safe.length)];return{move:pick.pv[0],type:'opening'}}
+}
+}
+
+let candidate=lines[0],type='best';
+
+if(preset.filter==='universal')return universalSelect(lines);
+if(preset.filter==='boa')return boaSelect(lines);
+
+if(preset.filter==='gambit'){
+const sharp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.check||c.promotion||(c.capture&&['q','r','b','n'].includes(c.captured)))});
+if(sharp&&sharp.rank!==1){candidate=sharp;type='style'}
+else{const pp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());if(!c||c.piece!=='p')return false;const dr=parseInt(l.pv[0].slice(3,4),10);return(myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5)});if(pp&&pp.rank!==1){candidate=pp;type='style'}}
+}else if(preset.filter==='aggressive'){
+const a=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.capture||c.check||c.promotion)});if(a&&a.rank!==1){candidate=a;type='style'}
+}else if(preset.filter==='defensive'){
+const q=lines.find(l=>{if(l.rank>3)return false;const c=classifyMove(l.pv[0],game.fen());return c&&!c.capture&&!c.check});if(q&&q.rank!==1){candidate=q;type='style'}
+}else if(preset.filter==='chaotic'){
+if(lines.length>=2){const pick=lines[Math.floor(Math.random()*Math.min(3,lines.length))];candidate=pick;if(pick.rank!==1)type='style'}
+}else if(preset.filter==='flexible'){
+if(lines.length>=2){const bs=lines[0].scoreType==='cp'?lines[0].scoreValue:9999;const close=lines.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return false;return Math.abs(l.scoreValue-bs)<=30});if(close.length>1){const pick=close[Math.floor(Math.random()*close.length)];if(pick.rank!==1){candidate=pick;type='style'}}}
+}
+
+if(Math.random()<blunderChance&&lines.length>=3){
+const bad=lines.slice(2,Math.min(5,lines.length));if(bad.length){const pick=bad[Math.floor(Math.random()*bad.length)];return{move:pick.pv[0],type:'error'}}
+}
+
+return{move:candidate.pv[0],type};
+}
+
+function onBestMove(best){
+if(!analysisRunning)return;analysisRunning=false;
+if(!best||best==='(none)'){setStatus('no legal move','warn');return}
+
+updateDesperadoBanner();checkResignCondition();
+
+const presetKey=selPreset.value;
+const decision=selectMove(best,presetKey);
+
+// track perfect streak
+if(decision.type==='best'||decision.type==='opening'){perfectStreak++;}else{perfectStreak=0;}
+
+chosenMoveUci=decision.move;
+drawArrow(chosenMoveUci);
+renderAnalysisOutput(chosenMoveUci,decision.type);
+startThinkTimer(decision.type,presetKey);
+
+if(decision.type==='desperado'){banter('desperado',{force:true});desperadoBanner.classList.add('show')}
+if(isGambitPreset()&&decision.type==='opening'&&game.history().length<10)banter('gambit',{force:true});
+if(isBoaPreset()&&decision.type==='style')banter('boa',{force:true});
+}
+
+// ─── TIMER v2: complexity + fatigue + sequence variation + forced move ───
+function startThinkTimer(type,presetKey){
+clearInterval(thinkTimerInterval);
+const preset=PRESETS[presetKey];
+const isOpening=game.history().length<10;
+const complexity=estimateComplexity(game.fen());
+
+// ── base delay by phase ──
+let minMs,maxMs;
+if(isOpening){
+// opening: fast recall — 800ms to 2.2s
+minMs=800;maxMs=2200;
+}else if(type==='error'){
+// blunder: either impulsive or miscalculated
+if(Math.random()<0.5){minMs=600;maxMs=1500}else{minMs=4000;maxMs=7000}
+}else if(type==='desperado'){
+minMs=2500;maxMs=5000;
+}else{
+// normal move — scale by complexity
+if(complexity>0.65){minMs=3000;maxMs=7000}       // complex: think longer
+else if(complexity<0.3){minMs=700;maxMs=1800}    // simple: move faster
+else{minMs=1500;maxMs=4000}                      // medium
+}
+
+// ── forced move detection: if only 1 legal move, play instantly ──
+try{
+const tmp=new Chess();tmp.load(game.fen());
+const legalCount=tmp.moves().length;
+if(legalCount<=1){minMs=300;maxMs=700}
+}catch(e){}
+
+// ── fatigue: add ms as game progresses ──
+const fatigueExtra=Math.min(2500,moveNumber*80);
+minMs+=fatigueExtra;maxMs+=fatigueExtra;
+
+// ── clock awareness: simulate time pressure (if moveNumber > 40, shorten) ──
+if(moveNumber>40){
+const pressure=Math.min(0.6,(moveNumber-40)/60);
+minMs=Math.round(minMs*(1-pressure));
+maxMs=Math.round(maxMs*(1-pressure));
+}
+
+// ── sequence variation: if recent timings too uniform, force outlier ──
+let delay=humanDelay(minMs,maxMs);
+if(recentTimings.length>=5){
+const mean=recentTimings.reduce((a,b)=>a+b,0)/recentTimings.length;
+const variance=recentTimings.reduce((a,b)=>a+Math.pow(b-mean,2),0)/recentTimings.length;
+const stdDev=Math.sqrt(variance),cv=mean>0?stdDev/mean:0;
+if(cv<0.35){
+// too uniform — force outlier (either very fast or very slow)
+if(Math.random()<0.5)delay=humanDelay(minMs*0.4,minMs*0.7);
+else delay=humanDelay(maxMs*1.2,maxMs*1.8);
+}
+}
+
+// clamp
+delay=Math.min(MAX_THINK_SECONDS*1000,Math.max(250,delay));
+
+// track
+recentTimings.push(delay);
+if(recentTimings.length>12)recentTimings.shift();
+
+const initialTime=Math.ceil(delay/1000);
+let timeLeft=initialTime;
+
+// anti-cheat: occasional banter during think, at random moment
+if(chkAntiCheat.checked&&Math.random()>0.35){
+const banterDelay=200+Math.random()*(delay*0.7);
+setTimeout(()=>{if(thinkTimerInterval)banter('thinking',{force:true})},banterDelay);
+}
+
+const updateTimer=()=>{
+const perc=((initialTime-timeLeft)/initialTime)*100;
+updateEvalBarCss(perc);
+const san=pvToSan([chosenMoveUci],game.fen())[0]||chosenMoveUci;
+if(timeLeft>0){
+setStatus(`wait ${timeLeft}s — ${san}`,(type==='error'||type==='desperado')?'warn':'ok');
+timeLeft--;
+}else{
+setStatus(`play ${san} now`,'ok');
+clearInterval(thinkTimerInterval);thinkTimerInterval=null;updateEvalBarCss(50);
+}
+};
+updateTimer();
+thinkTimerInterval=setInterval(updateTimer,1000);
+}
+
+function pvToSan(pvUci,fromFen){
+if(!pvUci.length)return[];
+const tmp=new Chess();if(fromFen){try{tmp.load(fromFen)}catch(e){}}
+const out=[];
+for(const uci of pvUci){try{const m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||undefined});if(!m)break;out.push(m.san)}catch(e){break}}
+return out;
+}
+
+function formatEval(type,value){
+if(type==='mate')return(value>0?'+M':'-M')+Math.abs(value);
+let v=value/100;if(game.turn()==='b')v=-v;return(v>0?'+':'')+v.toFixed(2);
+}
+
+function renderAnalysisOutput(chosenUci,moveType){
+const fen=game.fen(),preset=PRESETS[selPreset.value];let html='';
+if(chosenUci){
+const san=pvToSan([chosenUci],fen)[0]||chosenUci;let tag,cls,icon;
+if(moveType==='error'){tag='Human error';cls='error';icon='⚠'}
+else if(moveType==='desperado'){tag='DESPERADO';cls='desperado';icon='🔥'}
+else if(moveType==='opening'){if(isGambitPreset()){tag=`Gambit (${preset.tag})`;cls='gambit';icon='⚔️'}else{tag=`Opening (${preset.tag})`;cls='opening';icon='📖'}}
+else if(moveType==='style'){tag=preset.tag;if(isBoaPreset()){cls='boa';icon='🐍'}else if(isUniversalPreset()){cls='universal';icon='🌐'}else if(isGambitPreset()){cls='gambit';icon='⚔️'}else{cls='style';icon='★'}}
+else{tag='Best move';cls='primary';icon='👑'}
+html+=`<div class="line-row ${cls}"><span class="line-rank">${icon}</span><span class="line-pv"><b style="font-size:1.2em">${san}</b> <span style="color:#888">(${tag})</span></span></div>`;
+}
+for(let i=1;i<=3;i++){
+const line=multiPV[i];if(!line)continue;if(line.pv[0]===chosenUci)continue;
+const san=pvToSan(line.pv,fen);if(!san.length)continue;
+html+=`<div class="line-row"><span class="line-rank">${i}</span><span class="line-pv"><b>${san[0]}</b> ${san.slice(1,6).join(' ')}</span><span class="line-eval">${formatEval(line.scoreType,line.scoreValue)}</span></div>`;
+}
+analysisEl.innerHTML=html||'<div class="line-row">no data</div>';
+}
+
+function renderHistory(){
+const hist=game.history();if(!hist.length){historyEl.innerHTML='—';return}
+const parts=[];for(let i=0;i<hist.length;i+=2){const n=Math.floor(i/2)+1;const w=hist[i]||'';const b=hist[i+1]||'';parts.push(`<b>${n}.</b> ${w} ${b}`)}
+historyEl.innerHTML=parts.join('&nbsp;&nbsp;');
+}
+
+async function startAnalysis(deep=false){
+if(gameOver()||resigned){setStatus('game over','warn');return}
+if(analysisRunning)return;
+const ready=await ensureEngine();
+if(!engineReady){if(!ready){setStatus('engine loading — try again','');return}}
+clearAnalysis();analysisRunning=true;resignBanner.classList.remove('show');
+if(multiPV[1])preMoveEval=getScoreFromPerspective(multiPV[1].scoreType,multiPV[1].scoreValue,game.turn());
+const preset=PRESETS[selPreset.value];
+setStatus('Stockfish thinking...','');analysisEl.innerHTML='<div class="line-row">thinking...</div>';
+try{
+engine.postMessage('setoption name MultiPV value 5');
+engine.postMessage('setoption name Threads value 2');
+engine.postMessage('setoption name Hash value 128');
+engine.postMessage('position fen '+game.fen());
+if(deep)engine.postMessage('go movetime 3000');
+else if(game.history().length<10)engine.postMessage('go movetime 300');
+else engine.postMessage('go movetime '+preset.movetime);
+}catch(e){setStatus('command failed','err');analysisRunning=false}
+}
+
+btnAnalyze.onclick=()=>startAnalysis(false);
+btnThink.onclick=()=>startAnalysis(true);
+
+btnUndo.onclick=()=>{if(!game.history().length)return;game.undo();clearAnalysis();selectedSq=null;legalDests=new Set();const hist=game.history({verbose:true});lastMove=hist.length?{from:hist[hist.length-1].from,to:hist[hist.length-1].to}:null;resignDismissed=false;resigned=false;resignBanner.classList.remove('show');desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();banter('idle',{force:true})};
+
+btnReset.onclick=()=>{game.reset();clearAnalysis();selectedSq=null;legalDests=new Set();lastMove=null;resignDismissed=false;resigned=false;recentTimings=[];perfectStreak=0;moveNumber=0;resignBanner.classList.remove('show');desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();if(isGambitPreset())banter('gambit',{force:true});else if(isBoaPreset())banter('boa',{force:true});else if(isUniversalPreset())banter('universal',{force:true});else banter('opening',{force:true})};
+
+btnFlip.onclick=()=>{flipped=!flipped;renderBoard();clearArrows()};
+
+function init(){renderBoard();renderHistory();updateStatus();updateBanners();if(isGambitPreset())banter('gambit',{force:true});else if(isBoaPreset())banter('boa',{force:true});else if(isUniversalPreset())banter('universal',{force:true});else banter('opening',{force:true})}
+init();
 })();
 </script>
 </body>
