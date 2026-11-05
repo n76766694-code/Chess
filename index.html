@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — Cheat / Friend Trolls / Badges</title>
+<title>Kibitz — Fast + Badges</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -33,18 +33,7 @@
   .piece.w{color:#fff;-webkit-text-stroke:1.5px #1a1a1a;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}.piece.b{color:#1a1a1a;-webkit-text-stroke:1.5px #fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
   #arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
   #cursorSim{position:absolute;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.4);border:2px solid rgba(0,0,0,.5);pointer-events:none;z-index:6;transform:translate(-50%,-50%);transition:opacity .2s;opacity:0}
-
-  /* ─── CHESS.COM-STYLE MOVE BADGE ─── */
-  .move-badge{
-    position:absolute;transform:translate(-50%,-50%);
-    width:24px;height:24px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    font-size:11px;font-weight:900;color:#fff;
-    z-index:25;pointer-events:none;
-    box-shadow:0 2px 8px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.2);
-    animation:badgePop 2.8s ease-out forwards;
-    font-family:-apple-system,system-ui,sans-serif;
-  }
+  .move-badge{position:absolute;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;z-index:25;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.2);animation:badgePop 2.8s ease-out forwards;font-family:-apple-system,system-ui,sans-serif}
   .move-badge.brilliant{background:linear-gradient(135deg,#26c2a3,#1fa889);font-size:12px}
   .move-badge.great{background:linear-gradient(135deg,#749bbf,#5a7fa3);font-size:14px}
   .move-badge.best{background:linear-gradient(135deg,#81b64c,#6c9a3e);font-size:14px}
@@ -53,32 +42,20 @@
   .move-badge.inaccuracy{background:linear-gradient(135deg,#f7c631,#e0b020);color:#000;font-size:13px}
   .move-badge.mistake{background:linear-gradient(135deg,#ffa459,#e88a3a);font-size:14px}
   .move-badge.blunder{background:linear-gradient(135deg,#fa412d,#d93220);font-size:13px}
-  @keyframes badgePop{
-    0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
-    15%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
-    30%{transform:translate(-50%,-50%) scale(1)}
-    80%{opacity:1;transform:translate(-50%,-50%) scale(1)}
-    100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}
-  }
-
+  @keyframes badgePop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}30%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
   .move-label{position:absolute;transform:translate(-50%,-50%);padding:6px 12px;background:rgba(0,0,0,.92);border-radius:8px;font-weight:800;font-size:13px;z-index:20;pointer-events:none;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.5);animation:labelPop 2.5s ease-out forwards;letter-spacing:.5px}
-  .move-label.best{color:#5cd88e;border:2px solid #5cd88e}
-  .move-label.good{color:#ffd84d;border:2px solid #ffd84d}
-  .move-label.bad{color:#ff6b6b;border:2px solid #ff6b6b}
+  .move-label.best{color:#5cd88e;border:2px solid #5cd88e}.move-label.good{color:#ffd84d;border:2px solid #ffd84d}.move-label.bad{color:#ff6b6b;border:2px solid #ff6b6b}
   @keyframes labelPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
-
   .settings-box{background:#17181a;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:12px;border:1px solid #222}
   .setting-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#ccc;gap:10px}.setting-row label{font-size:12px;color:#888;min-width:90px}
   input[type="range"]{flex:1;accent-color:#5cd88e}
   select{flex:1;background:#0f0f10;color:#eaeaea;border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:600;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23888'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
-  .toggle-row{display:flex;align-items:center;gap:6px;font-size:11px;color:#aaa}.toggle-row input{accent-color:#5cd88e;transform:scale(1.1)}
-  .toggle-row.disabled{opacity:.35}
+  .toggle-row{display:flex;align-items:center;gap:6px;font-size:11px;color:#aaa}.toggle-row input{accent-color:#5cd88e;transform:scale(1.1)}.toggle-row.disabled{opacity:.35}
   .eval-row{display:flex;align-items:center;gap:10px;background:#17181a;border-radius:10px;padding:10px 12px}
   .eval-bar{flex:1;height:10px;border-radius:5px;background:#1a1a1a;overflow:hidden;position:relative}#evalText{font-family:ui-monospace,Menlo,monospace;font-size:13px;font-weight:700;min-width:56px;text-align:right;color:#eaeaea}
   .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn-row.three{grid-template-columns:1fr 1fr 1fr}
   button{padding:13px 8px;border:0;border-radius:10px;background:#2a2a2c;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .12s}button:disabled{opacity:.35;cursor:default}
-  button.primary{background:#1f6b3f}button.trolls-primary{background:linear-gradient(135deg,#6b1a6b,#3a1a6b)}
-  button.secondary{background:#333;font-size:13px}button.danger{background:#5c2020;font-size:13px}
+  button.primary{background:#1f6b3f}button.trolls-primary{background:linear-gradient(135deg,#6b1a6b,#3a1a6b)}button.secondary{background:#333;font-size:13px}button.danger{background:#5c2020;font-size:13px}
   #analysisOutput{background:#17181a;border-radius:10px;padding:4px;min-height:60px}
   .line-row{display:flex;align-items:baseline;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px}
   .line-row.primary{background:#10231a;font-size:15px;border:1px solid #1f6b3f}.line-row.error{background:#2a1f14;border:1px solid #6b4f1f}.line-row.style{background:#1a1530;border:1px solid #4a3f8a}.line-row.opening{background:#102323;border:1px solid #1f6b6b}.line-row.desperado{background:#1f102a;border:1px solid #b04aff}.line-row.gambit{background:#2a1f0f;border:1px solid #ffb347;font-size:15px}.line-row.boa{background:#0f2523;border:1px solid #3ad8c4}.line-row.universal{background:#0f1a2a;border:1px solid #6ba3ff}
@@ -141,26 +118,26 @@
 <script>
 (()=>{
 'use strict';
-const MAX_THINK_SECONDS=12;
+const MAX_THINK_SECONDS=4; // ลดลงเหลือ 4 วิ
 const RESIGN_EVAL_THRESHOLD=-600;
 const DESPERADO_EVAL_THRESHOLD=-200;
 const RESIGN_LATE_GAME_MOVES=30;
 const RESIGN_LATE_GAME_PIECES=16;
 
 const PRESETS={
-carlsen:{label:'Magnus',movetime:500,filter:'flexible',openings:['e4','c4','Nf3','d4'],timerMin:1,timerMax:3,blunderMult:0.4,tag:'Carlsen'},
+carlsen:{label:'Magnus',movetime:400,filter:'flexible',openings:['e4','c4','Nf3','d4'],timerMin:1,timerMax:2,blunderMult:0.4,tag:'Carlsen'},
 nakamura:{label:'Hikaru',movetime:300,filter:'chaotic',openings:['e4','f3','g4','Nf3'],timerMin:1,timerMax:2,blunderMult:1.5,tag:'Nakamura'},
-kasparov:{label:'Kasparov',movetime:500,filter:'aggressive',openings:['e4','d4'],timerMin:2,timerMax:4,blunderMult:0.5,tag:'Kasparov'},
-karpov:{label:'Karpov',movetime:500,filter:'defensive',openings:['d4','c4','Nf3'],timerMin:2,timerMax:4,blunderMult:0.6,tag:'Karpov'},
-caruana:{label:'Caruana',movetime:600,filter:'precise',openings:['e4','d4'],timerMin:1,timerMax:3,blunderMult:0.2,tag:'Caruana'},
-universal:{label:'Universal',movetime:700,filter:'universal',openings:['e4','d4','c4','Nf3','g3','b3','e3','d3'],timerMin:2,timerMax:4,blunderMult:0.15,tag:'Universal'},
-boa:{label:'Boa',movetime:600,filter:'boa',openings:['d4','c4','Nf3','e3','g3','b3','d3'],timerMin:2,timerMax:5,blunderMult:0.4,tag:'Boa'},
-alien:{label:'Alien',movetime:500,filter:'gambit',openings:['d4','c4','e4','Nf3','f4','c3','Bc4','Nc3','exd4'],timerMin:1,timerMax:3,blunderMult:0.6,tag:'Alien',gambitName:'Alien Gambit'},
-gambits:{label:'Gambits',movetime:500,filter:'gambit',openings:['e4','d4','c4','Nf3','f4','b4','c3','Bc4','Nxe5','Bxf7','exd4','exd5'],timerMin:1,timerMax:3,blunderMult:0.8,tag:'Gambit',gambitName:'Gambit Sampler'}
+kasparov:{label:'Kasparov',movetime:400,filter:'aggressive',openings:['e4','d4'],timerMin:1,timerMax:2,blunderMult:0.5,tag:'Kasparov'},
+karpov:{label:'Karpov',movetime:400,filter:'defensive',openings:['d4','c4','Nf3'],timerMin:1,timerMax:2,blunderMult:0.6,tag:'Karpov'},
+caruana:{label:'Caruana',movetime:400,filter:'precise',openings:['e4','d4'],timerMin:1,timerMax:2,blunderMult:0.2,tag:'Caruana'},
+universal:{label:'Universal',movetime:500,filter:'universal',openings:['e4','d4','c4','Nf3','g3','b3','e3','d3'],timerMin:1,timerMax:2,blunderMult:0.15,tag:'Universal'},
+boa:{label:'Boa',movetime:500,filter:'boa',openings:['d4','c4','Nf3','e3','g3','b3','d3'],timerMin:1,timerMax:3,blunderMult:0.4,tag:'Boa'},
+alien:{label:'Alien',movetime:400,filter:'gambit',openings:['d4','c4','e4','Nf3','f4','c3','Bc4','Nc3','exd4'],timerMin:1,timerMax:2,blunderMult:0.6,tag:'Alien',gambitName:'Alien Gambit'},
+gambits:{label:'Gambits',movetime:400,filter:'gambit',openings:['e4','d4','c4','Nf3','f4','b4','c3','Bc4','Nxe5','Bxf7','exd4','exd5'],timerMin:1,timerMax:2,blunderMult:0.8,tag:'Gambit',gambitName:'Gambit Sampler'}
 };
 
 const BANTER={
-thinking:['hold on. thinking.','sit still.','give me a sec.','okay okay. i see it.','this position is garbage.','trying to save your ass here.','mm. no. not that.'],
+thinking:['hold on.','sit still.','give me a sec.','okay okay. i see it.','this position is garbage.','trying to save your ass here.','mm. no. not that.'],
 goodMove:['oh. that\'s good.','fine. i\'ll allow it.','okay that was clean.','lucky. but good.','hm. approved.'],
 badMove:['the fuck was that?','no no no.','you just hung a piece.','why. WHY.','that made me uncomfortable.','bold. stupid, but bold.'],
 critical:['CAREFUL.','stop. look at your king.','not that.','you\'re walking into a fork.','wait — put that back.'],
@@ -179,7 +156,6 @@ trollsIdle:['play it. i\'ll tell you what he does next.','your friend has no ide
 trollsBest:['Don\'t overthink it. Just play it.','This is the one. Trust me.','Your friend won\'t see this coming.','Trust the machine. It sees everything.','Nothing fancy. Just strong.','Yeah. That move. Play it.'],
 trollsGood:['Solid. Not perfect, but solid.','Good enough. He\'ll struggle.','Decent option. Keep the pressure.','This works. Do it.'],
 trollsAnalysis:['You\'re better here. Don\'t blow it.','Tight position. Every move matters.','He\'s got a plan. So do we.','This is where you win.','Position is fine. Keep going.','You can push here. Look at his king.'],
-// ─── BADGE COMMENTS ───
 badgeBrilliant:['WHAT. brilliant.','did you just — yes. yes you did.','sacrifice worked. he\'s screwed.','oh that\'s nasty. i love it.'],
 badgeGreat:['great. keep going.','only move. and you found it.','that was the one.'],
 badgeBest:['best move. next.','clean.','exactly what i would have played.'],
@@ -196,7 +172,7 @@ const game=new Chess();
 let appMode='cheat';
 let myColor='w';
 let selectedSq=null,legalDests=new Set(),lastMove=null,flipped=false;
-let engine=null,engineReady=false,engineLoading=false,analysisRunning=false,multiPV={},currentDepth=0;
+let engine=null,badgeEngine=null,engineReady=false,badgeReady=false,engineLoading=false,analysisRunning=false,multiPV={},currentDepth=0;
 let chosenMoveUci=null,thinkTimerInterval=null,lastBanterAt=0,preMoveEval=null,resignDismissed=false,resigned=false;
 let recentTimings=[],perfectStreak=0,moveNumber=0;
 let classificationInFlight=false;
@@ -211,30 +187,24 @@ function setAppMode(m){
   appMode=m;
   if(m==='cheat'){
     modeCheat.classList.add('active');modeTrolls.classList.remove('active');
-    subtitle.textContent='Cheat Mode • chess.com';
-    footerNote.textContent='Anti-Cheat v2 · Cheat Mode สำหรับ chess.com';
-    rowBlunder.style.display='';
-    rowAnti.classList.remove('disabled');chkAntiCheat.disabled=false;chkCoach.disabled=false;
+    subtitle.textContent='Cheat Mode • chess.com';footerNote.textContent='Anti-Cheat v2 · Cheat Mode สำหรับ chess.com';
+    rowBlunder.style.display='';rowAnti.classList.remove('disabled');chkAntiCheat.disabled=false;chkCoach.disabled=false;
     btnAnalyze.className='primary';btnAnalyze.textContent='แนะนำตาเดิน';
   } else {
     modeTrolls.classList.add('active');modeCheat.classList.remove('active');
-    subtitle.textContent='Friend Trolls • ชนะเพื่อน 100%';
-    footerNote.textContent='No anti-cheat · Best Stockfish · Arrow auto-hide 2s · Move Badges';
-    rowBlunder.style.display='none';
-    rowAnti.classList.add('disabled');chkAntiCheat.checked=false;chkAntiCheat.disabled=true;chkCoach.checked=false;chkCoach.disabled=true;
+    subtitle.textContent='Friend Trolls • ชนะเพื่อน 100%';footerNote.textContent='No anti-cheat · Best Stockfish · Arrow auto-hide 2s · Badges';
+    rowBlunder.style.display='none';rowAnti.classList.add('disabled');chkAntiCheat.checked=false;chkAntiCheat.disabled=true;chkCoach.checked=false;chkCoach.disabled=true;
     btnAnalyze.className='trolls-primary';btnAnalyze.textContent='😈 แนะนำตาเดิน (2 วิ)';
   }
 }
-modeCheat.onclick=()=>setAppMode('cheat');
-modeTrolls.onclick=()=>setAppMode('trolls');
+modeCheat.onclick=()=>setAppMode('cheat');modeTrolls.onclick=()=>setAppMode('trolls');
 
 function banter(cat,opts={}){
-  if(Date.now()-lastBanterAt<1200&&!opts.force)return;lastBanterAt=Date.now();
+  if(Date.now()-lastBanterAt<1000&&!opts.force)return;lastBanterAt=Date.now();
   const pool=BANTER[cat]||BANTER.idle;const line=pool[Math.floor(Math.random()*pool.length)];
   banterNameEl.textContent=PRESETS[selPreset.value].label;
   let cls='';
-  if(cat==='thinking')cls='thinking dots';else if(['badMove','critical','resign'].includes(cat))cls='angry';else if(['goodMove','winning'].includes(cat))cls='pleased';else if(cat==='desperado')cls='desperado';
-  else if(cat.startsWith('trolls'))cls='trolls';
+  if(cat==='thinking')cls='thinking dots';else if(['badMove','critical','resign'].includes(cat))cls='angry';else if(['goodMove','winning'].includes(cat))cls='pleased';else if(cat==='desperado')cls='desperado';else if(cat.startsWith('trolls'))cls='trolls';
   banterEl.className=cls;banterTxtEl.textContent=line;
 }
 
@@ -247,19 +217,13 @@ function updateDesperadoBanner(){const active=isDesperadoMode()&&!resigned&&!gam
 function countPiecesOnBoard(){let n=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq='abcdefgh'[c]+(8-r);if(game.get(sq))n++}return n}
 
 selPreset.addEventListener('change',()=>{
-  if(appMode==='trolls')banter('trollsIdle',{force:true});
-  else if(isGambitPreset())banter('gambit',{force:true});
-  else if(isBoaPreset())banter('boa',{force:true});
-  else if(isUniversalPreset())banter('universal',{force:true});
-  else banter('opening',{force:true});
+  if(appMode==='trolls')banter('trollsIdle',{force:true});else if(isGambitPreset())banter('gambit',{force:true});else if(isBoaPreset())banter('boa',{force:true});else if(isUniversalPreset())banter('universal',{force:true});else banter('opening',{force:true});
 });
 rngBlunder.addEventListener('input',e=>{lblBlunder.textContent=e.target.value+'%'});
 
 selSide.addEventListener('change',e=>{
-  myColor=e.target.value;flipped=(myColor==='b');
-  subtitle.textContent=(appMode==='trolls'?'Friend Trolls':'Cheat Mode')+' • playing '+(myColor==='w'?'White':'Black');
-  game.reset();clearAnalysis();selectedSq=null;legalDests=new Set();lastMove=null;resignDismissed=false;resigned=false;
-  recentTimings=[];perfectStreak=0;moveNumber=0;
+  myColor=e.target.value;flipped=(myColor==='b');subtitle.textContent=(appMode==='trolls'?'Friend Trolls':'Cheat Mode')+' • playing '+(myColor==='w'?'White':'Black');
+  game.reset();clearAnalysis();selectedSq=null;legalDests=new Set();lastMove=null;resignDismissed=false;resigned=false;recentTimings=[];perfectStreak=0;moveNumber=0;
   desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();
   if(appMode==='trolls')banter('trollsIdle',{force:true});else banter('idle',{force:true});
 });
@@ -336,13 +300,11 @@ function coachCheck(from,to){
     const handler=e=>{
       const line=typeof e.data==='string'?e.data:'';
       if(line.startsWith('bestmove')){engine.removeEventListener('message',handler);done()}
-      if(line.startsWith('info')&&line.includes('score cp')){
-        const match=line.match(/score cp (-?\d+)/);
+      if(line.startsWith('info')&&line.includes('score cp')){const match=line.match(/score cp (-?\d+)/);
         if(match){let cp=parseInt(match[1],10);if(tmp.turn()==='b')cp=-cp;if(myColor==='b')cp=-cp;const delta=(preMoveEval||0)-cp;
-        if(delta>100)banter('critical',{force:true});else if(delta>40)banter('badMove',{force:true})}
-      }
+        if(delta>100)banter('critical',{force:true});else if(delta>40)banter('badMove',{force:true})}}
     };
-    engine.addEventListener('message',handler);engine.postMessage('position fen '+tmp.fen());engine.postMessage('go movetime 200');setTimeout(done,400);
+    engine.addEventListener('message',handler);engine.postMessage('position fen '+tmp.fen());engine.postMessage('go movetime 100');setTimeout(done,300);
   });
 }
 
@@ -354,7 +316,6 @@ function executeMove(from,to){
   lastMove={from,to};selectedSq=null;legalDests=new Set();chosenMoveUci=null;moveNumber++;
   clearAnalysis();renderBoard();renderHistory();updateStatus();
 
-  // classify & show badge async
   if(chkBadges.checked)classifyAndLabelMove(fenBefore,moverColor,to);
 
   if(gameOver()){if(inCheckmate())banter('winning',{force:true});return}
@@ -382,11 +343,7 @@ function drawArrow(uci){
   const dx=tx-fx,dy=ty-fy,len=Math.hypot(dx,dy);if(len<1)return;
   const ux=dx/len,uy=dy/len,hl=24,hw=18,bx=tx-ux*hl,by=ty-uy*hl,px=-uy,py=ux;
   let color='rgba(92,216,142,0.95)';
-  if(appMode==='trolls')color='rgba(176,74,255,0.95)';
-  else if(isDesperadoMode())color='rgba(176,74,255,0.95)';
-  else if(isGambitPreset())color='rgba(255,179,71,0.95)';
-  else if(isBoaPreset())color='rgba(58,216,196,0.95)';
-  else if(isUniversalPreset())color='rgba(107,163,255,0.95)';
+  if(appMode==='trolls')color='rgba(176,74,255,0.95)';else if(isDesperadoMode())color='rgba(176,74,255,0.95)';else if(isGambitPreset())color='rgba(255,179,71,0.95)';else if(isBoaPreset())color='rgba(58,216,196,0.95)';else if(isUniversalPreset())color='rgba(107,163,255,0.95)';
   const line=document.createElementNS('http://www.w3.org/2000/svg','line');
   line.setAttribute('x1',fx);line.setAttribute('y1',fy);line.setAttribute('x2',bx);line.setAttribute('y2',by);line.setAttribute('stroke',color);line.setAttribute('stroke-width','8');line.setAttribute('stroke-linecap','round');arrowsEl.appendChild(line);
   const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
@@ -396,66 +353,45 @@ function drawArrow(uci){
 function clearArrows(){arrowsEl.innerHTML=''}
 
 function showMoveLabel(sq,text,type){
-  const wrap=boardEl.parentElement;
-  const[px,py]=sqToXY(sq);
-  const label=document.createElement('div');
-  label.className='move-label '+type;
-  label.textContent=text;
-  label.style.left=(px/480*100)+'%';label.style.top=(py/480*100)+'%';
-  wrap.appendChild(label);
+  const wrap=boardEl.parentElement;const[px,py]=sqToXY(sq);
+  const label=document.createElement('div');label.className='move-label '+type;label.textContent=text;
+  label.style.left=(px/480*100)+'%';label.style.top=(py/480*100)+'%';wrap.appendChild(label);
   setTimeout(()=>label.remove(),2600);
 }
 
-// ═══════════════════════════════════════════════
-// MOVE CLASSIFICATION (chess.com style badges)
-// ═══════════════════════════════════════════════
 const PIECE_VAL={p:100,n:320,b:330,r:500,q:900,k:0};
-
 function countMaterial(fen,color){
-  try{
-    const tmp=new Chess();tmp.load(fen);
-    let total=0;
-    const files='abcdefgh';
-    for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-      const sq=files[c]+(8-r);
-      const p=tmp.get(sq);
-      if(p&&p.color===color)total+=PIECE_VAL[p.type]||0;
-    }
+  try{const tmp=new Chess();tmp.load(fen);let total=0;const files='abcdefgh';
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq=files[c]+(8-r);const p=tmp.get(sq);if(p&&p.color===color)total+=PIECE_VAL[p.type]||0}
     return total;
   }catch(e){return 0}
 }
 
+// ═══════════════════════════════════════════════
+// BADGE ENGINE (SEPARATE WORKER)
+// ═══════════════════════════════════════════════
 function evalPositionQuick(fen,timeoutMs=400){
-  if(!engineReady)return Promise.resolve(null);
+  if(!badgeReady)return Promise.resolve(null);
   return new Promise(resolve=>{
     let resolved=false;let lastScore=null;
-    const done=()=>{if(!resolved){resolved=true;resolve(lastScore)}}
     const handler=e=>{
       const line=typeof e.data==='string'?e.data:'';
       if(line.startsWith('info')&&line.includes('score')){
-        const mMate=line.match(/score mate (-?\d+)/);
-        const mCp=line.match(/score cp (-?\d+)/);
-        if(mMate)lastScore=parseInt(mMate[1],10)>0?9999:-9999;
-        else if(mCp)lastScore=parseInt(mCp[1],10);
+        const mMate=line.match(/score mate (-?\d+)/);const mCp=line.match(/score cp (-?\d+)/);
+        if(mMate)lastScore=parseInt(mMate[1],10)>0?9999:-9999;else if(mCp)lastScore=parseInt(mCp[1],10);
       }
-      if(line.startsWith('bestmove')){engine.removeEventListener('message',handler);done()}
+      if(line.startsWith('bestmove')){badgeEngine.removeEventListener('message',handler);if(!resolved){resolved=true;resolve(lastScore)}}
     };
-    engine.addEventListener('message',handler);
-    engine.postMessage('position fen '+fen);
-    engine.postMessage('go depth 10');
-    setTimeout(done,timeoutMs);
+    badgeEngine.addEventListener('message',handler);
+    badgeEngine.postMessage('position fen '+fen);
+    badgeEngine.postMessage('go depth 8'); // เร็วมาก
+    setTimeout(()=>{if(!resolved){resolved=true;resolve(lastScore)}},timeoutMs);
   });
 }
 
 function classifyDelta(delta,matDelta,afterEval){
-  // mate handling
-  if(Math.abs(afterEval)>9000){
-    return afterEval>0?{icon:'!!',cls:'brilliant',name:'Brilliant'}:{icon:'??',cls:'blunder',name:'Blunder'};
-  }
-  // brilliant: sacrifice (matDelta <= -100) but still good for mover
-  if(matDelta<=-100&&afterEval>30&&delta>=-40){
-    return {icon:'!!',cls:'brilliant',name:'Brilliant'};
-  }
+  if(Math.abs(afterEval)>9000){return afterEval>0?{icon:'!!',cls:'brilliant',name:'Brilliant'}:{icon:'??',cls:'blunder',name:'Blunder'}}
+  if(matDelta<=-100&&afterEval>30&&delta>=-40)return{icon:'!!',cls:'brilliant',name:'Brilliant'};
   if(delta>=-15)return{icon:'★',cls:'best',name:'Best'};
   if(delta>=-30)return{icon:'✓✓',cls:'excellent',name:'Excellent'};
   if(delta>=-80)return{icon:'✓',cls:'good',name:'Good'};
@@ -465,56 +401,31 @@ function classifyDelta(delta,matDelta,afterEval){
 }
 
 function showMoveBadge(sq,label){
-  const wrap=boardEl.parentElement;
-  const[px,py]=sqToXY(sq);
-  // corner of the square (top-right)
+  const wrap=boardEl.parentElement;const[px,py]=sqToXY(sq);
   const offsetX=26,offsetY=-26;
-  const badge=document.createElement('div');
-  badge.className='move-badge '+label.cls;
-  badge.textContent=label.icon;
-  badge.style.left=((px+offsetX)/480*100)+'%';
-  badge.style.top=((py+offsetY)/480*100)+'%';
+  const badge=document.createElement('div');badge.className='move-badge '+label.cls;badge.textContent=label.icon;
+  badge.style.left=((px+offsetX)/480*100)+'%';badge.style.top=((py+offsetY)/480*100)+'%';
   wrap.appendChild(badge);
   setTimeout(()=>{if(badge.parentNode)badge.remove()},2900);
-
-  // optional banter based on classification
   const banterKey='badge'+(label.name==='Brilliant'?'Brilliant':label.name==='Great'?'Great':label.name==='Best'?'Best':label.name==='Excellent'?'Excellent':label.name==='Good'?'Good':label.name==='Inaccuracy'?'Inaccuracy':label.name==='Mistake'?'Mistake':'Blunder');
-  if(BANTER[banterKey]&&Math.random()<0.4){
-    banter(banterKey,{force:false});
-  }
+  if(BANTER[banterKey]&&Math.random()<0.4)banter(banterKey,{force:false});
 }
 
 async function classifyAndLabelMove(fenBefore,moverColor,toSq){
-  if(classificationInFlight)return;
-  if(!engineReady)return;
+  if(classificationInFlight)return;if(!badgeReady)return;
   classificationInFlight=true;
-
   try{
-    // evaluate before (from mover's perspective, since it was their turn)
-    const sb=await evalPositionQuick(fenBefore,400);
+    const sb=await evalPositionQuick(fenBefore,300);
     if(sb===null){classificationInFlight=false;return}
-
-    // small delay to let analysis finish if it just started
-    await new Promise(r=>setTimeout(r,50));
-
+    await new Promise(r=>setTimeout(r,30));
     const fenAfter=game.fen();
-    const sa=await evalPositionQuick(fenAfter,400);
+    const sa=await evalPositionQuick(fenAfter,300);
     if(sa===null){classificationInFlight=false;return}
-
-    // sb is from mover's perspective (their turn in fenBefore)
-    // sa is from opponent's perspective (opponent's turn in fenAfter) → negate for mover
-    const scoreBeforeMover=sb;
-    const scoreAfterMover=-sa;
-    const delta=scoreAfterMover-scoreBeforeMover;
-
-    const matBefore=countMaterial(fenBefore,moverColor);
-    const matAfter=countMaterial(fenAfter,moverColor);
-    const matDelta=matAfter-matBefore;
-
+    const scoreBeforeMover=sb;const scoreAfterMover=-sa;const delta=scoreAfterMover-scoreBeforeMover;
+    const matBefore=countMaterial(fenBefore,moverColor);const matAfter=countMaterial(fenAfter,moverColor);const matDelta=matAfter-matBefore;
     const label=classifyDelta(delta,matDelta,scoreAfterMover);
     showMoveBadge(toSq,label);
   }catch(e){console.error('classify error',e)}
-
   classificationInFlight=false;
 }
 
@@ -529,13 +440,28 @@ function updateEvalBarCss(percent){
 }
 
 async function ensureEngine(){
-  if(engineReady)return true;if(engineLoading)return false;engineLoading=true;setStatus('loading Stockfish...','');
+  if(engineReady&&badgeReady)return true;
+  if(engineLoading)return false;
+  engineLoading=true;setStatus('loading Stockfish...','');
   try{
     const url='https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js';
     const resp=await fetch(url);if(!resp.ok)throw new Error('HTTP '+resp.status);
     const code=await resp.text();const blob=new Blob([code],{type:'application/javascript'});
+    
+    // Engine หลัก
     engine=new Worker(URL.createObjectURL(blob));engine.onmessage=onEngineMsg;engine.onerror=err=>{setStatus('engine error','err');engineLoading=false;engineReady=false};
-    engine.postMessage('uci');engine.postMessage('isready');return false;
+    engine.postMessage('uci');engine.postMessage('isready');
+
+    // Engine สำหรับ Badge (แยกออกมา ไม่แย่งคิว)
+    badgeEngine=new Worker(URL.createObjectURL(blob));
+    badgeEngine.onmessage=(e)=>{
+      const line=typeof e.data==='string'?e.data:'';
+      if(line==='uciok')badgeEngine.postMessage('isready');
+      else if(line==='readyok')badgeReady=true;
+    };
+    badgeEngine.postMessage('uci');
+
+    return false;
   }catch(err){setStatus('engine load failed','err');engineLoading=false;return false}
 }
 
@@ -556,38 +482,29 @@ function parseInfo(line){
 }
 
 function classifyMove(uci,fen){
-  if(!uci||uci.length<4)return null;
-  const tmp=new Chess();try{tmp.load(fen)}catch(e){return null}
+  if(!uci||uci.length<4)return null;const tmp=new Chess();try{tmp.load(fen)}catch(e){return null}
   let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return null}
   if(!m)return null;
   return{capture:m.flags.indexOf('c')!==-1,promotion:m.flags.indexOf('p')!==-1,check:m.san.indexOf('+')!==-1||m.san.indexOf('#')!==-1,piece:m.piece,captured:m.captured,san:m.san,from:m.from,to:m.to};
 }
 
 function isPreferredOpening(uci,fen,preset){
-  if(!uci||uci.length<4)return false;
-  const tmp=new Chess();try{tmp.load(fen)}catch(e){return false}
+  if(!uci||uci.length<4)return false;const tmp=new Chess();try{tmp.load(fen)}catch(e){return false}
   let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return false}
-  if(!m)return false;
-  return preset.openings.some(op=>m.san===op||m.san.startsWith(op));
+  if(!m)return false;return preset.openings.some(op=>m.san===op||m.san.startsWith(op));
 }
 
 function desperadoScore(uci,fen){
-  if(!uci||uci.length<4)return-999;
-  const tmp=new Chess();try{tmp.load(fen)}catch(e){return-999}
+  if(!uci||uci.length<4)return-999;const tmp=new Chess();try{tmp.load(fen)}catch(e){return-999}
   let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return-999}
-  if(!m)return-999;
-  let score=0;const dest=uci.slice(2,4),eking=findEnemyKing(tmp);
+  if(!m)return-999;let score=0;const dest=uci.slice(2,4),eking=findEnemyKing(tmp);
   if(eking){const dF=dest.charCodeAt(0)-97,dR=parseInt(dest[1],10),kF=eking.charCodeAt(0)-97,kR=parseInt(eking[1],10),dist=Math.max(Math.abs(dF-kF),Math.abs(dR-kR));if(dist<=2)score+=50;if(dist<=1)score+=100}
   if(m.piece==='q')score+=20;if(m.piece==='k')score+=15;if(m.san.indexOf('+')!==-1)score+=150;if(m.san.indexOf('#')!==-1)score+=1000;
   if(m.flags.indexOf('c')!==-1){if(m.captured==='q')score+=200;else if(m.captured==='r')score+=60;else if(m.captured==='b'||m.captured==='n')score+=40;else score+=20}
   if(m.piece==='p')score-=5;return score;
 }
 
-function findEnemyKing(tmpChess){
-  const enemy=myColor==='w'?'b':'w',files='abcdefgh';
-  for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq=files[c]+(8-r);const p=tmpChess.get(sq);if(p&&p.type==='k'&&p.color===enemy)return sq}
-  return null;
-}
+function findEnemyKing(tmpChess){const enemy=myColor==='w'?'b':'w',files='abcdefgh';for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq=files[c]+(8-r);const p=tmpChess.get(sq);if(p&&p.type==='k'&&p.color===enemy)return sq}return null}
 
 function universalSelect(lines){
   const top=lines[0],bestScore=top.scoreType==='cp'?top.scoreValue:(top.scoreValue>0?9999:-9999);
@@ -598,124 +515,69 @@ function universalSelect(lines){
 
 function boaSelect(lines){
   const cands=lines.slice(0,3);let best=null,bestScore=-Infinity;
-  for(const line of cands){const c=classifyMove(line.pv[0],game.fen());if(!c)continue;
-    let score=100-(line.rank-1)*20;
-    if(!c.capture&&!c.check)score+=40;
-    const df=c.to[0],dr=parseInt(c.to[1],10),central=['c','d','e','f'];
+  for(const line of cands){const c=classifyMove(line.pv[0],game.fen());if(!c)continue;let score=100-(line.rank-1)*20;
+    if(!c.capture&&!c.check)score+=40;const df=c.to[0],dr=parseInt(c.to[1],10),central=['c','d','e','f'];
     if(c.piece==='p'&&central.includes(df)&&dr>=3&&dr<=6)score+=25;
     if((myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5))score+=15;
     if(c.capture)score-=30;if(c.check&&c.san.indexOf('#')===-1)score-=10;
-    if(score>bestScore){bestScore=score;best=line}
-  }
+    if(score>bestScore){bestScore=score;best=line}}
   if(best)return{move:best.pv[0],type:'style'};return{move:lines[0].pv[0],type:'best'};
 }
 
 function estimateComplexity(fen){
-  try{
-    const tmp=new Chess();tmp.load(fen);
-    const legalCount=tmp.moves().length;
-    const inChk=tmp.in_check?tmp.in_check():tmp.inCheck?tmp.inCheck():false;
-    let score=legalCount/40;
-    if(inChk)score+=0.4;
-    if(tmp.history().length>25)score+=0.15;
-    return Math.min(1,score);
-  }catch(e){return 0.5}
+  try{const tmp=new Chess();tmp.load(fen);const legalCount=tmp.moves().length;const inChk=tmp.in_check?tmp.in_check():tmp.inCheck?tmp.inCheck():false;let score=legalCount/40;if(inChk)score+=0.4;if(tmp.history().length>25)score+=0.15;return Math.min(1,score)}catch(e){return 0.5}
 }
 
 function selectMove(best,presetKey){
-  const preset=PRESETS[presetKey];
-  const sliderPct=parseInt(rngBlunder.value,10)/100;
-  const blunderChance=appMode==='trolls'?0:sliderPct*preset.blunderMult;
-  const lines=Object.values(multiPV).sort((a,b)=>a.rank-b.rank);
-  if(!lines.length)return{move:best,type:'best'};
-
+  const preset=PRESETS[presetKey];const sliderPct=parseInt(rngBlunder.value,10)/100;const blunderChance=appMode==='trolls'?0:sliderPct*preset.blunderMult;
+  const lines=Object.values(multiPV).sort((a,b)=>a.rank-b.rank);if(!lines.length)return{move:best,type:'best'};
   const topLine=lines[0],secondLine=lines[1];
-
   if(appMode==='trolls')return{move:topLine.pv[0],type:'best'};
-
   let mustPlayBest=false;
   if(inCheck())mustPlayBest=true;
   if(topLine&&secondLine&&topLine.scoreType==='cp'&&secondLine.scoreType==='cp'){if(Math.abs(secondLine.scoreValue-topLine.scoreValue)>150)mustPlayBest=true}
   if(topLine&&topLine.scoreType==='cp'&&topLine.scoreValue<-150)mustPlayBest=true;
-
-  if(isDesperadoMode()&&!resignDismissed){
-    let b=null,bs=-Infinity;
-    for(const line of lines){const d=desperadoScore(line.pv[0],game.fen());if(d>bs){bs=d;b=line}}
-    if(b&&bs>=20)return{move:b.pv[0],type:'desperado'};
-  }
-
+  if(isDesperadoMode()&&!resignDismissed){let b=null,bs=-Infinity;for(const line of lines){const d=desperadoScore(line.pv[0],game.fen());if(d>bs){bs=d;b=line}}if(b&&bs>=20)return{move:b.pv[0],type:'desperado'}}
   if(mustPlayBest)return{move:topLine.pv[0],type:'best'};
-
   const complexity=estimateComplexity(game.fen());
   if(chkAntiCheat.checked&&perfectStreak>=3&&complexity>0.55&&Math.random()<0.45){
     const subPool=lines.slice(1,3).filter(l=>{if(l.scoreType!=='cp')return false;const gap=Math.abs(l.scoreValue-(topLine.scoreType==='cp'?topLine.scoreValue:0));return gap<=90});
     if(subPool.length){const pick=subPool[Math.floor(Math.random()*subPool.length)];return{move:pick.pv[0],type:'style'}}
   }
-
   if(chkOpenings.checked&&game.history().length<10){
     const oc=lines.filter(l=>isPreferredOpening(l.pv[0],game.fen(),preset));
-    if(oc.length>0){
-      const tol=preset.filter==='gambit'?80:50;
-      const bestScore=lines[0].scoreType==='cp'?lines[0].scoreValue:0;
+    if(oc.length>0){const tol=preset.filter==='gambit'?80:50;const bestScore=lines[0].scoreType==='cp'?lines[0].scoreValue:0;
       const safe=oc.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return true;return Math.abs(l.scoreValue-bestScore)<=tol});
-      if(safe.length>0){const pick=safe[Math.floor(Math.random()*safe.length)];return{move:pick.pv[0],type:'opening'}}
-    }
+      if(safe.length>0){const pick=safe[Math.floor(Math.random()*safe.length)];return{move:pick.pv[0],type:'opening'}}}
   }
-
   let candidate=lines[0],type='best';
   if(preset.filter==='universal')return universalSelect(lines);
   if(preset.filter==='boa')return boaSelect(lines);
-
-  if(preset.filter==='gambit'){
-    const sharp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.check||c.promotion||(c.capture&&['q','r','b','n'].includes(c.captured)))});
-    if(sharp&&sharp.rank!==1){candidate=sharp;type='style'}
-    else{const pp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());if(!c||c.piece!=='p')return false;const dr=parseInt(l.pv[0].slice(3,4),10);return(myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5)});if(pp&&pp.rank!==1){candidate=pp;type='style'}}
-  }else if(preset.filter==='aggressive'){
-    const a=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.capture||c.check||c.promotion)});if(a&&a.rank!==1){candidate=a;type='style'}
-  }else if(preset.filter==='defensive'){
-    const q=lines.find(l=>{if(l.rank>3)return false;const c=classifyMove(l.pv[0],game.fen());return c&&!c.capture&&!c.check});if(q&&q.rank!==1){candidate=q;type='style'}
-  }else if(preset.filter==='chaotic'){
-    if(lines.length>=2){const pick=lines[Math.floor(Math.random()*Math.min(3,lines.length))];candidate=pick;if(pick.rank!==1)type='style'}
-  }else if(preset.filter==='flexible'){
-    if(lines.length>=2){const bs=lines[0].scoreType==='cp'?lines[0].scoreValue:9999;const close=lines.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return false;return Math.abs(l.scoreValue-bs)<=30});if(close.length>1){const pick=close[Math.floor(Math.random()*close.length)];if(pick.rank!==1){candidate=pick;type='style'}}}
-  }
-
-  if(Math.random()<blunderChance&&lines.length>=3){
-    const bad=lines.slice(2,Math.min(5,lines.length));if(bad.length){const pick=bad[Math.floor(Math.random()*bad.length)];return{move:pick.pv[0],type:'error'}}
-  }
-
+  if(preset.filter==='gambit'){const sharp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.check||c.promotion||(c.capture&&['q','r','b','n'].includes(c.captured)))});if(sharp&&sharp.rank!==1){candidate=sharp;type='style'}else{const pp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());if(!c||c.piece!=='p')return false;const dr=parseInt(l.pv[0].slice(3,4),10);return(myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5)});if(pp&&pp.rank!==1){candidate=pp;type='style'}}}
+  else if(preset.filter==='aggressive'){const a=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.capture||c.check||c.promotion)});if(a&&a.rank!==1){candidate=a;type='style'}}
+  else if(preset.filter==='defensive'){const q=lines.find(l=>{if(l.rank>3)return false;const c=classifyMove(l.pv[0],game.fen());return c&&!c.capture&&!c.check});if(q&&q.rank!==1){candidate=q;type='style'}}
+  else if(preset.filter==='chaotic'){if(lines.length>=2){const pick=lines[Math.floor(Math.random()*Math.min(3,lines.length))];candidate=pick;if(pick.rank!==1)type='style'}}
+  else if(preset.filter==='flexible'){if(lines.length>=2){const bs=lines[0].scoreType==='cp'?lines[0].scoreValue:9999;const close=lines.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return false;return Math.abs(l.scoreValue-bs)<=30});if(close.length>1){const pick=close[Math.floor(Math.random()*close.length)];if(pick.rank!==1){candidate=pick;type='style'}}}}
+  if(Math.random()<blunderChance&&lines.length>=3){const bad=lines.slice(2,Math.min(5,lines.length));if(bad.length){const pick=bad[Math.floor(Math.random()*bad.length)];return{move:pick.pv[0],type:'error'}}}
   return{move:candidate.pv[0],type};
 }
 
 function onBestMove(best){
   if(!analysisRunning)return;analysisRunning=false;
   if(!best||best==='(none)'){setStatus('no legal move','warn');return}
-
   updateDesperadoBanner();
-
-  const presetKey=selPreset.value;
-  const decision=selectMove(best,presetKey);
-
+  const presetKey=selPreset.value;const decision=selectMove(best,presetKey);
   if(decision.type==='best'||decision.type==='opening'){perfectStreak++}else{perfectStreak=0}
-
-  chosenMoveUci=decision.move;
-  drawArrow(chosenMoveUci);
-  renderAnalysisOutput(chosenMoveUci,decision.type);
-
+  chosenMoveUci=decision.move;drawArrow(chosenMoveUci);renderAnalysisOutput(chosenMoveUci,decision.type);
   if(appMode==='trolls'){
-    const destSq=chosenMoveUci.slice(2,4);
-    const labels=[{txt:'⭐ BEST',cls:'best'},{txt:'✓ STRONG',cls:'best'},{txt:'🎯 TOP PICK',cls:'best'},{txt:'⭐ BEST',cls:'best'}];
-    const lbl=labels[Math.floor(Math.random()*labels.length)];
-    showMoveLabel(destSq,lbl.txt,lbl.cls);
+    const destSq=chosenMoveUci.slice(2,4);const labels=[{txt:'⭐ BEST',cls:'best'},{txt:'✓ STRONG',cls:'best'},{txt:'🎯 TOP PICK',cls:'best'},{txt:'⭐ BEST',cls:'best'}];
+    const lbl=labels[Math.floor(Math.random()*labels.length)];showMoveLabel(destSq,lbl.txt,lbl.cls);
     setTimeout(()=>clearArrows(),2000);
     const trollPool=Math.random()<0.5?BANTER.trollsBest:BANTER.trollsGood;
     const comment=trollPool[Math.floor(Math.random()*trollPool.length)];
-    banterNameEl.textContent=PRESETS[selPreset.value].label;
-    banterEl.className='trolls';banterTxtEl.textContent=comment;lastBanterAt=Date.now();
-    setStatus('hint shown for 2s — play it now','ok');
-    return;
+    banterNameEl.textContent=PRESETS[selPreset.value].label;banterEl.className='trolls';banterTxtEl.textContent=comment;lastBanterAt=Date.now();
+    setStatus('hint shown for 2s — play it now','ok');return;
   }
-
   startThinkTimer(decision.type,presetKey);
   if(decision.type==='desperado'){banter('desperado',{force:true});desperadoBanner.classList.add('show')}
   if(isGambitPreset()&&decision.type==='opening'&&game.history().length<10)banter('gambit',{force:true});
@@ -724,56 +586,35 @@ function onBestMove(best){
 
 function startThinkTimer(type,presetKey){
   clearInterval(thinkTimerInterval);
-  const preset=PRESETS[presetKey];
-  const isOpening=game.history().length<10;
-  const complexity=estimateComplexity(game.fen());
-
+  const preset=PRESETS[presetKey];const isOpening=game.history().length<10;const complexity=estimateComplexity(game.fen());
   let minMs,maxMs;
-  if(isOpening){minMs=800;maxMs=2200}
-  else if(type==='error'){if(Math.random()<0.5){minMs=600;maxMs=1500}else{minMs=4000;maxMs=7000}}
-  else if(type==='desperado'){minMs=2500;maxMs=5000}
-  else{if(complexity>0.65){minMs=3000;maxMs=7000}else if(complexity<0.3){minMs=700;maxMs=1800}else{minMs=1500;maxMs=4000}}
-
-  try{const tmp=new Chess();tmp.load(game.fen());const legalCount=tmp.moves().length;if(legalCount<=1){minMs=300;maxMs=700}}catch(e){}
-
-  const fatigueExtra=Math.min(2500,moveNumber*80);
-  minMs+=fatigueExtra;maxMs+=fatigueExtra;
-  if(moveNumber>40){const pressure=Math.min(0.6,(moveNumber-40)/60);minMs=Math.round(minMs*(1-pressure));maxMs=Math.round(maxMs*(1-pressure))}
-
+  if(isOpening){minMs=300;maxMs=800}
+  else if(type==='error'){if(Math.random()<0.5){minMs=400;maxMs=900}else{minMs=1000;maxMs=2000}}
+  else if(type==='desperado'){minMs=1000;maxMs=2000}
+  else{if(complexity>0.65){minMs=1000;maxMs=2500}else if(complexity<0.3){minMs=400;maxMs=900}else{minMs=700;maxMs=1800}}
+  try{const tmp=new Chess();tmp.load(game.fen());const legalCount=tmp.moves().length;if(legalCount<=1){minMs=200;maxMs=500}}catch(e){}
+  // ลด fatigue ลง
+  const fatigueExtra=Math.min(1000,moveNumber*20);minMs+=fatigueExtra;maxMs+=fatigueExtra;
+  if(moveNumber>40){const pressure=Math.min(0.3,(moveNumber-40)/60);minMs=Math.round(minMs*(1-pressure));maxMs=Math.round(maxMs*(1-pressure))}
   let delay=humanDelay(minMs,maxMs);
-  if(recentTimings.length>=5){
-    const mean=recentTimings.reduce((a,b)=>a+b,0)/recentTimings.length;
-    const variance=recentTimings.reduce((a,b)=>a+Math.pow(b-mean,2),0)/recentTimings.length;
-    const stdDev=Math.sqrt(variance),cv=mean>0?stdDev/mean:0;
-    if(cv<0.35){if(Math.random()<0.5)delay=humanDelay(minMs*0.4,minMs*0.7);else delay=humanDelay(maxMs*1.2,maxMs*1.8)}
-  }
-
-  delay=Math.min(MAX_THINK_SECONDS*1000,Math.max(250,delay));
+  if(recentTimings.length>=5){const mean=recentTimings.reduce((a,b)=>a+b,0)/recentTimings.length;const variance=recentTimings.reduce((a,b)=>a+Math.pow(b-mean,2),0)/recentTimings.length;const stdDev=Math.sqrt(variance),cv=mean>0?stdDev/mean:0;
+    if(cv<0.35){if(Math.random()<0.5)delay=humanDelay(minMs*0.4,minMs*0.7);else delay=humanDelay(maxMs*1.2,maxMs*1.5)}}
+  delay=Math.min(MAX_THINK_SECONDS*1000,Math.max(200,delay));
   recentTimings.push(delay);if(recentTimings.length>12)recentTimings.shift();
-
   const initialTime=Math.ceil(delay/1000);let timeLeft=initialTime;
-
-  if(chkAntiCheat.checked&&Math.random()>0.35){
-    const banterDelay=200+Math.random()*(delay*0.7);
-    setTimeout(()=>{if(thinkTimerInterval)banter('thinking',{force:true})},banterDelay);
-  }
-
+  if(chkAntiCheat.checked&&Math.random()>0.35){const banterDelay=200+Math.random()*(delay*0.7);setTimeout(()=>{if(thinkTimerInterval)banter('thinking',{force:true})},banterDelay)}
   const updateTimer=()=>{
-    const perc=((initialTime-timeLeft)/initialTime)*100;
-    updateEvalBarCss(perc);
+    const perc=((initialTime-timeLeft)/initialTime)*100;updateEvalBarCss(perc);
     const san=pvToSan([chosenMoveUci],game.fen())[0]||chosenMoveUci;
     if(timeLeft>0){setStatus(`wait ${timeLeft}s — ${san}`,(type==='error'||type==='desperado')?'warn':'ok');timeLeft--}
     else{setStatus(`play ${san} now`,'ok');clearInterval(thinkTimerInterval);thinkTimerInterval=null;updateEvalBarCss(50)}
   };
-  updateTimer();
-  thinkTimerInterval=setInterval(updateTimer,1000);
+  updateTimer();thinkTimerInterval=setInterval(updateTimer,1000);
 }
 
 function pvToSan(pvUci,fromFen){
-  if(!pvUci.length)return[];
-  const tmp=new Chess();if(fromFen){try{tmp.load(fromFen)}catch(e){}}
-  const out=[];
-  for(const uci of pvUci){try{const m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||undefined});if(!m)break;out.push(m.san)}catch(e){break}}
+  if(!pvUci.length)return[];const tmp=new Chess();if(fromFen){try{tmp.load(fromFen)}catch(e){}}
+  const out=[];for(const uci of pvUci){try{const m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||undefined});if(!m)break;out.push(m.san)}catch(e){break}}
   return out;
 }
 
@@ -821,15 +662,14 @@ async function startAnalysis(deep=false){
     engine.postMessage('setoption name Threads value 2');
     engine.postMessage('setoption name Hash value 128');
     engine.postMessage('position fen '+game.fen());
-    if(deep)engine.postMessage('go movetime 3000');
-    else if(appMode==='trolls')engine.postMessage('go depth 20');
-    else if(game.history().length<10)engine.postMessage('go movetime 300');
+    if(deep)engine.postMessage('go movetime 2000');
+    else if(appMode==='trolls')engine.postMessage('go movetime 600'); // ลดจาก depth 20 เหลือ 600ms
+    else if(game.history().length<10)engine.postMessage('go movetime 200');
     else engine.postMessage('go movetime '+preset.movetime);
   }catch(e){setStatus('command failed','err');analysisRunning=false}
 }
 
-btnAnalyze.onclick=()=>startAnalysis(false);
-btnThink.onclick=()=>startAnalysis(true);
+btnAnalyze.onclick=()=>startAnalysis(false);btnThink.onclick=()=>startAnalysis(true);
 
 btnUndo.onclick=()=>{if(!game.history().length)return;game.undo();clearAnalysis();selectedSq=null;legalDests=new Set();const hist=game.history({verbose:true});lastMove=hist.length?{from:hist[hist.length-1].from,to:hist[hist.length-1].to}:null;resignDismissed=false;resigned=false;desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();banter(appMode==='trolls'?'trollsIdle':'idle',{force:true})};
 
