@@ -3,32 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — Humanized</title>
+<title>Kibitz — Cheat / Friend Trolls / Badges</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;padding:10px;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#0f0f10;color:#eaeaea;max-width:520px;margin:auto;display:flex;flex-direction:column;gap:10px}
   h1{font-size:17px;font-weight:700;margin:4px 0 0;text-align:center;letter-spacing:.5px}h1 span{color:#5cd88e}
   .subtitle{font-size:11px;color:#777;text-align:center;margin-top:-4px}
+  .mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#17181a;padding:4px;border-radius:12px;border:1px solid #222}
+  .mode-btn{padding:11px 8px;border:0;border-radius:9px;background:transparent;color:#888;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+  .mode-btn.active{background:#2a2a2c;color:#fff}
+  .mode-btn.cheat.active{background:#1f6b3f;color:#fff}
+  .mode-btn.trolls.active{background:linear-gradient(135deg,#6b1a6b,#3a1a6b);color:#fff}
   #status{font-size:13px;text-align:center;padding:10px 12px;border-radius:10px;background:#17181a;color:#a8a8a8;min-height:44px;display:flex;align-items:center;justify-content:center;font-weight:500;line-height:1.4}
   #status.ok{color:#5cd88e;background:#10231a}#status.err{color:#ff6b6b;background:#2a1414}#status.warn{color:#ffd84d;background:#262010}
-  #gambitBanner{background:linear-gradient(135deg,#3a2a10,#1a1000);border:1px solid #ffb347;border-radius:10px;padding:8px 12px;display:none;align-items:center;gap:10px;animation:pulseGold 2s ease-in-out infinite}
-  #gambitBanner.show{display:flex}#gambitBanner .g-icon{font-size:18px}#gambitBanner .g-text{flex:1;font-size:12px;color:#ffd9a0;line-height:1.3}#gambitBanner .g-text strong{color:#ffb347;display:block;font-size:13px}
-  @keyframes pulseGold{0%,100%{box-shadow:0 0 0 0 rgba(255,179,71,.3)}50%{box-shadow:0 0 14px 2px rgba(255,179,71,.5)}}
-  #boaBanner{background:linear-gradient(135deg,#0a2a2a,#051515);border:1px solid #3ad8c4;border-radius:10px;padding:8px 12px;display:none;align-items:center;gap:10px;animation:pulseTeal 2s ease-in-out infinite}
-  #boaBanner.show{display:flex}#boaBanner .g-icon{font-size:18px}#boaBanner .g-text{flex:1;font-size:12px;color:#b0f0e8;line-height:1.3}#boaBanner .g-text strong{color:#3ad8c4;display:block;font-size:13px}
-  @keyframes pulseTeal{0%,100%{box-shadow:0 0 0 0 rgba(58,216,196,.3)}50%{box-shadow:0 0 14px 2px rgba(58,216,196,.5)}}
-  #desperadoBanner{background:linear-gradient(135deg,#2a1040,#5c1a1a);border:1px solid #b04aff;border-radius:10px;padding:10px 14px;display:none;align-items:center;gap:10px;animation:pulsePurple 2s ease-in-out infinite}
+  #desperadoBanner{background:linear-gradient(135deg,#2a1040,#5c1a1a);border:1px solid #b04aff;border-radius:10px;padding:10px 14px;display:none;align-items:center;gap:10px}
   #desperadoBanner.show{display:flex}#desperadoBanner .d-icon{font-size:20px}#desperadoBanner .d-text{flex:1;font-size:12px;color:#e0c4ff;line-height:1.4}#desperadoBanner .d-text strong{color:#b04aff;display:block;font-size:13px;margin-bottom:2px}
-  @keyframes pulsePurple{0%,100%{box-shadow:0 0 0 0 rgba(176,74,255,.4)}50%{box-shadow:0 0 16px 2px rgba(176,74,255,.6)}}
-  #resignBanner{background:linear-gradient(135deg,#5c1a1a,#2a0a0a);border:1px solid #ff4444;border-radius:10px;padding:12px 14px;display:none;flex-direction:column;gap:10px;animation:pulseRed 1.8s ease-in-out infinite}
-  #resignBanner.show{display:flex}#resignBanner .resign-msg{font-size:13px;color:#ffd0d0;line-height:1.5}#resignBanner .resign-msg strong{color:#ff6b6b;font-size:14px;display:block;margin-bottom:4px}
-  #resignBanner .resign-actions{display:flex;gap:8px}#resignBanner button{flex:1;padding:10px;font-size:13px}#resignBanner .btn-resign{background:#ff4444;color:#fff;font-weight:700}#resignBanner .btn-ignore{background:#333;color:#ccc}
-  @keyframes pulseRed{0%,100%{box-shadow:0 0 0 0 rgba(255,68,68,.4)}50%{box-shadow:0 0 20px 2px rgba(255,68,68,.6)}}
   #banter{background:#1a1a1c;border:1px solid #2f2f33;border-left:3px solid #5cd88e;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;color:#d0d0d0;min-height:42px;display:flex;align-items:center;gap:8px;transition:opacity .3s}
   #banter .name{font-weight:700;color:#5cd88e;font-size:11px;text-transform:uppercase;letter-spacing:.8px;flex-shrink:0}#banter .txt{flex:1}
   #banter.thinking .name{color:#ffd84d}#banter.angry .name{color:#ff6b6b}#banter.angry{border-left-color:#ff6b6b}#banter.pleased .name{color:#5cd88e}
-  #banter.desperado{border-left-color:#b04aff}#banter.desperado .name{color:#b04aff}#banter.gambit{border-left-color:#ffb347}#banter.gambit .name{color:#ffb347}#banter.boa{border-left-color:#3ad8c4}#banter.boa .name{color:#3ad8c4}#banter.universal{border-left-color:#6ba3ff}#banter.universal .name{color:#6ba3ff}
+  #banter.trolls{border-left-color:#b04aff}#banter.trolls .name{color:#b04aff}
   #banter.dots .txt::after{content:'';animation:dots 1.4s steps(4,end) infinite}@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}100%{content:''}}
   .board-wrap{position:relative;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;user-select:none;-webkit-user-select:none;box-shadow:0 4px 12px rgba(0,0,0,.5);touch-action:none}
   .board{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr)}
@@ -39,16 +33,52 @@
   .piece.w{color:#fff;-webkit-text-stroke:1.5px #1a1a1a;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}.piece.b{color:#1a1a1a;-webkit-text-stroke:1.5px #fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
   #arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
   #cursorSim{position:absolute;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.4);border:2px solid rgba(0,0,0,.5);pointer-events:none;z-index:6;transform:translate(-50%,-50%);transition:opacity .2s;opacity:0}
+
+  /* ─── CHESS.COM-STYLE MOVE BADGE ─── */
+  .move-badge{
+    position:absolute;transform:translate(-50%,-50%);
+    width:24px;height:24px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:900;color:#fff;
+    z-index:25;pointer-events:none;
+    box-shadow:0 2px 8px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.2);
+    animation:badgePop 2.8s ease-out forwards;
+    font-family:-apple-system,system-ui,sans-serif;
+  }
+  .move-badge.brilliant{background:linear-gradient(135deg,#26c2a3,#1fa889);font-size:12px}
+  .move-badge.great{background:linear-gradient(135deg,#749bbf,#5a7fa3);font-size:14px}
+  .move-badge.best{background:linear-gradient(135deg,#81b64c,#6c9a3e);font-size:14px}
+  .move-badge.excellent{background:linear-gradient(135deg,#96bc4b,#7da03a);font-size:11px}
+  .move-badge.good{background:linear-gradient(135deg,#96bc4b,#7da03a);font-size:13px}
+  .move-badge.inaccuracy{background:linear-gradient(135deg,#f7c631,#e0b020);color:#000;font-size:13px}
+  .move-badge.mistake{background:linear-gradient(135deg,#ffa459,#e88a3a);font-size:14px}
+  .move-badge.blunder{background:linear-gradient(135deg,#fa412d,#d93220);font-size:13px}
+  @keyframes badgePop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}
+    15%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+    30%{transform:translate(-50%,-50%) scale(1)}
+    80%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}
+  }
+
+  .move-label{position:absolute;transform:translate(-50%,-50%);padding:6px 12px;background:rgba(0,0,0,.92);border-radius:8px;font-weight:800;font-size:13px;z-index:20;pointer-events:none;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.5);animation:labelPop 2.5s ease-out forwards;letter-spacing:.5px}
+  .move-label.best{color:#5cd88e;border:2px solid #5cd88e}
+  .move-label.good{color:#ffd84d;border:2px solid #ffd84d}
+  .move-label.bad{color:#ff6b6b;border:2px solid #ff6b6b}
+  @keyframes labelPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+
   .settings-box{background:#17181a;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:12px;border:1px solid #222}
   .setting-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#ccc;gap:10px}.setting-row label{font-size:12px;color:#888;min-width:90px}
   input[type="range"]{flex:1;accent-color:#5cd88e}
   select{flex:1;background:#0f0f10;color:#eaeaea;border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:600;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23888'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
-  .toggle-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#aaa}.toggle-row input{accent-color:#5cd88e;transform:scale(1.1)}
+  .toggle-row{display:flex;align-items:center;gap:6px;font-size:11px;color:#aaa}.toggle-row input{accent-color:#5cd88e;transform:scale(1.1)}
+  .toggle-row.disabled{opacity:.35}
   .eval-row{display:flex;align-items:center;gap:10px;background:#17181a;border-radius:10px;padding:10px 12px}
   .eval-bar{flex:1;height:10px;border-radius:5px;background:#1a1a1a;overflow:hidden;position:relative}#evalText{font-family:ui-monospace,Menlo,monospace;font-size:13px;font-weight:700;min-width:56px;text-align:right;color:#eaeaea}
   .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn-row.three{grid-template-columns:1fr 1fr 1fr}
   button{padding:13px 8px;border:0;border-radius:10px;background:#2a2a2c;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .12s}button:disabled{opacity:.35;cursor:default}
-  button.primary{background:#1f6b3f}button.secondary{background:#333;font-size:13px}button.danger{background:#5c2020;font-size:13px}
+  button.primary{background:#1f6b3f}button.trolls-primary{background:linear-gradient(135deg,#6b1a6b,#3a1a6b)}
+  button.secondary{background:#333;font-size:13px}button.danger{background:#5c2020;font-size:13px}
   #analysisOutput{background:#17181a;border-radius:10px;padding:4px;min-height:60px}
   .line-row{display:flex;align-items:baseline;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px}
   .line-row.primary{background:#10231a;font-size:15px;border:1px solid #1f6b3f}.line-row.error{background:#2a1f14;border:1px solid #6b4f1f}.line-row.style{background:#1a1530;border:1px solid #4a3f8a}.line-row.opening{background:#102323;border:1px solid #1f6b6b}.line-row.desperado{background:#1f102a;border:1px solid #b04aff}.line-row.gambit{background:#2a1f0f;border:1px solid #ffb347;font-size:15px}.line-row.boa{background:#0f2523;border:1px solid #3ad8c4}.line-row.universal{background:#0f1a2a;border:1px solid #6ba3ff}
@@ -60,13 +90,15 @@
 </head>
 <body>
 
-<h1>Kibitz <span>•</span> Humanized</h1>
-<div class="subtitle" id="subtitle">คุณเล่นขาว • ฝ่ายตรงข้ามเดินดำ</div>
+<h1>Kibitz</h1>
+<div class="subtitle" id="subtitle">Cheat Mode • chess.com</div>
 
-<div id="gambitBanner"><div class="g-icon">⚔️</div><div class="g-text"><strong>Gambit Mode</strong><span id="gambitLine">—</span></div></div>
-<div id="boaBanner"><div class="g-icon">🐍</div><div class="g-text"><strong>Boa Constrictor</strong>บีบคอช้าๆ ไม่แลกหมาก</div></div>
+<div class="mode-toggle">
+  <button id="modeCheat" class="mode-btn cheat active">🎯 Cheat</button>
+  <button id="modeTrolls" class="mode-btn trolls">😈 Friend Trolls</button>
+</div>
+
 <div id="desperadoBanner"><div class="d-icon">🔥</div><div class="d-text"><strong>Desperado Mode</strong>เสียเปรียบหนัก — บุกแหลก</div></div>
-<div id="resignBanner"><div class="resign-msg"><strong>ยอมแพ้เถอะ</strong><span id="resignReason">—</span></div><div class="resign-actions"><button class="btn-resign" id="btnDoResign">ยอมแพ้</button><button class="btn-ignore" id="btnIgnoreResign">เล่นต่อ</button></div></div>
 
 <div id="banter"><span class="name">Kibitz</span><span class="txt">พร้อมแล้ว เริ่มได้</span></div>
 <div id="status">พร้อม</div>
@@ -90,8 +122,13 @@
       <option value="alien">⚔️ Alien Gambit</option><option value="gambits">⚔️ Gambits รวม</option>
     </optgroup>
   </select></div>
-  <div class="setting-row"><label>โอกาสแกล้งพลาด</label><input type="range" id="rngBlunder" min="0" max="30" value="5"><span id="lblBlunder" style="font-family:monospace;width:36px;text-align:right;color:#5cd88e;font-weight:700">5%</span></div>
-  <div class="setting-row"><div class="toggle-row"><input type="checkbox" id="chkOpenings" checked> สุ่มไม้เปิด</div><div class="toggle-row"><input type="checkbox" id="chkAntiCheat" checked> Anti-Cheat</div><div class="toggle-row"><input type="checkbox" id="chkCoach" checked> Coach</div></div>
+  <div class="setting-row" id="rowBlunder"><label>โอกาสแกล้งพลาด</label><input type="range" id="rngBlunder" min="0" max="30" value="5"><span id="lblBlunder" style="font-family:monospace;width:36px;text-align:right;color:#5cd88e;font-weight:700">5%</span></div>
+  <div class="setting-row">
+    <div class="toggle-row" id="rowOpenings"><input type="checkbox" id="chkOpenings" checked> เปิด</div>
+    <div class="toggle-row" id="rowAnti"><input type="checkbox" id="chkAntiCheat" checked> Anti</div>
+    <div class="toggle-row" id="rowCoach"><input type="checkbox" id="chkCoach" checked> Coach</div>
+    <div class="toggle-row" id="rowBadges"><input type="checkbox" id="chkBadges" checked> Badge</div>
+  </div>
 </div>
 
 <div class="eval-row"><div class="eval-bar" id="evalBar"></div><div id="evalText">0.00</div></div>
@@ -99,7 +136,7 @@
 <div class="btn-row three"><button id="btnUndo" class="secondary">ย้อนกลับ</button><button id="btnFlip" class="secondary">กลับกระดาน</button><button id="btnReset" class="danger">เริ่มใหม่</button></div>
 <div id="analysisOutput"></div>
 <div class="move-history" id="moveHistory">—</div>
-<div class="footer-note">Anti-Cheat v2: Accuracy curve + Timing complexity + Fatigue + Mouse jitter</div>
+<div class="footer-note" id="footerNote">Anti-Cheat v2 · Cheat Mode สำหรับ chess.com</div>
 
 <script>
 (()=>{
@@ -137,81 +174,94 @@ desperado:['fuck it. all in.','take his king with us.','sacrifice everything.'],
 gambit:['gambit. he won\'t see it.','sacrifice the pawn.','this line is filthy.','offer it. who cares.'],
 gambitMove:['he took it. idiot.','good. punish him.','initiative is ours.'],
 universal:['reading the position. not the book.','no style. just truth.','adapt.'],
-boa:['slow. quiet. squeeze.','no trades. just pressure.','he\'s suffocating.','quiet move. deadly effect.']
+boa:['slow. quiet. squeeze.','no trades. just pressure.','he\'s suffocating.','quiet move. deadly effect.'],
+trollsIdle:['play it. i\'ll tell you what he does next.','your friend has no idea.','i have all the moves. just ask.','want the best move? tap the button.','he\'s already losing. he just doesn\'t know it.'],
+trollsBest:['Don\'t overthink it. Just play it.','This is the one. Trust me.','Your friend won\'t see this coming.','Trust the machine. It sees everything.','Nothing fancy. Just strong.','Yeah. That move. Play it.'],
+trollsGood:['Solid. Not perfect, but solid.','Good enough. He\'ll struggle.','Decent option. Keep the pressure.','This works. Do it.'],
+trollsAnalysis:['You\'re better here. Don\'t blow it.','Tight position. Every move matters.','He\'s got a plan. So do we.','This is where you win.','Position is fine. Keep going.','You can push here. Look at his king.'],
+// ─── BADGE COMMENTS ───
+badgeBrilliant:['WHAT. brilliant.','did you just — yes. yes you did.','sacrifice worked. he\'s screwed.','oh that\'s nasty. i love it.'],
+badgeGreat:['great. keep going.','only move. and you found it.','that was the one.'],
+badgeBest:['best move. next.','clean.','exactly what i would have played.'],
+badgeExcellent:['excellent.','close enough to perfect.','good line.'],
+badgeGood:['good.','fine. not the best but fine.','acceptable.'],
+badgeInaccuracy:['hmm. slightly off.','there was something better.','not terrible. not great.'],
+badgeMistake:['mistake.','that hurt.','you just gave him something.'],
+badgeBlunder:['BLUNDER.','what the fuck.','that\'s a game-loser.','you just threw it away.']
 };
 
 const GLYPH={w:{k:'♔\uFE0E',q:'♕\uFE0E',r:'♖\uFE0E',b:'♗\uFE0E',n:'♘\uFE0E',p:'♙\uFE0E'},b:{k:'♚\uFE0E',q:'♛\uFE0E',r:'♜\uFE0E',b:'♝\uFE0E',n:'♞\uFE0E',p:'♟\uFE0E'}};
 
 const game=new Chess();
+let appMode='cheat';
 let myColor='w';
 let selectedSq=null,legalDests=new Set(),lastMove=null,flipped=false;
 let engine=null,engineReady=false,engineLoading=false,analysisRunning=false,multiPV={},currentDepth=0;
 let chosenMoveUci=null,thinkTimerInterval=null,lastBanterAt=0,preMoveEval=null,resignDismissed=false,resigned=false;
+let recentTimings=[],perfectStreak=0,moveNumber=0;
+let classificationInFlight=false;
 
-// ─── ANTI-CHEAT STATE ───
-let recentTimings=[];          // last 10 think times (ms)
-let perfectStreak=0;           // consecutive best-move picks
-let moveNumber=0;              // total moves played by us
-let forcedMoveBuffer=[];       // recent forced moves
-
-const boardEl=document.getElementById('board'),arrowsEl=document.getElementById('arrows'),statusEl=document.getElementById('status'),evalTextEl=document.getElementById('evalText'),evalBarEl=document.getElementById('evalBar'),analysisEl=document.getElementById('analysisOutput'),historyEl=document.getElementById('moveHistory'),subtitle=document.getElementById('subtitle'),banterEl=document.getElementById('banter'),banterNameEl=banterEl.querySelector('.name'),banterTxtEl=banterEl.querySelector('.txt'),cursorSim=document.getElementById('cursorSim'),resignBanner=document.getElementById('resignBanner'),resignReason=document.getElementById('resignReason'),btnDoResign=document.getElementById('btnDoResign'),btnIgnoreResign=document.getElementById('btnIgnoreResign'),desperadoBanner=document.getElementById('desperadoBanner'),gambitBanner=document.getElementById('gambitBanner'),gambitLine=document.getElementById('gambitLine'),boaBanner=document.getElementById('boaBanner');
+const boardEl=document.getElementById('board'),arrowsEl=document.getElementById('arrows'),statusEl=document.getElementById('status'),evalTextEl=document.getElementById('evalText'),evalBarEl=document.getElementById('evalBar'),analysisEl=document.getElementById('analysisOutput'),historyEl=document.getElementById('moveHistory'),subtitle=document.getElementById('subtitle'),banterEl=document.getElementById('banter'),banterNameEl=banterEl.querySelector('.name'),banterTxtEl=banterEl.querySelector('.txt'),cursorSim=document.getElementById('cursorSim'),desperadoBanner=document.getElementById('desperadoBanner'),footerNote=document.getElementById('footerNote');
 const btnAnalyze=document.getElementById('btnAnalyze'),btnThink=document.getElementById('btnThink'),btnUndo=document.getElementById('btnUndo'),btnFlip=document.getElementById('btnFlip'),btnReset=document.getElementById('btnReset');
-const selSide=document.getElementById('selSide'),selPreset=document.getElementById('selPreset'),rngBlunder=document.getElementById('rngBlunder'),lblBlunder=document.getElementById('lblBlunder'),chkOpenings=document.getElementById('chkOpenings'),chkAntiCheat=document.getElementById('chkAntiCheat'),chkCoach=document.getElementById('chkCoach');
+const selSide=document.getElementById('selSide'),selPreset=document.getElementById('selPreset'),rngBlunder=document.getElementById('rngBlunder'),lblBlunder=document.getElementById('lblBlunder'),chkOpenings=document.getElementById('chkOpenings'),chkAntiCheat=document.getElementById('chkAntiCheat'),chkCoach=document.getElementById('chkCoach'),chkBadges=document.getElementById('chkBadges');
+const modeCheat=document.getElementById('modeCheat'),modeTrolls=document.getElementById('modeTrolls');
+const rowBlunder=document.getElementById('rowBlunder'),rowAnti=document.getElementById('rowAnti'),rowCoach=document.getElementById('rowCoach'),rowOpenings=document.getElementById('rowOpenings');
+
+function setAppMode(m){
+  appMode=m;
+  if(m==='cheat'){
+    modeCheat.classList.add('active');modeTrolls.classList.remove('active');
+    subtitle.textContent='Cheat Mode • chess.com';
+    footerNote.textContent='Anti-Cheat v2 · Cheat Mode สำหรับ chess.com';
+    rowBlunder.style.display='';
+    rowAnti.classList.remove('disabled');chkAntiCheat.disabled=false;chkCoach.disabled=false;
+    btnAnalyze.className='primary';btnAnalyze.textContent='แนะนำตาเดิน';
+  } else {
+    modeTrolls.classList.add('active');modeCheat.classList.remove('active');
+    subtitle.textContent='Friend Trolls • ชนะเพื่อน 100%';
+    footerNote.textContent='No anti-cheat · Best Stockfish · Arrow auto-hide 2s · Move Badges';
+    rowBlunder.style.display='none';
+    rowAnti.classList.add('disabled');chkAntiCheat.checked=false;chkAntiCheat.disabled=true;chkCoach.checked=false;chkCoach.disabled=true;
+    btnAnalyze.className='trolls-primary';btnAnalyze.textContent='😈 แนะนำตาเดิน (2 วิ)';
+  }
+}
+modeCheat.onclick=()=>setAppMode('cheat');
+modeTrolls.onclick=()=>setAppMode('trolls');
 
 function banter(cat,opts={}){
-if(Date.now()-lastBanterAt<1200&&!opts.force)return;lastBanterAt=Date.now();
-const pool=BANTER[cat]||BANTER.idle;const line=pool[Math.floor(Math.random()*pool.length)];
-banterNameEl.textContent=PRESETS[selPreset.value].label;
-let cls='';
-if(cat==='thinking')cls='thinking dots';else if(['badMove','critical','resign'].includes(cat))cls='angry';else if(['goodMove','winning'].includes(cat))cls='pleased';else if(cat==='desperado')cls='desperado';else if(['gambit','gambitMove'].includes(cat))cls='gambit';else if(['boa','boaMove'].includes(cat))cls='boa';else if(cat==='universal')cls='universal';
-banterEl.className=cls;banterTxtEl.textContent=line;
+  if(Date.now()-lastBanterAt<1200&&!opts.force)return;lastBanterAt=Date.now();
+  const pool=BANTER[cat]||BANTER.idle;const line=pool[Math.floor(Math.random()*pool.length)];
+  banterNameEl.textContent=PRESETS[selPreset.value].label;
+  let cls='';
+  if(cat==='thinking')cls='thinking dots';else if(['badMove','critical','resign'].includes(cat))cls='angry';else if(['goodMove','winning'].includes(cat))cls='pleased';else if(cat==='desperado')cls='desperado';
+  else if(cat.startsWith('trolls'))cls='trolls';
+  banterEl.className=cls;banterTxtEl.textContent=line;
 }
 
 function isGambitPreset(){return PRESETS[selPreset.value].filter==='gambit'}
 function isBoaPreset(){return PRESETS[selPreset.value].filter==='boa'}
 function isUniversalPreset(){return PRESETS[selPreset.value].filter==='universal'}
 
-function updateBanners(){
-const preset=PRESETS[selPreset.value];
-if(preset.filter==='gambit'){gambitLine.textContent=preset.gambitName||'—';gambitBanner.classList.add('show')}else gambitBanner.classList.remove('show');
-if(preset.filter==='boa')boaBanner.classList.add('show');else boaBanner.classList.remove('show');
-}
-
-function isDesperadoMode(){
-const top=multiPV[1];if(!top)return false;
-let cp=top.scoreType==='mate'?(top.scoreValue>0?9999:-9999):top.scoreValue;
-return cp<=DESPERADO_EVAL_THRESHOLD&&cp>RESIGN_EVAL_THRESHOLD;
-}
-
-function updateDesperadoBanner(){
-const active=isDesperadoMode()&&!resigned&&!gameOver();
-if(active)desperadoBanner.classList.add('show');else desperadoBanner.classList.remove('show');
-}
-
+function isDesperadoMode(){const top=multiPV[1];if(!top)return false;let cp=top.scoreType==='mate'?(top.scoreValue>0?9999:-9999):top.scoreValue;return cp<=DESPERADO_EVAL_THRESHOLD&&cp>RESIGN_EVAL_THRESHOLD}
+function updateDesperadoBanner(){const active=isDesperadoMode()&&!resigned&&!gameOver();if(active)desperadoBanner.classList.add('show');else desperadoBanner.classList.remove('show')}
 function countPiecesOnBoard(){let n=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq='abcdefgh'[c]+(8-r);if(game.get(sq))n++}return n}
 
-function checkResignCondition(){
-if(resigned||resignDismissed||gameOver())return;if(game.turn()!==myColor)return;
-const top=multiPV[1];if(!top)return;
-let cp=top.scoreType==='mate'?(top.scoreValue>0?9999:-9999):top.scoreValue;
-const pieces=countPiecesOnBoard(),moves=game.history().length,late=pieces<=RESIGN_LATE_GAME_PIECES||moves>=RESIGN_LATE_GAME_MOVES;
-let show=false,reason='';
-if(top.scoreType==='mate'&&cp<0){show=true;reason=`forced mate in ${Math.abs(top.scoreValue)} — no escape`}
-else if(top.scoreType==='cp'&&cp<=RESIGN_EVAL_THRESHOLD&&late){const p=(cp/100).toFixed(1);show=true;reason=`down ${Math.abs(p)} pawns in late game — no comeback`}
-if(show){resignReason.textContent=reason;resignBanner.classList.add('show');desperadoBanner.classList.remove('show');banter('resign',{force:true})}else resignBanner.classList.remove('show');
-}
-
-btnDoResign.onclick=()=>{resigned=true;resignBanner.classList.remove('show');desperadoBanner.classList.remove('show');clearInterval(thinkTimerInterval);clearArrows();setStatus('resigned — game over','err');banter('resigned',{force:true});analysisRunning=false};
-btnIgnoreResign.onclick=()=>{resignDismissed=true;resignBanner.classList.remove('show');banter('losing',{force:true})};
-
-selPreset.addEventListener('change',()=>{updateBanners();if(isGambitPreset())banter('gambit',{force:true});else if(isBoaPreset())banter('boa',{force:true});else if(isUniversalPreset())banter('universal',{force:true});else banter('opening',{force:true})});
+selPreset.addEventListener('change',()=>{
+  if(appMode==='trolls')banter('trollsIdle',{force:true});
+  else if(isGambitPreset())banter('gambit',{force:true});
+  else if(isBoaPreset())banter('boa',{force:true});
+  else if(isUniversalPreset())banter('universal',{force:true});
+  else banter('opening',{force:true});
+});
 rngBlunder.addEventListener('input',e=>{lblBlunder.textContent=e.target.value+'%'});
 
 selSide.addEventListener('change',e=>{
-myColor=e.target.value;flipped=(myColor==='b');subtitle.textContent=`playing ${myColor==='w'?'White':'Black'}`;
-game.reset();clearAnalysis();selectedSq=null;legalDests=new Set();lastMove=null;resignDismissed=false;resigned=false;
-recentTimings=[];perfectStreak=0;moveNumber=0;
-resignBanner.classList.remove('show');desperadoBanner.classList.remove('show');updateBanners();renderBoard();renderHistory();updateStatus();banter('idle',{force:true});
+  myColor=e.target.value;flipped=(myColor==='b');
+  subtitle.textContent=(appMode==='trolls'?'Friend Trolls':'Cheat Mode')+' • playing '+(myColor==='w'?'White':'Black');
+  game.reset();clearAnalysis();selectedSq=null;legalDests=new Set();lastMove=null;resignDismissed=false;resigned=false;
+  recentTimings=[];perfectStreak=0;moveNumber=0;
+  desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();
+  if(appMode==='trolls')banter('trollsIdle',{force:true});else banter('idle',{force:true});
 });
 
 function inCheck(){return typeof game.in_check==='function'?game.in_check():(typeof game.inCheck==='function'?game.inCheck():false)}
@@ -223,493 +273,571 @@ function sqToXY(sq){let f=sq.charCodeAt(0)-97,r=8-parseInt(sq[1],10);if(flipped)
 function setStatus(msg,cls=''){statusEl.textContent=msg;statusEl.className=cls}
 
 function renderBoard(){
-boardEl.innerHTML='';const checkSq=inCheck()?kingSquare(game.turn()):null;
-for(let r=0;r<8;r++)for(let c=0;c<8;c++){
-let fi=c,ri=8-r;if(flipped){fi=7-c;ri=r+1}const sq='abcdefgh'[fi]+ri;
-const cell=document.createElement('div');cell.className='cell '+((r+c)%2===0?'light':'dark');cell.dataset.sq=sq;
-if(sq===selectedSq)cell.classList.add('selected');if(checkSq===sq)cell.classList.add('check');if(lastMove&&(lastMove.from===sq||lastMove.to===sq))cell.classList.add('last');
-if(legalDests.has(sq)){cell.classList.add('hint');if(game.get(sq))cell.classList.add('capture')}
-const piece=game.get(sq);if(piece){const span=document.createElement('span');span.className='piece '+piece.color;span.textContent=GLYPH[piece.color][piece.type];cell.appendChild(span)}
-cell.addEventListener('click',()=>onCellClick(sq));boardEl.appendChild(cell);
-}
+  boardEl.innerHTML='';const checkSq=inCheck()?kingSquare(game.turn()):null;
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    let fi=c,ri=8-r;if(flipped){fi=7-c;ri=r+1}const sq='abcdefgh'[fi]+ri;
+    const cell=document.createElement('div');cell.className='cell '+((r+c)%2===0?'light':'dark');cell.dataset.sq=sq;
+    if(sq===selectedSq)cell.classList.add('selected');if(checkSq===sq)cell.classList.add('check');if(lastMove&&(lastMove.from===sq||lastMove.to===sq))cell.classList.add('last');
+    if(legalDests.has(sq)){cell.classList.add('hint');if(game.get(sq))cell.classList.add('capture')}
+    const piece=game.get(sq);if(piece){const span=document.createElement('span');span.className='piece '+piece.color;span.textContent=GLYPH[piece.color][piece.type];cell.appendChild(span)}
+    cell.addEventListener('click',()=>onCellClick(sq));boardEl.appendChild(cell);
+  }
 }
 
 function onCellClick(sq){
-if(gameOver()||resigned)return;
-if(selectedSq&&legalDests.has(sq)){attemptMove(selectedSq,sq);return}
-const piece=game.get(sq);
-if(piece&&piece.color===game.turn()){selectedSq=sq;legalDests=new Set();try{const moves=game.moves({square:sq,verbose:true})||[];moves.forEach(m=>legalDests.add(m.to))}catch(e){}renderBoard()}
-else if(selectedSq){selectedSq=null;legalDests=new Set();renderBoard()}
+  if(gameOver()||resigned)return;
+  if(selectedSq&&legalDests.has(sq)){attemptMove(selectedSq,sq);return}
+  const piece=game.get(sq);
+  if(piece&&piece.color===game.turn()){selectedSq=sq;legalDests=new Set();try{const moves=game.moves({square:sq,verbose:true})||[];moves.forEach(m=>legalDests.add(m.to))}catch(e){}renderBoard()}
+  else if(selectedSq){selectedSq=null;legalDests=new Set();renderBoard()}
 }
 
-// ─── HUMAN DELAY: log-normal with skew ───
-function humanDelay(minMs,maxMs){
-const u=Math.random(),v=Math.random();
-const normal=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
-const t=Math.max(0,Math.min(1,(normal+2.5)/5));
-return Math.round(minMs+t*(maxMs-minMs));
-}
+function humanDelay(minMs,maxMs){const u=Math.random(),v=Math.random();const normal=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);const t=Math.max(0,Math.min(1,(normal+2.5)/5));return Math.round(minMs+t*(maxMs-minMs))}
 
-// ─── MOUSE SIMULATION: Bézier + jitter + micro-pause ───
 function simulateCursorTo(sq){
-if(!chkAntiCheat.checked)return Promise.resolve();
-return new Promise(resolve=>{
-const wrap=boardEl.parentElement,rect=wrap.getBoundingClientRect();
-let c='abcdefgh'.indexOf(sq[0]),r=8-parseInt(sq[1],10);if(flipped){c=7-c;r=7-r}
-const cw=rect.width/8,ch=rect.height/8;
-const tx=rect.left+c*cw+cw/2,ty=rect.top+r*ch+ch/2;
-// start with offset (hand travelling from previous position area)
-const startX=tx+(Math.random()-0.5)*80,startY=ty+(Math.random()-0.5)*80;
-cursorSim.style.left=(startX-rect.left)+'px';cursorSim.style.top=(startY-rect.top)+'px';cursorSim.style.opacity='0.7';
-
-// cubic Bézier control points (random within bounding box for natural arc)
-const cp1x=startX+(tx-startX)*0.3+(Math.random()-0.5)*60;
-const cp1y=startY+(ty-startY)*0.3+(Math.random()-0.5)*60;
-const cp2x=startX+(tx-startX)*0.7+(Math.random()-0.5)*60;
-const cp2y=startY+(ty-startY)*0.7+(Math.random()-0.5)*60;
-
-const start=performance.now(),dur=180+Math.random()*160;
-const microPauseAt=0.15+Math.random()*0.7; // random pause point
-let paused=false,pauseUntil=0;
-
-function step(now){
-const t=Math.min(1,(now-start)/dur);
-// micro-pause simulation
-if(!paused&&t>microPauseAt){paused=true;pauseUntil=now+40+Math.random()*60;}
-if(paused&&now<pauseUntil){requestAnimationFrame(step);return;}
-
-const u=1-t;
-// Bézier cubic
-const bx=u*u*u*startX+3*u*u*t*cp1x+3*u*t*t*cp2x+t*t*t*tx;
-const by=u*u*u*startY+3*u*u*t*cp1y+3*u*t*t*cp2y+t*t*t*ty;
-// jitter ±1.5px
-const jx=(Math.random()-0.5)*3,jy=(Math.random()-0.5)*3;
-cursorSim.style.left=(bx-rect.left+jx)+'px';
-cursorSim.style.top=(by-rect.top+jy)+'px';
-
-if(t<1)requestAnimationFrame(step);
-else{setTimeout(()=>{cursorSim.style.opacity='0';resolve()},40)}
-}
-requestAnimationFrame(step);
-});
+  if(appMode!=='cheat'||!chkAntiCheat.checked)return Promise.resolve();
+  return new Promise(resolve=>{
+    const wrap=boardEl.parentElement,rect=wrap.getBoundingClientRect();
+    let c='abcdefgh'.indexOf(sq[0]),r=8-parseInt(sq[1],10);if(flipped){c=7-c;r=7-r}
+    const cw=rect.width/8,ch=rect.height/8;
+    const tx=rect.left+c*cw+cw/2,ty=rect.top+r*ch+ch/2;
+    const startX=tx+(Math.random()-0.5)*80,startY=ty+(Math.random()-0.5)*80;
+    cursorSim.style.left=(startX-rect.left)+'px';cursorSim.style.top=(startY-rect.top)+'px';cursorSim.style.opacity='0.7';
+    const cp1x=startX+(tx-startX)*0.3+(Math.random()-0.5)*60,cp1y=startY+(ty-startY)*0.3+(Math.random()-0.5)*60;
+    const cp2x=startX+(tx-startX)*0.7+(Math.random()-0.5)*60,cp2y=startY+(ty-startY)*0.7+(Math.random()-0.5)*60;
+    const start=performance.now(),dur=180+Math.random()*160;
+    const microPauseAt=0.15+Math.random()*0.7;let paused=false,pauseUntil=0;
+    function step(now){
+      const t=Math.min(1,(now-start)/dur);
+      if(!paused&&t>microPauseAt){paused=true;pauseUntil=now+40+Math.random()*60}
+      if(paused&&now<pauseUntil){requestAnimationFrame(step);return}
+      const u=1-t;
+      const bx=u*u*u*startX+3*u*u*t*cp1x+3*u*t*t*cp2x+t*t*t*tx;
+      const by=u*u*u*startY+3*u*u*t*cp1y+3*u*t*t*cp2y+t*t*t*ty;
+      const jx=(Math.random()-0.5)*3,jy=(Math.random()-0.5)*3;
+      cursorSim.style.left=(bx-rect.left+jx)+'px';cursorSim.style.top=(by-rect.top+jy)+'px';
+      if(t<1)requestAnimationFrame(step);else{setTimeout(()=>{cursorSim.style.opacity='0';resolve()},40)}
+    }
+    requestAnimationFrame(step);
+  });
 }
 
 async function attemptMove(from,to){
-if(chkCoach.checked&&preMoveEval!==null)await coachCheck(from,to);
-simulateCursorTo(to).then(()=>executeMove(from,to));
+  if(appMode==='cheat'&&chkCoach.checked&&preMoveEval!==null)await coachCheck(from,to);
+  simulateCursorTo(to).then(()=>executeMove(from,to));
 }
 
 function coachCheck(from,to){
-return new Promise(resolve=>{
-const tmp=new Chess();try{tmp.load(game.fen())}catch(e){resolve();return}
-let m=null;try{m=tmp.move({from,to,promotion:'q'})}catch(e){resolve();return}
-if(!m||!engineReady){resolve();return}
-let resolved=false;const done=()=>{if(!resolved){resolved=true;resolve()}};
-const handler=e=>{
-const line=typeof e.data==='string'?e.data:'';
-if(line.startsWith('bestmove')){engine.removeEventListener('message',handler);done()}
-if(line.startsWith('info')&&line.includes('score cp')){
-const match=line.match(/score cp (-?\d+)/);
-if(match){let cp=parseInt(match[1],10);if(tmp.turn()==='b')cp=-cp;if(myColor==='b')cp=-cp;const delta=(preMoveEval||0)-cp;
-if(delta>100)banter('critical',{force:true});else if(delta>40)banter('badMove',{force:true})}
-}
-};
-engine.addEventListener('message',handler);engine.postMessage('position fen '+tmp.fen());engine.postMessage('go movetime 200');setTimeout(done,400);
-});
+  return new Promise(resolve=>{
+    const tmp=new Chess();try{tmp.load(game.fen())}catch(e){resolve();return}
+    let m=null;try{m=tmp.move({from,to,promotion:'q'})}catch(e){resolve();return}
+    if(!m||!engineReady){resolve();return}
+    let resolved=false;const done=()=>{if(!resolved){resolved=true;resolve()}};
+    const handler=e=>{
+      const line=typeof e.data==='string'?e.data:'';
+      if(line.startsWith('bestmove')){engine.removeEventListener('message',handler);done()}
+      if(line.startsWith('info')&&line.includes('score cp')){
+        const match=line.match(/score cp (-?\d+)/);
+        if(match){let cp=parseInt(match[1],10);if(tmp.turn()==='b')cp=-cp;if(myColor==='b')cp=-cp;const delta=(preMoveEval||0)-cp;
+        if(delta>100)banter('critical',{force:true});else if(delta>40)banter('badMove',{force:true})}
+      }
+    };
+    engine.addEventListener('message',handler);engine.postMessage('position fen '+tmp.fen());engine.postMessage('go movetime 200');setTimeout(done,400);
+  });
 }
 
 function executeMove(from,to){
-let move;try{move=game.move({from,to,promotion:'q'})}catch(e){move=null}
-if(!move){selectedSq=null;legalDests=new Set();renderBoard();return}
-lastMove={from,to};selectedSq=null;legalDests=new Set();chosenMoveUci=null;moveNumber++;
-clearAnalysis();renderBoard();renderHistory();updateStatus();
-if(gameOver()){if(inCheckmate())banter('winning',{force:true});return}
-if(multiPV[1]){const score=getScoreFromPerspective(multiPV[1].scoreType,multiPV[1].scoreValue,game.turn());if(score>200)banter('winning');else if(score<-200)banter('losing')}
+  const fenBefore=game.fen();
+  const moverColor=game.turn();
+  let move;try{move=game.move({from,to,promotion:'q'})}catch(e){move=null}
+  if(!move){selectedSq=null;legalDests=new Set();renderBoard();return}
+  lastMove={from,to};selectedSq=null;legalDests=new Set();chosenMoveUci=null;moveNumber++;
+  clearAnalysis();renderBoard();renderHistory();updateStatus();
+
+  // classify & show badge async
+  if(chkBadges.checked)classifyAndLabelMove(fenBefore,moverColor,to);
+
+  if(gameOver()){if(inCheckmate())banter('winning',{force:true});return}
+  if(multiPV[1]){const score=getScoreFromPerspective(multiPV[1].scoreType,multiPV[1].scoreValue,game.turn());
+    if(appMode==='trolls'){if(score>300)banter('trollsAnalysis',{force:true})}
+    else{if(score>200)banter('winning');else if(score<-200)banter('losing')}
+  }
 }
 
 function getScoreFromPerspective(scoreType,scoreValue,turnWhoMoved){
-if(scoreType==='mate')return scoreValue>0?9999:-9999;
-let v=scoreValue;if(turnWhoMoved==='b')v=-v;if(myColor==='b')v=-v;return v;
+  if(scoreType==='mate')return scoreValue>0?9999:-9999;
+  let v=scoreValue;if(turnWhoMoved==='b')v=-v;if(myColor==='b')v=-v;return v;
 }
 
 function updateStatus(){
-if(resigned){setStatus('resigned — game over','err');return}
-if(gameOver()){if(inCheckmate())setStatus('checkmate! '+(game.turn()==='w'?'Black wins':'White wins'),'err');else if(inStalemate())setStatus('stalemate — draw','warn');else setStatus('game over — draw','warn');return}
-if(game.turn()===myColor)setStatus('your move — tap a piece','ok');else setStatus('opponent to move — follow their actual move','');
+  if(resigned){setStatus('resigned — game over','err');return}
+  if(gameOver()){if(inCheckmate())setStatus('checkmate! '+(game.turn()==='w'?'Black wins':'White wins'),'err');else if(inStalemate())setStatus('stalemate — draw','warn');else setStatus('game over — draw','warn');return}
+  if(game.turn()===myColor){setStatus(appMode==='trolls'?'your move — tap a piece (ask for hint anytime)':'your move — tap a piece','ok')}
+  else{setStatus('opponent to move — follow their actual move','')}
 }
 
 function drawArrow(uci){
-arrowsEl.innerHTML='';if(!uci||uci.length<4)return;
-const[fx,fy]=sqToXY(uci.slice(0,2)),[tx,ty]=sqToXY(uci.slice(2,4));
-const dx=tx-fx,dy=ty-fy,len=Math.hypot(dx,dy);if(len<1)return;
-const ux=dx/len,uy=dy/len,hl=24,hw=18,bx=tx-ux*hl,by=ty-uy*hl,px=-uy,py=ux;
-let color='rgba(92,216,142,0.95)';
-if(isDesperadoMode())color='rgba(176,74,255,0.95)';else if(isGambitPreset())color='rgba(255,179,71,0.95)';else if(isBoaPreset())color='rgba(58,216,196,0.95)';else if(isUniversalPreset())color='rgba(107,163,255,0.95)';
-const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-line.setAttribute('x1',fx);line.setAttribute('y1',fy);line.setAttribute('x2',bx);line.setAttribute('y2',by);line.setAttribute('stroke',color);line.setAttribute('stroke-width','8');line.setAttribute('stroke-linecap','round');arrowsEl.appendChild(line);
-const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-poly.setAttribute('points',`${tx},${ty} ${bx+px*hw/2},${by+py*hw/2} ${bx-px*hw/2},${by-py*hw/2}`);poly.setAttribute('fill',color);arrowsEl.appendChild(poly);
+  arrowsEl.innerHTML='';if(!uci||uci.length<4)return;
+  const[fx,fy]=sqToXY(uci.slice(0,2)),[tx,ty]=sqToXY(uci.slice(2,4));
+  const dx=tx-fx,dy=ty-fy,len=Math.hypot(dx,dy);if(len<1)return;
+  const ux=dx/len,uy=dy/len,hl=24,hw=18,bx=tx-ux*hl,by=ty-uy*hl,px=-uy,py=ux;
+  let color='rgba(92,216,142,0.95)';
+  if(appMode==='trolls')color='rgba(176,74,255,0.95)';
+  else if(isDesperadoMode())color='rgba(176,74,255,0.95)';
+  else if(isGambitPreset())color='rgba(255,179,71,0.95)';
+  else if(isBoaPreset())color='rgba(58,216,196,0.95)';
+  else if(isUniversalPreset())color='rgba(107,163,255,0.95)';
+  const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',fx);line.setAttribute('y1',fy);line.setAttribute('x2',bx);line.setAttribute('y2',by);line.setAttribute('stroke',color);line.setAttribute('stroke-width','8');line.setAttribute('stroke-linecap','round');arrowsEl.appendChild(line);
+  const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points',`${tx},${ty} ${bx+px*hw/2},${by+py*hw/2} ${bx-px*hw/2},${by-py*hw/2}`);poly.setAttribute('fill',color);arrowsEl.appendChild(poly);
 }
 
 function clearArrows(){arrowsEl.innerHTML=''}
 
+function showMoveLabel(sq,text,type){
+  const wrap=boardEl.parentElement;
+  const[px,py]=sqToXY(sq);
+  const label=document.createElement('div');
+  label.className='move-label '+type;
+  label.textContent=text;
+  label.style.left=(px/480*100)+'%';label.style.top=(py/480*100)+'%';
+  wrap.appendChild(label);
+  setTimeout(()=>label.remove(),2600);
+}
+
+// ═══════════════════════════════════════════════
+// MOVE CLASSIFICATION (chess.com style badges)
+// ═══════════════════════════════════════════════
+const PIECE_VAL={p:100,n:320,b:330,r:500,q:900,k:0};
+
+function countMaterial(fen,color){
+  try{
+    const tmp=new Chess();tmp.load(fen);
+    let total=0;
+    const files='abcdefgh';
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+      const sq=files[c]+(8-r);
+      const p=tmp.get(sq);
+      if(p&&p.color===color)total+=PIECE_VAL[p.type]||0;
+    }
+    return total;
+  }catch(e){return 0}
+}
+
+function evalPositionQuick(fen,timeoutMs=400){
+  if(!engineReady)return Promise.resolve(null);
+  return new Promise(resolve=>{
+    let resolved=false;let lastScore=null;
+    const done=()=>{if(!resolved){resolved=true;resolve(lastScore)}}
+    const handler=e=>{
+      const line=typeof e.data==='string'?e.data:'';
+      if(line.startsWith('info')&&line.includes('score')){
+        const mMate=line.match(/score mate (-?\d+)/);
+        const mCp=line.match(/score cp (-?\d+)/);
+        if(mMate)lastScore=parseInt(mMate[1],10)>0?9999:-9999;
+        else if(mCp)lastScore=parseInt(mCp[1],10);
+      }
+      if(line.startsWith('bestmove')){engine.removeEventListener('message',handler);done()}
+    };
+    engine.addEventListener('message',handler);
+    engine.postMessage('position fen '+fen);
+    engine.postMessage('go depth 10');
+    setTimeout(done,timeoutMs);
+  });
+}
+
+function classifyDelta(delta,matDelta,afterEval){
+  // mate handling
+  if(Math.abs(afterEval)>9000){
+    return afterEval>0?{icon:'!!',cls:'brilliant',name:'Brilliant'}:{icon:'??',cls:'blunder',name:'Blunder'};
+  }
+  // brilliant: sacrifice (matDelta <= -100) but still good for mover
+  if(matDelta<=-100&&afterEval>30&&delta>=-40){
+    return {icon:'!!',cls:'brilliant',name:'Brilliant'};
+  }
+  if(delta>=-15)return{icon:'★',cls:'best',name:'Best'};
+  if(delta>=-30)return{icon:'✓✓',cls:'excellent',name:'Excellent'};
+  if(delta>=-80)return{icon:'✓',cls:'good',name:'Good'};
+  if(delta>=-170)return{icon:'?!',cls:'inaccuracy',name:'Inaccuracy'};
+  if(delta>=-350)return{icon:'?',cls:'mistake',name:'Mistake'};
+  return{icon:'??',cls:'blunder',name:'Blunder'};
+}
+
+function showMoveBadge(sq,label){
+  const wrap=boardEl.parentElement;
+  const[px,py]=sqToXY(sq);
+  // corner of the square (top-right)
+  const offsetX=26,offsetY=-26;
+  const badge=document.createElement('div');
+  badge.className='move-badge '+label.cls;
+  badge.textContent=label.icon;
+  badge.style.left=((px+offsetX)/480*100)+'%';
+  badge.style.top=((py+offsetY)/480*100)+'%';
+  wrap.appendChild(badge);
+  setTimeout(()=>{if(badge.parentNode)badge.remove()},2900);
+
+  // optional banter based on classification
+  const banterKey='badge'+(label.name==='Brilliant'?'Brilliant':label.name==='Great'?'Great':label.name==='Best'?'Best':label.name==='Excellent'?'Excellent':label.name==='Good'?'Good':label.name==='Inaccuracy'?'Inaccuracy':label.name==='Mistake'?'Mistake':'Blunder');
+  if(BANTER[banterKey]&&Math.random()<0.4){
+    banter(banterKey,{force:false});
+  }
+}
+
+async function classifyAndLabelMove(fenBefore,moverColor,toSq){
+  if(classificationInFlight)return;
+  if(!engineReady)return;
+  classificationInFlight=true;
+
+  try{
+    // evaluate before (from mover's perspective, since it was their turn)
+    const sb=await evalPositionQuick(fenBefore,400);
+    if(sb===null){classificationInFlight=false;return}
+
+    // small delay to let analysis finish if it just started
+    await new Promise(r=>setTimeout(r,50));
+
+    const fenAfter=game.fen();
+    const sa=await evalPositionQuick(fenAfter,400);
+    if(sa===null){classificationInFlight=false;return}
+
+    // sb is from mover's perspective (their turn in fenBefore)
+    // sa is from opponent's perspective (opponent's turn in fenAfter) → negate for mover
+    const scoreBeforeMover=sb;
+    const scoreAfterMover=-sa;
+    const delta=scoreAfterMover-scoreBeforeMover;
+
+    const matBefore=countMaterial(fenBefore,moverColor);
+    const matAfter=countMaterial(fenAfter,moverColor);
+    const matDelta=matAfter-matBefore;
+
+    const label=classifyDelta(delta,matDelta,scoreAfterMover);
+    showMoveBadge(toSq,label);
+  }catch(e){console.error('classify error',e)}
+
+  classificationInFlight=false;
+}
+
 function clearAnalysis(){
-analysisRunning=false;multiPV={};currentDepth=0;chosenMoveUci=null;clearInterval(thinkTimerInterval);clearArrows();analysisEl.innerHTML='';evalTextEl.textContent='0.00';updateEvalBarCss(50);preMoveEval=null;
+  analysisRunning=false;multiPV={};currentDepth=0;chosenMoveUci=null;clearInterval(thinkTimerInterval);clearArrows();analysisEl.innerHTML='';evalTextEl.textContent='0.00';updateEvalBarCss(50);preMoveEval=null;
 }
 
 function updateEvalBarCss(percent){
-const id='kibitz-eval-css';let style=document.getElementById(id);
-if(!style){style=document.createElement('style');style.id=id;document.head.appendChild(style)}
-style.textContent=`.eval-bar::before{content:'';position:absolute;left:0;top:0;bottom:0;width:${percent}%;background:#eaeaea;transition:width .3s ease}`;
+  const id='kibitz-eval-css';let style=document.getElementById(id);
+  if(!style){style=document.createElement('style');style.id=id;document.head.appendChild(style)}
+  style.textContent=`.eval-bar::before{content:'';position:absolute;left:0;top:0;bottom:0;width:${percent}%;background:#eaeaea;transition:width .3s ease}`;
 }
 
 async function ensureEngine(){
-if(engineReady)return true;if(engineLoading)return false;engineLoading=true;setStatus('loading Stockfish...','');
-try{
-const url='https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js';
-const resp=await fetch(url);if(!resp.ok)throw new Error('HTTP '+resp.status);
-const code=await resp.text();const blob=new Blob([code],{type:'application/javascript'});
-engine=new Worker(URL.createObjectURL(blob));engine.onmessage=onEngineMsg;engine.onerror=err=>{setStatus('engine error','err');engineLoading=false;engineReady=false};
-engine.postMessage('uci');engine.postMessage('isready');return false;
-}catch(err){setStatus('engine load failed','err');engineLoading=false;return false}
+  if(engineReady)return true;if(engineLoading)return false;engineLoading=true;setStatus('loading Stockfish...','');
+  try{
+    const url='https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js';
+    const resp=await fetch(url);if(!resp.ok)throw new Error('HTTP '+resp.status);
+    const code=await resp.text();const blob=new Blob([code],{type:'application/javascript'});
+    engine=new Worker(URL.createObjectURL(blob));engine.onmessage=onEngineMsg;engine.onerror=err=>{setStatus('engine error','err');engineLoading=false;engineReady=false};
+    engine.postMessage('uci');engine.postMessage('isready');return false;
+  }catch(err){setStatus('engine load failed','err');engineLoading=false;return false}
 }
 
 function onEngineMsg(e){
-const line=typeof e.data==='string'?e.data:'';if(!line)return;
-if(line==='uciok'||line==='readyok'){if(!engineReady){engineReady=true;engineLoading=false;if(!analysisRunning)setStatus('Stockfish ready','ok')}return}
-if(line.startsWith('info')){parseInfo(line);return}
-if(line.startsWith('bestmove')){onBestMove(line.split(/\s+/)[1])}
+  const line=typeof e.data==='string'?e.data:'';if(!line)return;
+  if(line==='uciok'||line==='readyok'){if(!engineReady){engineReady=true;engineLoading=false;if(!analysisRunning)setStatus('Stockfish ready','ok')}return}
+  if(line.startsWith('info')){parseInfo(line);return}
+  if(line.startsWith('bestmove')){onBestMove(line.split(/\s+/)[1])}
 }
 
 function parseInfo(line){
-const tokens=line.split(/\s+/);let depth=0,multipv=1,scoreType=null,scoreValue=null;const pv=[];
-for(let i=0;i<tokens.length;i++){const t=tokens[i];
-if(t==='depth')depth=parseInt(tokens[i+1],10);else if(t==='multipv')multipv=parseInt(tokens[i+1],10);else if(t==='score'){scoreType=tokens[i+1];scoreValue=parseInt(tokens[i+2],10)}else if(t==='pv'){for(let j=i+1;j<tokens.length;j++)pv.push(tokens[j]);break}}
-if(!pv.length||scoreType===null)return;
-multiPV[multipv]={depth,scoreType,scoreValue,pv,rank:multipv};
-if(analysisRunning&&depth>currentDepth)currentDepth=depth;
+  const tokens=line.split(/\s+/);let depth=0,multipv=1,scoreType=null,scoreValue=null;const pv=[];
+  for(let i=0;i<tokens.length;i++){const t=tokens[i];
+    if(t==='depth')depth=parseInt(tokens[i+1],10);else if(t==='multipv')multipv=parseInt(tokens[i+1],10);else if(t==='score'){scoreType=tokens[i+1];scoreValue=parseInt(tokens[i+2],10)}else if(t==='pv'){for(let j=i+1;j<tokens.length;j++)pv.push(tokens[j]);break}}
+  if(!pv.length||scoreType===null)return;
+  multiPV[multipv]={depth,scoreType,scoreValue,pv,rank:multipv};
+  if(analysisRunning&&depth>currentDepth)currentDepth=depth;
 }
 
 function classifyMove(uci,fen){
-if(!uci||uci.length<4)return null;
-const tmp=new Chess();try{tmp.load(fen)}catch(e){return null}
-let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return null}
-if(!m)return null;
-return{capture:m.flags.indexOf('c')!==-1,promotion:m.flags.indexOf('p')!==-1,check:m.san.indexOf('+')!==-1||m.san.indexOf('#')!==-1,piece:m.piece,captured:m.captured,san:m.san,from:m.from,to:m.to};
+  if(!uci||uci.length<4)return null;
+  const tmp=new Chess();try{tmp.load(fen)}catch(e){return null}
+  let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return null}
+  if(!m)return null;
+  return{capture:m.flags.indexOf('c')!==-1,promotion:m.flags.indexOf('p')!==-1,check:m.san.indexOf('+')!==-1||m.san.indexOf('#')!==-1,piece:m.piece,captured:m.captured,san:m.san,from:m.from,to:m.to};
 }
 
 function isPreferredOpening(uci,fen,preset){
-if(!uci||uci.length<4)return false;
-const tmp=new Chess();try{tmp.load(fen)}catch(e){return false}
-let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return false}
-if(!m)return false;
-return preset.openings.some(op=>m.san===op||m.san.startsWith(op));
+  if(!uci||uci.length<4)return false;
+  const tmp=new Chess();try{tmp.load(fen)}catch(e){return false}
+  let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return false}
+  if(!m)return false;
+  return preset.openings.some(op=>m.san===op||m.san.startsWith(op));
 }
 
 function desperadoScore(uci,fen){
-if(!uci||uci.length<4)return-999;
-const tmp=new Chess();try{tmp.load(fen)}catch(e){return-999}
-let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return-999}
-if(!m)return-999;
-let score=0;const dest=uci.slice(2,4),eking=findEnemyKing(tmp);
-if(eking){const dF=dest.charCodeAt(0)-97,dR=parseInt(dest[1],10),kF=eking.charCodeAt(0)-97,kR=parseInt(eking[1],10),dist=Math.max(Math.abs(dF-kF),Math.abs(dR-kR));if(dist<=2)score+=50;if(dist<=1)score+=100}
-if(m.piece==='q')score+=20;if(m.piece==='k')score+=15;if(m.san.indexOf('+')!==-1)score+=150;if(m.san.indexOf('#')!==-1)score+=1000;
-if(m.flags.indexOf('c')!==-1){if(m.captured==='q')score+=200;else if(m.captured==='r')score+=60;else if(m.captured==='b'||m.captured==='n')score+=40;else score+=20}
-if(m.piece==='p')score-=5;return score;
+  if(!uci||uci.length<4)return-999;
+  const tmp=new Chess();try{tmp.load(fen)}catch(e){return-999}
+  let m=null;try{m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||'q'})}catch(e){return-999}
+  if(!m)return-999;
+  let score=0;const dest=uci.slice(2,4),eking=findEnemyKing(tmp);
+  if(eking){const dF=dest.charCodeAt(0)-97,dR=parseInt(dest[1],10),kF=eking.charCodeAt(0)-97,kR=parseInt(eking[1],10),dist=Math.max(Math.abs(dF-kF),Math.abs(dR-kR));if(dist<=2)score+=50;if(dist<=1)score+=100}
+  if(m.piece==='q')score+=20;if(m.piece==='k')score+=15;if(m.san.indexOf('+')!==-1)score+=150;if(m.san.indexOf('#')!==-1)score+=1000;
+  if(m.flags.indexOf('c')!==-1){if(m.captured==='q')score+=200;else if(m.captured==='r')score+=60;else if(m.captured==='b'||m.captured==='n')score+=40;else score+=20}
+  if(m.piece==='p')score-=5;return score;
 }
 
 function findEnemyKing(tmpChess){
-const enemy=myColor==='w'?'b':'w',files='abcdefgh';
-for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq=files[c]+(8-r);const p=tmpChess.get(sq);if(p&&p.type==='k'&&p.color===enemy)return sq}
-return null;
+  const enemy=myColor==='w'?'b':'w',files='abcdefgh';
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){const sq=files[c]+(8-r);const p=tmpChess.get(sq);if(p&&p.type==='k'&&p.color===enemy)return sq}
+  return null;
 }
 
 function universalSelect(lines){
-const top=lines[0],bestScore=top.scoreType==='cp'?top.scoreValue:(top.scoreValue>0?9999:-9999);
-if(bestScore>=-50){if(bestScore>150){const f=lines.slice(0,3).find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.check||c.promotion)});if(f)return{move:f.pv[0],type:'style'}}return{move:top.pv[0],type:'best'}}
-if(bestScore>=-150){const c=lines.slice(0,3).find(l=>{const x=classifyMove(l.pv[0],game.fen());return x&&(x.check||x.capture)});if(c)return{move:c.pv[0],type:'style'};return{move:top.pv[0],type:'best'}}
-const a=lines.find(l=>{const x=classifyMove(l.pv[0],game.fen());return x&&(x.capture||x.check)});if(a)return{move:a.pv[0],type:'style'};return{move:top.pv[0],type:'best'};
+  const top=lines[0],bestScore=top.scoreType==='cp'?top.scoreValue:(top.scoreValue>0?9999:-9999);
+  if(bestScore>=-50){if(bestScore>150){const f=lines.slice(0,3).find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.check||c.promotion)});if(f)return{move:f.pv[0],type:'style'}}return{move:top.pv[0],type:'best'}}
+  if(bestScore>=-150){const c=lines.slice(0,3).find(l=>{const x=classifyMove(l.pv[0],game.fen());return x&&(x.check||x.capture)});if(c)return{move:c.pv[0],type:'style'};return{move:top.pv[0],type:'best'}}
+  const a=lines.find(l=>{const x=classifyMove(l.pv[0],game.fen());return x&&(x.capture||x.check)});if(a)return{move:a.pv[0],type:'style'};return{move:top.pv[0],type:'best'};
 }
 
 function boaSelect(lines){
-const cands=lines.slice(0,3);let best=null,bestScore=-Infinity;
-for(const line of cands){const c=classifyMove(line.pv[0],game.fen());if(!c)continue;
-let score=100-(line.rank-1)*20;
-if(!c.capture&&!c.check)score+=40;
-const df=c.to[0],dr=parseInt(c.to[1],10),central=['c','d','e','f'];
-if(c.piece==='p'&&central.includes(df)&&dr>=3&&dr<=6)score+=25;
-if((myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5))score+=15;
-if(c.capture)score-=30;if(c.check&&c.san.indexOf('#')===-1)score-=10;
-if(score>bestScore){bestScore=score;best=line}
-}
-if(best)return{move:best.pv[0],type:'style'};return{move:lines[0].pv[0],type:'best'};
+  const cands=lines.slice(0,3);let best=null,bestScore=-Infinity;
+  for(const line of cands){const c=classifyMove(line.pv[0],game.fen());if(!c)continue;
+    let score=100-(line.rank-1)*20;
+    if(!c.capture&&!c.check)score+=40;
+    const df=c.to[0],dr=parseInt(c.to[1],10),central=['c','d','e','f'];
+    if(c.piece==='p'&&central.includes(df)&&dr>=3&&dr<=6)score+=25;
+    if((myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5))score+=15;
+    if(c.capture)score-=30;if(c.check&&c.san.indexOf('#')===-1)score-=10;
+    if(score>bestScore){bestScore=score;best=line}
+  }
+  if(best)return{move:best.pv[0],type:'style'};return{move:lines[0].pv[0],type:'best'};
 }
 
-// ─── COMPLEXITY ESTIMATOR ───
 function estimateComplexity(fen){
-try{
-const tmp=new Chess();tmp.load(fen);
-const legalCount=tmp.moves().length;
-const inChk=tmp.in_check?tmp.in_check():tmp.inCheck?tmp.inCheck():false;
-// rough: more legal moves + check = more complex
-let score=legalCount/40; // normalise
-if(inChk)score+=0.4;
-if(tmp.history().length>25)score+=0.15; // late game more complex (tactical)
-return Math.min(1,score);
-}catch(e){return 0.5}
+  try{
+    const tmp=new Chess();tmp.load(fen);
+    const legalCount=tmp.moves().length;
+    const inChk=tmp.in_check?tmp.in_check():tmp.inCheck?tmp.inCheck():false;
+    let score=legalCount/40;
+    if(inChk)score+=0.4;
+    if(tmp.history().length>25)score+=0.15;
+    return Math.min(1,score);
+  }catch(e){return 0.5}
 }
 
-// ─── SELECT MOVE (with accuracy decay) ───
 function selectMove(best,presetKey){
-const preset=PRESETS[presetKey];
-const sliderPct=parseInt(rngBlunder.value,10)/100;
-const blunderChance=sliderPct*preset.blunderMult;
+  const preset=PRESETS[presetKey];
+  const sliderPct=parseInt(rngBlunder.value,10)/100;
+  const blunderChance=appMode==='trolls'?0:sliderPct*preset.blunderMult;
+  const lines=Object.values(multiPV).sort((a,b)=>a.rank-b.rank);
+  if(!lines.length)return{move:best,type:'best'};
 
-const lines=Object.values(multiPV).sort((a,b)=>a.rank-b.rank);
-if(!lines.length)return{move:best,type:'best'};
+  const topLine=lines[0],secondLine=lines[1];
 
-const topLine=lines[0],secondLine=lines[1];
+  if(appMode==='trolls')return{move:topLine.pv[0],type:'best'};
 
-let mustPlayBest=false;
-if(inCheck())mustPlayBest=true;
-if(topLine&&secondLine&&topLine.scoreType==='cp'&&secondLine.scoreType==='cp'){
-if(Math.abs(secondLine.scoreValue-topLine.scoreValue)>150)mustPlayBest=true;
-}
-if(topLine&&topLine.scoreType==='cp'&&topLine.scoreValue<-150)mustPlayBest=true;
+  let mustPlayBest=false;
+  if(inCheck())mustPlayBest=true;
+  if(topLine&&secondLine&&topLine.scoreType==='cp'&&secondLine.scoreType==='cp'){if(Math.abs(secondLine.scoreValue-topLine.scoreValue)>150)mustPlayBest=true}
+  if(topLine&&topLine.scoreType==='cp'&&topLine.scoreValue<-150)mustPlayBest=true;
 
-if(isDesperadoMode()&&!resignDismissed){
-let b=null,bs=-Infinity;
-for(const line of lines){const d=desperadoScore(line.pv[0],game.fen());if(d>bs){bs=d;b=line}}
-if(b&&bs>=20)return{move:b.pv[0],type:'desperado'};
-}
+  if(isDesperadoMode()&&!resignDismissed){
+    let b=null,bs=-Infinity;
+    for(const line of lines){const d=desperadoScore(line.pv[0],game.fen());if(d>bs){bs=d;b=line}}
+    if(b&&bs>=20)return{move:b.pv[0],type:'desperado'};
+  }
 
-if(mustPlayBest)return{move:topLine.pv[0],type:'best'};
+  if(mustPlayBest)return{move:topLine.pv[0],type:'best'};
 
-// ─── ACCURACY DECAY: force suboptimal in complex positions if streak too long ───
-const complexity=estimateComplexity(game.fen());
-if(chkAntiCheat.checked&&perfectStreak>=3&&complexity>0.55&&Math.random()<0.45){
-// pick a slightly suboptimal but still reasonable move from rank 2-3
-const subPool=lines.slice(1,3).filter(l=>{
-if(l.scoreType!=='cp')return false;
-const gap=Math.abs(l.scoreValue-(topLine.scoreType==='cp'?topLine.scoreValue:0));
-return gap<=90; // not a blunder, just slightly worse
-});
-if(subPool.length){const pick=subPool[Math.floor(Math.random()*subPool.length)];return{move:pick.pv[0],type:'style'}}
-}
+  const complexity=estimateComplexity(game.fen());
+  if(chkAntiCheat.checked&&perfectStreak>=3&&complexity>0.55&&Math.random()<0.45){
+    const subPool=lines.slice(1,3).filter(l=>{if(l.scoreType!=='cp')return false;const gap=Math.abs(l.scoreValue-(topLine.scoreType==='cp'?topLine.scoreValue:0));return gap<=90});
+    if(subPool.length){const pick=subPool[Math.floor(Math.random()*subPool.length)];return{move:pick.pv[0],type:'style'}}
+  }
 
-if(chkOpenings.checked&&game.history().length<10){
-const oc=lines.filter(l=>isPreferredOpening(l.pv[0],game.fen(),preset));
-if(oc.length>0){
-const tol=preset.filter==='gambit'?80:50;
-const bestScore=lines[0].scoreType==='cp'?lines[0].scoreValue:0;
-const safe=oc.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return true;return Math.abs(l.scoreValue-bestScore)<=tol});
-if(safe.length>0){const pick=safe[Math.floor(Math.random()*safe.length)];return{move:pick.pv[0],type:'opening'}}
-}
-}
+  if(chkOpenings.checked&&game.history().length<10){
+    const oc=lines.filter(l=>isPreferredOpening(l.pv[0],game.fen(),preset));
+    if(oc.length>0){
+      const tol=preset.filter==='gambit'?80:50;
+      const bestScore=lines[0].scoreType==='cp'?lines[0].scoreValue:0;
+      const safe=oc.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return true;return Math.abs(l.scoreValue-bestScore)<=tol});
+      if(safe.length>0){const pick=safe[Math.floor(Math.random()*safe.length)];return{move:pick.pv[0],type:'opening'}}
+    }
+  }
 
-let candidate=lines[0],type='best';
+  let candidate=lines[0],type='best';
+  if(preset.filter==='universal')return universalSelect(lines);
+  if(preset.filter==='boa')return boaSelect(lines);
 
-if(preset.filter==='universal')return universalSelect(lines);
-if(preset.filter==='boa')return boaSelect(lines);
+  if(preset.filter==='gambit'){
+    const sharp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.check||c.promotion||(c.capture&&['q','r','b','n'].includes(c.captured)))});
+    if(sharp&&sharp.rank!==1){candidate=sharp;type='style'}
+    else{const pp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());if(!c||c.piece!=='p')return false;const dr=parseInt(l.pv[0].slice(3,4),10);return(myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5)});if(pp&&pp.rank!==1){candidate=pp;type='style'}}
+  }else if(preset.filter==='aggressive'){
+    const a=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.capture||c.check||c.promotion)});if(a&&a.rank!==1){candidate=a;type='style'}
+  }else if(preset.filter==='defensive'){
+    const q=lines.find(l=>{if(l.rank>3)return false;const c=classifyMove(l.pv[0],game.fen());return c&&!c.capture&&!c.check});if(q&&q.rank!==1){candidate=q;type='style'}
+  }else if(preset.filter==='chaotic'){
+    if(lines.length>=2){const pick=lines[Math.floor(Math.random()*Math.min(3,lines.length))];candidate=pick;if(pick.rank!==1)type='style'}
+  }else if(preset.filter==='flexible'){
+    if(lines.length>=2){const bs=lines[0].scoreType==='cp'?lines[0].scoreValue:9999;const close=lines.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return false;return Math.abs(l.scoreValue-bs)<=30});if(close.length>1){const pick=close[Math.floor(Math.random()*close.length)];if(pick.rank!==1){candidate=pick;type='style'}}}
+  }
 
-if(preset.filter==='gambit'){
-const sharp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.check||c.promotion||(c.capture&&['q','r','b','n'].includes(c.captured)))});
-if(sharp&&sharp.rank!==1){candidate=sharp;type='style'}
-else{const pp=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());if(!c||c.piece!=='p')return false;const dr=parseInt(l.pv[0].slice(3,4),10);return(myColor==='w'&&dr>=4)||(myColor==='b'&&dr<=5)});if(pp&&pp.rank!==1){candidate=pp;type='style'}}
-}else if(preset.filter==='aggressive'){
-const a=lines.find(l=>{const c=classifyMove(l.pv[0],game.fen());return c&&(c.capture||c.check||c.promotion)});if(a&&a.rank!==1){candidate=a;type='style'}
-}else if(preset.filter==='defensive'){
-const q=lines.find(l=>{if(l.rank>3)return false;const c=classifyMove(l.pv[0],game.fen());return c&&!c.capture&&!c.check});if(q&&q.rank!==1){candidate=q;type='style'}
-}else if(preset.filter==='chaotic'){
-if(lines.length>=2){const pick=lines[Math.floor(Math.random()*Math.min(3,lines.length))];candidate=pick;if(pick.rank!==1)type='style'}
-}else if(preset.filter==='flexible'){
-if(lines.length>=2){const bs=lines[0].scoreType==='cp'?lines[0].scoreValue:9999;const close=lines.filter(l=>{if(l.scoreType!=='cp'||lines[0].scoreType!=='cp')return false;return Math.abs(l.scoreValue-bs)<=30});if(close.length>1){const pick=close[Math.floor(Math.random()*close.length)];if(pick.rank!==1){candidate=pick;type='style'}}}
-}
+  if(Math.random()<blunderChance&&lines.length>=3){
+    const bad=lines.slice(2,Math.min(5,lines.length));if(bad.length){const pick=bad[Math.floor(Math.random()*bad.length)];return{move:pick.pv[0],type:'error'}}
+  }
 
-if(Math.random()<blunderChance&&lines.length>=3){
-const bad=lines.slice(2,Math.min(5,lines.length));if(bad.length){const pick=bad[Math.floor(Math.random()*bad.length)];return{move:pick.pv[0],type:'error'}}
-}
-
-return{move:candidate.pv[0],type};
+  return{move:candidate.pv[0],type};
 }
 
 function onBestMove(best){
-if(!analysisRunning)return;analysisRunning=false;
-if(!best||best==='(none)'){setStatus('no legal move','warn');return}
+  if(!analysisRunning)return;analysisRunning=false;
+  if(!best||best==='(none)'){setStatus('no legal move','warn');return}
 
-updateDesperadoBanner();checkResignCondition();
+  updateDesperadoBanner();
 
-const presetKey=selPreset.value;
-const decision=selectMove(best,presetKey);
+  const presetKey=selPreset.value;
+  const decision=selectMove(best,presetKey);
 
-// track perfect streak
-if(decision.type==='best'||decision.type==='opening'){perfectStreak++;}else{perfectStreak=0;}
+  if(decision.type==='best'||decision.type==='opening'){perfectStreak++}else{perfectStreak=0}
 
-chosenMoveUci=decision.move;
-drawArrow(chosenMoveUci);
-renderAnalysisOutput(chosenMoveUci,decision.type);
-startThinkTimer(decision.type,presetKey);
+  chosenMoveUci=decision.move;
+  drawArrow(chosenMoveUci);
+  renderAnalysisOutput(chosenMoveUci,decision.type);
 
-if(decision.type==='desperado'){banter('desperado',{force:true});desperadoBanner.classList.add('show')}
-if(isGambitPreset()&&decision.type==='opening'&&game.history().length<10)banter('gambit',{force:true});
-if(isBoaPreset()&&decision.type==='style')banter('boa',{force:true});
+  if(appMode==='trolls'){
+    const destSq=chosenMoveUci.slice(2,4);
+    const labels=[{txt:'⭐ BEST',cls:'best'},{txt:'✓ STRONG',cls:'best'},{txt:'🎯 TOP PICK',cls:'best'},{txt:'⭐ BEST',cls:'best'}];
+    const lbl=labels[Math.floor(Math.random()*labels.length)];
+    showMoveLabel(destSq,lbl.txt,lbl.cls);
+    setTimeout(()=>clearArrows(),2000);
+    const trollPool=Math.random()<0.5?BANTER.trollsBest:BANTER.trollsGood;
+    const comment=trollPool[Math.floor(Math.random()*trollPool.length)];
+    banterNameEl.textContent=PRESETS[selPreset.value].label;
+    banterEl.className='trolls';banterTxtEl.textContent=comment;lastBanterAt=Date.now();
+    setStatus('hint shown for 2s — play it now','ok');
+    return;
+  }
+
+  startThinkTimer(decision.type,presetKey);
+  if(decision.type==='desperado'){banter('desperado',{force:true});desperadoBanner.classList.add('show')}
+  if(isGambitPreset()&&decision.type==='opening'&&game.history().length<10)banter('gambit',{force:true});
+  if(isBoaPreset()&&decision.type==='style')banter('boa',{force:true});
 }
 
-// ─── TIMER v2: complexity + fatigue + sequence variation + forced move ───
 function startThinkTimer(type,presetKey){
-clearInterval(thinkTimerInterval);
-const preset=PRESETS[presetKey];
-const isOpening=game.history().length<10;
-const complexity=estimateComplexity(game.fen());
+  clearInterval(thinkTimerInterval);
+  const preset=PRESETS[presetKey];
+  const isOpening=game.history().length<10;
+  const complexity=estimateComplexity(game.fen());
 
-// ── base delay by phase ──
-let minMs,maxMs;
-if(isOpening){
-// opening: fast recall — 800ms to 2.2s
-minMs=800;maxMs=2200;
-}else if(type==='error'){
-// blunder: either impulsive or miscalculated
-if(Math.random()<0.5){minMs=600;maxMs=1500}else{minMs=4000;maxMs=7000}
-}else if(type==='desperado'){
-minMs=2500;maxMs=5000;
-}else{
-// normal move — scale by complexity
-if(complexity>0.65){minMs=3000;maxMs=7000}       // complex: think longer
-else if(complexity<0.3){minMs=700;maxMs=1800}    // simple: move faster
-else{minMs=1500;maxMs=4000}                      // medium
-}
+  let minMs,maxMs;
+  if(isOpening){minMs=800;maxMs=2200}
+  else if(type==='error'){if(Math.random()<0.5){minMs=600;maxMs=1500}else{minMs=4000;maxMs=7000}}
+  else if(type==='desperado'){minMs=2500;maxMs=5000}
+  else{if(complexity>0.65){minMs=3000;maxMs=7000}else if(complexity<0.3){minMs=700;maxMs=1800}else{minMs=1500;maxMs=4000}}
 
-// ── forced move detection: if only 1 legal move, play instantly ──
-try{
-const tmp=new Chess();tmp.load(game.fen());
-const legalCount=tmp.moves().length;
-if(legalCount<=1){minMs=300;maxMs=700}
-}catch(e){}
+  try{const tmp=new Chess();tmp.load(game.fen());const legalCount=tmp.moves().length;if(legalCount<=1){minMs=300;maxMs=700}}catch(e){}
 
-// ── fatigue: add ms as game progresses ──
-const fatigueExtra=Math.min(2500,moveNumber*80);
-minMs+=fatigueExtra;maxMs+=fatigueExtra;
+  const fatigueExtra=Math.min(2500,moveNumber*80);
+  minMs+=fatigueExtra;maxMs+=fatigueExtra;
+  if(moveNumber>40){const pressure=Math.min(0.6,(moveNumber-40)/60);minMs=Math.round(minMs*(1-pressure));maxMs=Math.round(maxMs*(1-pressure))}
 
-// ── clock awareness: simulate time pressure (if moveNumber > 40, shorten) ──
-if(moveNumber>40){
-const pressure=Math.min(0.6,(moveNumber-40)/60);
-minMs=Math.round(minMs*(1-pressure));
-maxMs=Math.round(maxMs*(1-pressure));
-}
+  let delay=humanDelay(minMs,maxMs);
+  if(recentTimings.length>=5){
+    const mean=recentTimings.reduce((a,b)=>a+b,0)/recentTimings.length;
+    const variance=recentTimings.reduce((a,b)=>a+Math.pow(b-mean,2),0)/recentTimings.length;
+    const stdDev=Math.sqrt(variance),cv=mean>0?stdDev/mean:0;
+    if(cv<0.35){if(Math.random()<0.5)delay=humanDelay(minMs*0.4,minMs*0.7);else delay=humanDelay(maxMs*1.2,maxMs*1.8)}
+  }
 
-// ── sequence variation: if recent timings too uniform, force outlier ──
-let delay=humanDelay(minMs,maxMs);
-if(recentTimings.length>=5){
-const mean=recentTimings.reduce((a,b)=>a+b,0)/recentTimings.length;
-const variance=recentTimings.reduce((a,b)=>a+Math.pow(b-mean,2),0)/recentTimings.length;
-const stdDev=Math.sqrt(variance),cv=mean>0?stdDev/mean:0;
-if(cv<0.35){
-// too uniform — force outlier (either very fast or very slow)
-if(Math.random()<0.5)delay=humanDelay(minMs*0.4,minMs*0.7);
-else delay=humanDelay(maxMs*1.2,maxMs*1.8);
-}
-}
+  delay=Math.min(MAX_THINK_SECONDS*1000,Math.max(250,delay));
+  recentTimings.push(delay);if(recentTimings.length>12)recentTimings.shift();
 
-// clamp
-delay=Math.min(MAX_THINK_SECONDS*1000,Math.max(250,delay));
+  const initialTime=Math.ceil(delay/1000);let timeLeft=initialTime;
 
-// track
-recentTimings.push(delay);
-if(recentTimings.length>12)recentTimings.shift();
+  if(chkAntiCheat.checked&&Math.random()>0.35){
+    const banterDelay=200+Math.random()*(delay*0.7);
+    setTimeout(()=>{if(thinkTimerInterval)banter('thinking',{force:true})},banterDelay);
+  }
 
-const initialTime=Math.ceil(delay/1000);
-let timeLeft=initialTime;
-
-// anti-cheat: occasional banter during think, at random moment
-if(chkAntiCheat.checked&&Math.random()>0.35){
-const banterDelay=200+Math.random()*(delay*0.7);
-setTimeout(()=>{if(thinkTimerInterval)banter('thinking',{force:true})},banterDelay);
-}
-
-const updateTimer=()=>{
-const perc=((initialTime-timeLeft)/initialTime)*100;
-updateEvalBarCss(perc);
-const san=pvToSan([chosenMoveUci],game.fen())[0]||chosenMoveUci;
-if(timeLeft>0){
-setStatus(`wait ${timeLeft}s — ${san}`,(type==='error'||type==='desperado')?'warn':'ok');
-timeLeft--;
-}else{
-setStatus(`play ${san} now`,'ok');
-clearInterval(thinkTimerInterval);thinkTimerInterval=null;updateEvalBarCss(50);
-}
-};
-updateTimer();
-thinkTimerInterval=setInterval(updateTimer,1000);
+  const updateTimer=()=>{
+    const perc=((initialTime-timeLeft)/initialTime)*100;
+    updateEvalBarCss(perc);
+    const san=pvToSan([chosenMoveUci],game.fen())[0]||chosenMoveUci;
+    if(timeLeft>0){setStatus(`wait ${timeLeft}s — ${san}`,(type==='error'||type==='desperado')?'warn':'ok');timeLeft--}
+    else{setStatus(`play ${san} now`,'ok');clearInterval(thinkTimerInterval);thinkTimerInterval=null;updateEvalBarCss(50)}
+  };
+  updateTimer();
+  thinkTimerInterval=setInterval(updateTimer,1000);
 }
 
 function pvToSan(pvUci,fromFen){
-if(!pvUci.length)return[];
-const tmp=new Chess();if(fromFen){try{tmp.load(fromFen)}catch(e){}}
-const out=[];
-for(const uci of pvUci){try{const m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||undefined});if(!m)break;out.push(m.san)}catch(e){break}}
-return out;
+  if(!pvUci.length)return[];
+  const tmp=new Chess();if(fromFen){try{tmp.load(fromFen)}catch(e){}}
+  const out=[];
+  for(const uci of pvUci){try{const m=tmp.move({from:uci.slice(0,2),to:uci.slice(2,4),promotion:uci.slice(4,5)||undefined});if(!m)break;out.push(m.san)}catch(e){break}}
+  return out;
 }
 
 function formatEval(type,value){
-if(type==='mate')return(value>0?'+M':'-M')+Math.abs(value);
-let v=value/100;if(game.turn()==='b')v=-v;return(v>0?'+':'')+v.toFixed(2);
+  if(type==='mate')return(value>0?'+M':'-M')+Math.abs(value);
+  let v=value/100;if(game.turn()==='b')v=-v;return(v>0?'+':'')+v.toFixed(2);
 }
 
 function renderAnalysisOutput(chosenUci,moveType){
-const fen=game.fen(),preset=PRESETS[selPreset.value];let html='';
-if(chosenUci){
-const san=pvToSan([chosenUci],fen)[0]||chosenUci;let tag,cls,icon;
-if(moveType==='error'){tag='Human error';cls='error';icon='⚠'}
-else if(moveType==='desperado'){tag='DESPERADO';cls='desperado';icon='🔥'}
-else if(moveType==='opening'){if(isGambitPreset()){tag=`Gambit (${preset.tag})`;cls='gambit';icon='⚔️'}else{tag=`Opening (${preset.tag})`;cls='opening';icon='📖'}}
-else if(moveType==='style'){tag=preset.tag;if(isBoaPreset()){cls='boa';icon='🐍'}else if(isUniversalPreset()){cls='universal';icon='🌐'}else if(isGambitPreset()){cls='gambit';icon='⚔️'}else{cls='style';icon='★'}}
-else{tag='Best move';cls='primary';icon='👑'}
-html+=`<div class="line-row ${cls}"><span class="line-rank">${icon}</span><span class="line-pv"><b style="font-size:1.2em">${san}</b> <span style="color:#888">(${tag})</span></span></div>`;
-}
-for(let i=1;i<=3;i++){
-const line=multiPV[i];if(!line)continue;if(line.pv[0]===chosenUci)continue;
-const san=pvToSan(line.pv,fen);if(!san.length)continue;
-html+=`<div class="line-row"><span class="line-rank">${i}</span><span class="line-pv"><b>${san[0]}</b> ${san.slice(1,6).join(' ')}</span><span class="line-eval">${formatEval(line.scoreType,line.scoreValue)}</span></div>`;
-}
-analysisEl.innerHTML=html||'<div class="line-row">no data</div>';
+  const fen=game.fen(),preset=PRESETS[selPreset.value];let html='';
+  if(chosenUci){
+    const san=pvToSan([chosenUci],fen)[0]||chosenUci;let tag,cls,icon;
+    if(moveType==='error'){tag='Human error';cls='error';icon='⚠'}
+    else if(moveType==='desperado'){tag='DESPERADO';cls='desperado';icon='🔥'}
+    else if(moveType==='opening'){if(isGambitPreset()){tag=`Gambit (${preset.tag})`;cls='gambit';icon='⚔️'}else{tag=`Opening (${preset.tag})`;cls='opening';icon='📖'}}
+    else if(moveType==='style'){tag=preset.tag;if(isBoaPreset()){cls='boa';icon='🐍'}else if(isUniversalPreset()){cls='universal';icon='🌐'}else if(isGambitPreset()){cls='gambit';icon='⚔️'}else{cls='style';icon='★'}}
+    else{tag=appMode==='trolls'?'BEST':'Best move';cls='primary';icon='👑'}
+    html+=`<div class="line-row ${cls}"><span class="line-rank">${icon}</span><span class="line-pv"><b style="font-size:1.2em">${san}</b> <span style="color:#888">(${tag})</span></span></div>`;
+  }
+  for(let i=1;i<=3;i++){
+    const line=multiPV[i];if(!line)continue;if(line.pv[0]===chosenUci)continue;
+    const san=pvToSan(line.pv,fen);if(!san.length)continue;
+    html+=`<div class="line-row"><span class="line-rank">${i}</span><span class="line-pv"><b>${san[0]}</b> ${san.slice(1,6).join(' ')}</span><span class="line-eval">${formatEval(line.scoreType,line.scoreValue)}</span></div>`;
+  }
+  analysisEl.innerHTML=html||'<div class="line-row">no data</div>';
 }
 
 function renderHistory(){
-const hist=game.history();if(!hist.length){historyEl.innerHTML='—';return}
-const parts=[];for(let i=0;i<hist.length;i+=2){const n=Math.floor(i/2)+1;const w=hist[i]||'';const b=hist[i+1]||'';parts.push(`<b>${n}.</b> ${w} ${b}`)}
-historyEl.innerHTML=parts.join('&nbsp;&nbsp;');
+  const hist=game.history();if(!hist.length){historyEl.innerHTML='—';return}
+  const parts=[];for(let i=0;i<hist.length;i+=2){const n=Math.floor(i/2)+1;const w=hist[i]||'';const b=hist[i+1]||'';parts.push(`<b>${n}.</b> ${w} ${b}`)}
+  historyEl.innerHTML=parts.join('&nbsp;&nbsp;');
 }
 
 async function startAnalysis(deep=false){
-if(gameOver()||resigned){setStatus('game over','warn');return}
-if(analysisRunning)return;
-const ready=await ensureEngine();
-if(!engineReady){if(!ready){setStatus('engine loading — try again','');return}}
-clearAnalysis();analysisRunning=true;resignBanner.classList.remove('show');
-if(multiPV[1])preMoveEval=getScoreFromPerspective(multiPV[1].scoreType,multiPV[1].scoreValue,game.turn());
-const preset=PRESETS[selPreset.value];
-setStatus('Stockfish thinking...','');analysisEl.innerHTML='<div class="line-row">thinking...</div>';
-try{
-engine.postMessage('setoption name MultiPV value 5');
-engine.postMessage('setoption name Threads value 2');
-engine.postMessage('setoption name Hash value 128');
-engine.postMessage('position fen '+game.fen());
-if(deep)engine.postMessage('go movetime 3000');
-else if(game.history().length<10)engine.postMessage('go movetime 300');
-else engine.postMessage('go movetime '+preset.movetime);
-}catch(e){setStatus('command failed','err');analysisRunning=false}
+  if(gameOver()||resigned){setStatus('game over','warn');return}
+  if(analysisRunning)return;
+  const ready=await ensureEngine();
+  if(!engineReady){if(!ready){setStatus('engine loading — try again','');return}}
+  clearAnalysis();analysisRunning=true;
+  if(multiPV[1])preMoveEval=getScoreFromPerspective(multiPV[1].scoreType,multiPV[1].scoreValue,game.turn());
+  const preset=PRESETS[selPreset.value];
+  setStatus('Stockfish thinking...','');analysisEl.innerHTML='<div class="line-row">thinking...</div>';
+  try{
+    engine.postMessage('setoption name MultiPV value 5');
+    engine.postMessage('setoption name Threads value 2');
+    engine.postMessage('setoption name Hash value 128');
+    engine.postMessage('position fen '+game.fen());
+    if(deep)engine.postMessage('go movetime 3000');
+    else if(appMode==='trolls')engine.postMessage('go depth 20');
+    else if(game.history().length<10)engine.postMessage('go movetime 300');
+    else engine.postMessage('go movetime '+preset.movetime);
+  }catch(e){setStatus('command failed','err');analysisRunning=false}
 }
 
 btnAnalyze.onclick=()=>startAnalysis(false);
 btnThink.onclick=()=>startAnalysis(true);
 
-btnUndo.onclick=()=>{if(!game.history().length)return;game.undo();clearAnalysis();selectedSq=null;legalDests=new Set();const hist=game.history({verbose:true});lastMove=hist.length?{from:hist[hist.length-1].from,to:hist[hist.length-1].to}:null;resignDismissed=false;resigned=false;resignBanner.classList.remove('show');desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();banter('idle',{force:true})};
+btnUndo.onclick=()=>{if(!game.history().length)return;game.undo();clearAnalysis();selectedSq=null;legalDests=new Set();const hist=game.history({verbose:true});lastMove=hist.length?{from:hist[hist.length-1].from,to:hist[hist.length-1].to}:null;resignDismissed=false;resigned=false;desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();banter(appMode==='trolls'?'trollsIdle':'idle',{force:true})};
 
-btnReset.onclick=()=>{game.reset();clearAnalysis();selectedSq=null;legalDests=new Set();lastMove=null;resignDismissed=false;resigned=false;recentTimings=[];perfectStreak=0;moveNumber=0;resignBanner.classList.remove('show');desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();if(isGambitPreset())banter('gambit',{force:true});else if(isBoaPreset())banter('boa',{force:true});else if(isUniversalPreset())banter('universal',{force:true});else banter('opening',{force:true})};
+btnReset.onclick=()=>{game.reset();clearAnalysis();selectedSq=null;legalDests=new Set();lastMove=null;resignDismissed=false;resigned=false;recentTimings=[];perfectStreak=0;moveNumber=0;desperadoBanner.classList.remove('show');renderBoard();renderHistory();updateStatus();if(appMode==='trolls')banter('trollsIdle',{force:true});else if(isGambitPreset())banter('gambit',{force:true});else if(isBoaPreset())banter('boa',{force:true});else if(isUniversalPreset())banter('universal',{force:true});else banter('opening',{force:true})};
 
 btnFlip.onclick=()=>{flipped=!flipped;renderBoard();clearArrows()};
 
-function init(){renderBoard();renderHistory();updateStatus();updateBanners();if(isGambitPreset())banter('gambit',{force:true});else if(isBoaPreset())banter('boa',{force:true});else if(isUniversalPreset())banter('universal',{force:true});else banter('opening',{force:true})}
+function init(){renderBoard();renderHistory();updateStatus();setAppMode('cheat');banter('opening',{force:true})}
 init();
 })();
 </script>
