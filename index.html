@@ -3,27 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kibitz — Fast + Badges</title>
+<title>Kibitz — Stealth Mode</title>
 <script src="https://cdn.jsdelivr.net/npm/chess.js@0.10.3/chess.min.js"></script>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;padding:10px;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#0f0f10;color:#eaeaea;max-width:520px;margin:auto;display:flex;flex-direction:column;gap:10px}
   h1{font-size:17px;font-weight:700;margin:4px 0 0;text-align:center;letter-spacing:.5px}h1 span{color:#5cd88e}
   .subtitle{font-size:11px;color:#777;text-align:center;margin-top:-4px}
+  
+  /* PANIC BUTTON */
+  .panic-btn{background:#5c2020;color:#fff;border:1px solid #ff6b6b;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+  .panic-btn:active{background:#ff4444;transform:scale(0.98)}
+
   .mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#17181a;padding:4px;border-radius:12px;border:1px solid #222}
   .mode-btn{padding:11px 8px;border:0;border-radius:9px;background:transparent;color:#888;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
   .mode-btn.active{background:#2a2a2c;color:#fff}
   .mode-btn.cheat.active{background:#1f6b3f;color:#fff}
   .mode-btn.trolls.active{background:linear-gradient(135deg,#6b1a6b,#3a1a6b);color:#fff}
+
   #status{font-size:13px;text-align:center;padding:10px 12px;border-radius:10px;background:#17181a;color:#a8a8a8;min-height:44px;display:flex;align-items:center;justify-content:center;font-weight:500;line-height:1.4}
   #status.ok{color:#5cd88e;background:#10231a}#status.err{color:#ff6b6b;background:#2a1414}#status.warn{color:#ffd84d;background:#262010}
+
   #desperadoBanner{background:linear-gradient(135deg,#2a1040,#5c1a1a);border:1px solid #b04aff;border-radius:10px;padding:10px 14px;display:none;align-items:center;gap:10px}
   #desperadoBanner.show{display:flex}#desperadoBanner .d-icon{font-size:20px}#desperadoBanner .d-text{flex:1;font-size:12px;color:#e0c4ff;line-height:1.4}#desperadoBanner .d-text strong{color:#b04aff;display:block;font-size:13px;margin-bottom:2px}
+
   #banter{background:#1a1a1c;border:1px solid #2f2f33;border-left:3px solid #5cd88e;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;color:#d0d0d0;min-height:42px;display:flex;align-items:center;gap:8px;transition:opacity .3s}
   #banter .name{font-weight:700;color:#5cd88e;font-size:11px;text-transform:uppercase;letter-spacing:.8px;flex-shrink:0}#banter .txt{flex:1}
   #banter.thinking .name{color:#ffd84d}#banter.angry .name{color:#ff6b6b}#banter.angry{border-left-color:#ff6b6b}#banter.pleased .name{color:#5cd88e}
   #banter.trolls{border-left-color:#b04aff}#banter.trolls .name{color:#b04aff}
   #banter.dots .txt::after{content:'';animation:dots 1.4s steps(4,end) infinite}@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%{content:'...'}100%{content:''}}
+
   .board-wrap{position:relative;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;user-select:none;-webkit-user-select:none;box-shadow:0 4px 12px rgba(0,0,0,.5);touch-action:none}
   .board{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr)}
   .cell{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .12s}
@@ -33,46 +42,141 @@
   .piece.w{color:#fff;-webkit-text-stroke:1.5px #1a1a1a;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}.piece.b{color:#1a1a1a;-webkit-text-stroke:1.5px #fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
   #arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
   #cursorSim{position:absolute;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.4);border:2px solid rgba(0,0,0,.5);pointer-events:none;z-index:6;transform:translate(-50%,-50%);transition:opacity .2s;opacity:0}
+  
   .move-badge{position:absolute;transform:translate(-50%,-50%);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;z-index:25;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.2);animation:badgePop 2.8s ease-out forwards;font-family:-apple-system,system-ui,sans-serif}
-  .move-badge.brilliant{background:linear-gradient(135deg,#26c2a3,#1fa889);font-size:12px}
-  .move-badge.great{background:linear-gradient(135deg,#749bbf,#5a7fa3);font-size:14px}
-  .move-badge.best{background:linear-gradient(135deg,#81b64c,#6c9a3e);font-size:14px}
-  .move-badge.excellent{background:linear-gradient(135deg,#96bc4b,#7da03a);font-size:11px}
-  .move-badge.good{background:linear-gradient(135deg,#96bc4b,#7da03a);font-size:13px}
-  .move-badge.inaccuracy{background:linear-gradient(135deg,#f7c631,#e0b020);color:#000;font-size:13px}
-  .move-badge.mistake{background:linear-gradient(135deg,#ffa459,#e88a3a);font-size:14px}
-  .move-badge.blunder{background:linear-gradient(135deg,#fa412d,#d93220);font-size:13px}
+  .move-badge.brilliant{background:linear-gradient(135deg,#26c2a3,#1fa889);font-size:12px}.move-badge.great{background:linear-gradient(135deg,#749bbf,#5a7fa3);font-size:14px}.move-badge.best{background:linear-gradient(135deg,#81b64c,#6c9a3e);font-size:14px}.move-badge.excellent{background:linear-gradient(135deg,#96bc4b,#7da03a);font-size:11px}.move-badge.good{background:linear-gradient(135deg,#96bc4b,#7da03a);font-size:13px}.move-badge.inaccuracy{background:linear-gradient(135deg,#f7c631,#e0b020);color:#000;font-size:13px}.move-badge.mistake{background:linear-gradient(135deg,#ffa459,#e88a3a);font-size:14px}.move-badge.blunder{background:linear-gradient(135deg,#fa412d,#d93220);font-size:13px}
   @keyframes badgePop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}30%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
+
   .move-label{position:absolute;transform:translate(-50%,-50%);padding:6px 12px;background:rgba(0,0,0,.92);border-radius:8px;font-weight:800;font-size:13px;z-index:20;pointer-events:none;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.5);animation:labelPop 2.5s ease-out forwards;letter-spacing:.5px}
   .move-label.best{color:#5cd88e;border:2px solid #5cd88e}.move-label.good{color:#ffd84d;border:2px solid #ffd84d}.move-label.bad{color:#ff6b6b;border:2px solid #ff6b6b}
   @keyframes labelPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}25%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+
   .settings-box{background:#17181a;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:12px;border:1px solid #222}
   .setting-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:#ccc;gap:10px}.setting-row label{font-size:12px;color:#888;min-width:90px}
   input[type="range"]{flex:1;accent-color:#5cd88e}
   select{flex:1;background:#0f0f10;color:#eaeaea;border:1px solid #333;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:600;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23888'/></svg>");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
   .toggle-row{display:flex;align-items:center;gap:6px;font-size:11px;color:#aaa}.toggle-row input{accent-color:#5cd88e;transform:scale(1.1)}.toggle-row.disabled{opacity:.35}
+  
   .eval-row{display:flex;align-items:center;gap:10px;background:#17181a;border-radius:10px;padding:10px 12px}
   .eval-bar{flex:1;height:10px;border-radius:5px;background:#1a1a1a;overflow:hidden;position:relative}#evalText{font-family:ui-monospace,Menlo,monospace;font-size:13px;font-weight:700;min-width:56px;text-align:right;color:#eaeaea}
   .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn-row.three{grid-template-columns:1fr 1fr 1fr}
   button{padding:13px 8px;border:0;border-radius:10px;background:#2a2a2c;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .12s}button:disabled{opacity:.35;cursor:default}
   button.primary{background:#1f6b3f}button.trolls-primary{background:linear-gradient(135deg,#6b1a6b,#3a1a6b)}button.secondary{background:#333;font-size:13px}button.danger{background:#5c2020;font-size:13px}
+
   #analysisOutput{background:#17181a;border-radius:10px;padding:4px;min-height:60px}
   .line-row{display:flex;align-items:baseline;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px}
   .line-row.primary{background:#10231a;font-size:15px;border:1px solid #1f6b3f}.line-row.error{background:#2a1f14;border:1px solid #6b4f1f}.line-row.style{background:#1a1530;border:1px solid #4a3f8a}.line-row.opening{background:#102323;border:1px solid #1f6b6b}.line-row.desperado{background:#1f102a;border:1px solid #b04aff}.line-row.gambit{background:#2a1f0f;border:1px solid #ffb347;font-size:15px}.line-row.boa{background:#0f2523;border:1px solid #3ad8c4}.line-row.universal{background:#0f1a2a;border:1px solid #6ba3ff}
   .line-rank{font-weight:700;color:#5cd88e;min-width:20px;font-family:ui-monospace,monospace;text-align:center}.line-row.desperado .line-rank{color:#b04aff}.line-row.gambit .line-rank{color:#ffb347}.line-row.boa .line-rank{color:#3ad8c4}.line-row.universal .line-rank{color:#6ba3ff}
   .line-eval{font-family:ui-monospace,Menlo,monospace;font-weight:700;color:#5cd88e;min-width:56px;text-align:right}.line-pv{font-family:ui-monospace,monospace;color:#999;font-size:11px;flex:1;word-break:break-all}.line-pv b{color:#eaeaea;font-weight:700}
+  
   .move-history{font-family:ui-monospace,monospace;font-size:12px;background:#17181a;border-radius:10px;padding:8px 12px;color:#888;max-height:90px;overflow-y:auto;line-height:1.7}.move-history b{color:#5cd88e}
   .footer-note{font-size:11px;color:#666;text-align:center;padding:4px;line-height:1.5}
+
+  /* ═══════════════════════════════════════════════
+     PANIC SCREEN (CAMOUFLAGE) - FAKE CHESS.COM
+     ═══════════════════════════════════════════════ */
+  #panicScreen {
+    display: none; position: fixed; inset: 0; z-index: 99999;
+    background: #312e2b; color: #eaeaea; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    flex-direction: column; overflow: hidden;
+  }
+  #panicScreen.active { display: flex; }
+  .pc-header { background: #262421; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid #3d3a36; }
+  .pc-logo { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -1px; }
+  .pc-logo span { color: #81b64c; }
+  .pc-header-right { display: flex; gap: 12px; font-size: 14px; color: #999; }
+  .pc-body { display: flex; flex: 1; overflow: hidden; }
+  .pc-sidebar { width: 260px; background: #21201d; border-right: 1px solid #3d3a36; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .pc-tab { background: #312e2b; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #b8b8b8; display: flex; align-items: center; gap: 8px; }
+  .pc-tab.active { background: #3d3a36; color: #fff; }
+  .pc-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; background: #262421; }
+  
+  .pc-players { width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+  .pc-player { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .pc-avatar { width: 36px; height: 36px; border-radius: 4px; background: #555; }
+  .pc-name { font-weight: 600; color: #eaeaea; }
+  .pc-rating { color: #999; font-size: 12px; }
+  .pc-clock { background: #1a1a1a; padding: 6px 14px; border-radius: 4px; font-family: monospace; font-size: 18px; font-weight: 700; color: #eaeaea; border: 1px solid #444; }
+  
+  .pc-fake-board { width: 100%; max-width: 600px; aspect-ratio: 1; border-radius: 4px; margin: 10px 0; box-shadow: 0 0 0 4px #1c1b19, 0 10px 20px rgba(0,0,0,.5); position: relative; overflow: hidden; }
+  .pc-fake-grid { display: grid; grid-template-columns: repeat(8,1fr); grid-template-rows: repeat(8,1fr); width: 100%; height: 100%; }
+  .pc-fake-cell { display: flex; align-items: center; justify-content: center; }
+  .pc-fake-cell.light { background: #ebecd0; }
+  .pc-fake-cell.dark { background: #739552; }
+  .pc-fake-piece { font-size: min(8vw, 50px); line-height: 1; color: #fff; -webkit-text-stroke: 1.5px #000; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); pointer-events: none; }
+  .pc-fake-piece.b { color: #000; -webkit-text-stroke: 1.5px #fff; }
+  
+  .pc-controls { width: 100%; max-width: 600px; display: flex; justify-content: space-between; align-items: center; }
+  .pc-btns { display: flex; gap: 8px; }
+  .pc-btn { background: #3d3a36; border: none; color: #fff; padding: 10px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .pc-btn:hover { background: #4d4a46; }
+  .pc-btn.primary { background: #81b64c; color: #1a1a1a; }
+  .pc-btn.primary:hover { background: #96cc58; }
+  .pc-hint { font-size: 13px; color: #888; text-align: center; margin-top: 8px; }
 </style>
 </head>
 <body>
 
+<!-- PANIC SCREEN -->
+<div id="panicScreen">
+  <div class="pc-header">
+    <div class="pc-logo">chess<span>.com</span></div>
+    <div class="pc-header-right">
+      <span>Play</span><span>Learn</span><span>Train</span><span>News</span>
+    </div>
+  </div>
+  <div class="pc-body">
+    <div class="pc-sidebar">
+      <div class="pc-tab active">⚡ Play</div>
+      <div class="pc-tab">📂 Library</div>
+      <div class="pc-tab">👁️ Watch</div>
+      <div class="pc-tab">📊 Stats</div>
+      <div style="margin-top:auto; padding:12px; background:#1a1a1a; border-radius:8px; font-size:12px; color:#888;">
+        <strong style="color:#fff">Playing with a friend</strong><br>
+        Match ID: #8F2K9<br>
+        Time: 10 min rapid
+      </div>
+    </div>
+    <div class="pc-main">
+      <div class="pc-players">
+        <div class="pc-player">
+          <div class="pc-avatar" style="background:linear-gradient(135deg,#555,#333)"></div>
+          <div><div class="pc-name">Friend_1029</div><div class="pc-rating">(1284)</div></div>
+        </div>
+        <div class="pc-clock">9:42</div>
+      </div>
+      
+      <div class="pc-fake-board">
+        <div class="pc-fake-grid" id="pcFakeGrid"></div>
+      </div>
+
+      <div class="pc-players">
+        <div class="pc-player">
+          <div class="pc-avatar" style="background:linear-gradient(135deg,#81b64c,#5a8030)"></div>
+          <div><div class="pc-name">You</div><div class="pc-rating">(1247)</div></div>
+        </div>
+        <div class="pc-clock" style="background:#81b64c; color:#1a1a1a; border-color:#81b64c;">9:58</div>
+      </div>
+
+      <div class="pc-controls">
+        <div class="pc-btns">
+          <div class="pc-btn">🤝 Draw</div>
+          <div class="pc-btn">🏳️ Resign</div>
+        </div>
+        <div class="pc-btn primary">Make Move</div>
+      </div>
+      <div class="pc-hint">Tap the screen twice to return (or press Escape)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ORIGINAL APP -->
 <h1>Kibitz</h1>
 <div class="subtitle" id="subtitle">Cheat Mode • chess.com</div>
-
-<div class="mode-toggle">
-  <button id="modeCheat" class="mode-btn cheat active">🎯 Cheat</button>
-  <button id="modeTrolls" class="mode-btn trolls">😈 Friend Trolls</button>
+<div style="display:flex;gap:8px;margin-bottom:4px;">
+  <button id="modeCheat" class="mode-btn cheat active" style="flex:1">🎯 Cheat</button>
+  <button id="modeTrolls" class="mode-btn trolls" style="flex:1">😈 Friend Trolls</button>
+  <button id="btnPanic" class="panic-btn" style="flex:0 0 auto; width:44px;" title="Panic (Esc)">🚨</button>
 </div>
 
 <div id="desperadoBanner"><div class="d-icon">🔥</div><div class="d-text"><strong>Desperado Mode</strong>เสียเปรียบหนัก — บุกแหลก</div></div>
@@ -105,6 +209,7 @@
     <div class="toggle-row" id="rowAnti"><input type="checkbox" id="chkAntiCheat" checked> Anti</div>
     <div class="toggle-row" id="rowCoach"><input type="checkbox" id="chkCoach" checked> Coach</div>
     <div class="toggle-row" id="rowBadges"><input type="checkbox" id="chkBadges" checked> Badge</div>
+    <div class="toggle-row"><input type="checkbox" id="chkAudio" checked> 🎧 Audio</div>
   </div>
 </div>
 
@@ -118,11 +223,16 @@
 <script>
 (()=>{
 'use strict';
-const MAX_THINK_SECONDS=4; // ลดลงเหลือ 4 วิ
+const MAX_THINK_SECONDS=4;
 const RESIGN_EVAL_THRESHOLD=-600;
 const DESPERADO_EVAL_THRESHOLD=-200;
 const RESIGN_LATE_GAME_MOVES=30;
 const RESIGN_LATE_GAME_PIECES=16;
+
+// AUDIO & PANIC STATE
+let audioWhisperEnabled=true;
+let panicActive=false;
+const synth = window.speechSynthesis;
 
 const PRESETS={
 carlsen:{label:'Magnus',movetime:400,filter:'flexible',openings:['e4','c4','Nf3','d4'],timerMin:1,timerMax:2,blunderMult:0.4,tag:'Carlsen'},
@@ -178,10 +288,126 @@ let recentTimings=[],perfectStreak=0,moveNumber=0;
 let classificationInFlight=false;
 
 const boardEl=document.getElementById('board'),arrowsEl=document.getElementById('arrows'),statusEl=document.getElementById('status'),evalTextEl=document.getElementById('evalText'),evalBarEl=document.getElementById('evalBar'),analysisEl=document.getElementById('analysisOutput'),historyEl=document.getElementById('moveHistory'),subtitle=document.getElementById('subtitle'),banterEl=document.getElementById('banter'),banterNameEl=banterEl.querySelector('.name'),banterTxtEl=banterEl.querySelector('.txt'),cursorSim=document.getElementById('cursorSim'),desperadoBanner=document.getElementById('desperadoBanner'),footerNote=document.getElementById('footerNote');
-const btnAnalyze=document.getElementById('btnAnalyze'),btnThink=document.getElementById('btnThink'),btnUndo=document.getElementById('btnUndo'),btnFlip=document.getElementById('btnFlip'),btnReset=document.getElementById('btnReset');
-const selSide=document.getElementById('selSide'),selPreset=document.getElementById('selPreset'),rngBlunder=document.getElementById('rngBlunder'),lblBlunder=document.getElementById('lblBlunder'),chkOpenings=document.getElementById('chkOpenings'),chkAntiCheat=document.getElementById('chkAntiCheat'),chkCoach=document.getElementById('chkCoach'),chkBadges=document.getElementById('chkBadges');
+const btnAnalyze=document.getElementById('btnAnalyze'),btnThink=document.getElementById('btnThink'),btnUndo=document.getElementById('btnUndo'),btnFlip=document.getElementById('btnFlip'),btnReset=document.getElementById('btnReset'),btnPanic=document.getElementById('btnPanic');
+const selSide=document.getElementById('selSide'),selPreset=document.getElementById('selPreset'),rngBlunder=document.getElementById('rngBlunder'),lblBlunder=document.getElementById('lblBlunder'),chkOpenings=document.getElementById('chkOpenings'),chkAntiCheat=document.getElementById('chkAntiCheat'),chkCoach=document.getElementById('chkCoach'),chkBadges=document.getElementById('chkBadges'),chkAudio=document.getElementById('chkAudio');
 const modeCheat=document.getElementById('modeCheat'),modeTrolls=document.getElementById('modeTrolls');
 const rowBlunder=document.getElementById('rowBlunder'),rowAnti=document.getElementById('rowAnti'),rowCoach=document.getElementById('rowCoach'),rowOpenings=document.getElementById('rowOpenings');
+const panicScreen=document.getElementById('panicScreen');
+
+// ═══════════════════════════════════════════════
+// AUDIO WHISPER (TEXT-TO-SPEECH)
+// ═══════════════════════════════════════════════
+function speakMove(uci) {
+  if(!audioWhisperEnabled || !synth) return;
+  
+  let textToSpeak = '';
+  const from = uci.slice(0, 2);
+  const to = uci.slice(2, 4);
+  
+  // ตรวจสอบชิ้นหมากก่อนเดิน
+  const piece = game.get(from);
+  if (!piece) return;
+  
+  const pieceNames = { p: 'Pawn', n: 'Knight', b: 'Bishop', r: 'Rook', q: 'Queen', k: 'King' };
+  const pieceName = pieceNames[piece.type] || 'Piece';
+  
+  // ตรวจสอบว่ามีการกินหมากไหม
+  const target = game.get(to);
+  const isCapture = target !== null && target.color !== piece.color;
+  
+  // อ่านพิกัดเป็นตัวอักษร (เช่น a, b, c) และตัวเลข
+  const fileSpeak = { a: 'A', b: 'B', c: 'C', d: 'D', e: 'E', f: 'F', g: 'G', h: 'H' };
+  const toFile = fileSpeak[to[0]] || to[0];
+  const toRank = to[1];
+  
+  if (isCapture) {
+    textToSpeak = `${pieceName} takes ${toFile} ${toRank}`;
+  } else {
+    textToSpeak = `${pieceName} to ${toFile} ${toRank}`;
+  }
+  
+  // Special moves (Castling)
+  const pColor = piece.color;
+  if (piece.type === 'k' && Math.abs(from.charCodeAt(0) - to.charCodeAt(0)) === 2) {
+    textToSpeak = to[0] === 'g' ? 'Castle kingside' : 'Castle queenside';
+  }
+
+  // Cancels any ongoing speech before speaking
+  synth.cancel();
+  const utterance = new SpeechSynthesisUtterance(textToSpeak);
+  utterance.lang = 'en-US';
+  utterance.rate = 1.1; // Slightly faster for natural feel
+  utterance.pitch = 0.9; // Slightly lower pitch (spy vibe)
+  utterance.volume = 1;
+  synth.speak(utterance);
+}
+
+// ═══════════════════════════════════════════════
+// PANIC SCREEN (CAMOUFLAGE)
+// ═══════════════════════════════════════════════
+function generateFakeBoard() {
+  const grid = document.getElementById('pcFakeGrid');
+  grid.innerHTML = '';
+  const startingBoard = [
+    ['r','n','b','q','k','b','n','r'],
+    ['p','p','p','p','p','p','p','p'],
+    ['','','','','','','',''],
+    ['','','','','','','',''],
+    ['','','','','','','',''],
+    ['','','','','','','',''],
+    ['P','P','P','P','P','P','P','P'],
+    ['R','N','B','Q','K','B','N','R']
+  ];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'pc-fake-cell ' + ((r + c) % 2 === 0 ? 'light' : 'dark');
+      const p = startingBoard[r][c];
+      if (p) {
+        const span = document.createElement('span');
+        const isWhite = p === p.toUpperCase();
+        span.className = 'pc-fake-piece ' + (isWhite ? 'w' : 'b');
+        span.textContent = GLYPH[isWhite ? 'w' : 'b'][p.toLowerCase()];
+        cell.appendChild(span);
+      }
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function togglePanic() {
+  panicActive = !panicActive;
+  if (panicActive) {
+    generateFakeBoard();
+    panicScreen.classList.add('active');
+    // ปิดเสียงถ้ากำลังพูดอยู่
+    if(synth) synth.cancel();
+  } else {
+    panicScreen.classList.remove('active');
+  }
+}
+
+btnPanic.onclick = togglePanic;
+
+// กด Esc เพื่อเปิด/ปิด Panic
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') togglePanic();
+});
+
+// Double tap to exit panic screen
+let lastTap = 0;
+panicScreen.addEventListener('click', (e) => {
+  const now = Date.now();
+  const timesince = now - lastTap;
+  if (timesince < 300 && timesince > 0) {
+    togglePanic();
+  }
+  lastTap = now;
+});
+
+// ═══════════════════════════════════════════════
+// LOGIC
+// ═══════════════════════════════════════════════
 
 function setAppMode(m){
   appMode=m;
@@ -198,6 +424,11 @@ function setAppMode(m){
   }
 }
 modeCheat.onclick=()=>setAppMode('cheat');modeTrolls.onclick=()=>setAppMode('trolls');
+
+chkAudio.addEventListener('change', (e) => {
+  audioWhisperEnabled = e.target.checked;
+  if(!audioWhisperEnabled && synth) synth.cancel();
+});
 
 function banter(cat,opts={}){
   if(Date.now()-lastBanterAt<1000&&!opts.force)return;lastBanterAt=Date.now();
@@ -249,7 +480,7 @@ function renderBoard(){
 }
 
 function onCellClick(sq){
-  if(gameOver()||resigned)return;
+  if(gameOver()||resigned||panicActive)return;
   if(selectedSq&&legalDests.has(sq)){attemptMove(selectedSq,sq);return}
   const piece=game.get(sq);
   if(piece&&piece.color===game.turn()){selectedSq=sq;legalDests=new Set();try{const moves=game.moves({square:sq,verbose:true})||[];moves.forEach(m=>legalDests.add(m.to))}catch(e){}renderBoard()}
@@ -367,9 +598,6 @@ function countMaterial(fen,color){
   }catch(e){return 0}
 }
 
-// ═══════════════════════════════════════════════
-// BADGE ENGINE (SEPARATE WORKER)
-// ═══════════════════════════════════════════════
 function evalPositionQuick(fen,timeoutMs=400){
   if(!badgeReady)return Promise.resolve(null);
   return new Promise(resolve=>{
@@ -384,7 +612,7 @@ function evalPositionQuick(fen,timeoutMs=400){
     };
     badgeEngine.addEventListener('message',handler);
     badgeEngine.postMessage('position fen '+fen);
-    badgeEngine.postMessage('go depth 8'); // เร็วมาก
+    badgeEngine.postMessage('go depth 8');
     setTimeout(()=>{if(!resolved){resolved=true;resolve(lastScore)}},timeoutMs);
   });
 }
@@ -448,11 +676,9 @@ async function ensureEngine(){
     const resp=await fetch(url);if(!resp.ok)throw new Error('HTTP '+resp.status);
     const code=await resp.text();const blob=new Blob([code],{type:'application/javascript'});
     
-    // Engine หลัก
     engine=new Worker(URL.createObjectURL(blob));engine.onmessage=onEngineMsg;engine.onerror=err=>{setStatus('engine error','err');engineLoading=false;engineReady=false};
     engine.postMessage('uci');engine.postMessage('isready');
 
-    // Engine สำหรับ Badge (แยกออกมา ไม่แย่งคิว)
     badgeEngine=new Worker(URL.createObjectURL(blob));
     badgeEngine.onmessage=(e)=>{
       const line=typeof e.data==='string'?e.data:'';
@@ -568,7 +794,13 @@ function onBestMove(best){
   updateDesperadoBanner();
   const presetKey=selPreset.value;const decision=selectMove(best,presetKey);
   if(decision.type==='best'||decision.type==='opening'){perfectStreak++}else{perfectStreak=0}
-  chosenMoveUci=decision.move;drawArrow(chosenMoveUci);renderAnalysisOutput(chosenMoveUci,decision.type);
+  chosenMoveUci=decision.move;
+  drawArrow(chosenMoveUci);
+  renderAnalysisOutput(chosenMoveUci,decision.type);
+
+  // 🔊 AUDIO WHISPER
+  speakMove(chosenMoveUci);
+
   if(appMode==='trolls'){
     const destSq=chosenMoveUci.slice(2,4);const labels=[{txt:'⭐ BEST',cls:'best'},{txt:'✓ STRONG',cls:'best'},{txt:'🎯 TOP PICK',cls:'best'},{txt:'⭐ BEST',cls:'best'}];
     const lbl=labels[Math.floor(Math.random()*labels.length)];showMoveLabel(destSq,lbl.txt,lbl.cls);
@@ -593,7 +825,6 @@ function startThinkTimer(type,presetKey){
   else if(type==='desperado'){minMs=1000;maxMs=2000}
   else{if(complexity>0.65){minMs=1000;maxMs=2500}else if(complexity<0.3){minMs=400;maxMs=900}else{minMs=700;maxMs=1800}}
   try{const tmp=new Chess();tmp.load(game.fen());const legalCount=tmp.moves().length;if(legalCount<=1){minMs=200;maxMs=500}}catch(e){}
-  // ลด fatigue ลง
   const fatigueExtra=Math.min(1000,moveNumber*20);minMs+=fatigueExtra;maxMs+=fatigueExtra;
   if(moveNumber>40){const pressure=Math.min(0.3,(moveNumber-40)/60);minMs=Math.round(minMs*(1-pressure));maxMs=Math.round(maxMs*(1-pressure))}
   let delay=humanDelay(minMs,maxMs);
@@ -663,7 +894,7 @@ async function startAnalysis(deep=false){
     engine.postMessage('setoption name Hash value 128');
     engine.postMessage('position fen '+game.fen());
     if(deep)engine.postMessage('go movetime 2000');
-    else if(appMode==='trolls')engine.postMessage('go movetime 600'); // ลดจาก depth 20 เหลือ 600ms
+    else if(appMode==='trolls')engine.postMessage('go movetime 600');
     else if(game.history().length<10)engine.postMessage('go movetime 200');
     else engine.postMessage('go movetime '+preset.movetime);
   }catch(e){setStatus('command failed','err');analysisRunning=false}
@@ -677,7 +908,11 @@ btnReset.onclick=()=>{game.reset();clearAnalysis();selectedSq=null;legalDests=ne
 
 btnFlip.onclick=()=>{flipped=!flipped;renderBoard();clearArrows()};
 
-function init(){renderBoard();renderHistory();updateStatus();setAppMode('cheat');banter('opening',{force:true})}
+function init(){
+  renderBoard();renderHistory();updateStatus();setAppMode('cheat');banter('opening',{force:true});
+  // ตั้งค่าเริ่มต้นเสียง
+  audioWhisperEnabled = chkAudio.checked;
+}
 init();
 })();
 </script>
